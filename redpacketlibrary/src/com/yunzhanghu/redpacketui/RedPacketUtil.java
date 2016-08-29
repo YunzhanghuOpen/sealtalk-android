@@ -23,7 +23,6 @@ import com.yunzhanghu.redpacketui.provider.RongNotificationMessageProvider;
 import com.yunzhanghu.redpacketui.provider.RongRedPacketMessageProvider;
 import com.yunzhanghu.redpacketui.ui.activity.RPChangeActivity;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import io.rong.imkit.RongIM;
@@ -75,7 +74,7 @@ public class RedPacketUtil implements Response.Listener<JSONObject>, Response.Er
     public TokenData getTokenData() {
         if (mTokenData == null) {
             mTokenData = new TokenData();
-            mTokenData.appUserId=userID;
+            mTokenData.appUserId = userID;
         }
         return mTokenData;
     }
@@ -121,9 +120,7 @@ public class RedPacketUtil implements Response.Listener<JSONObject>, Response.Er
      */
     public void insertMessage(Message message) {
         RongEmptyMessage content = (RongEmptyMessage) message.getContent();
-        if (TextUtils.isEmpty(userID)) {
-            userID = "default";
-        }
+        userID = RongIM.getInstance().getCurrentUserId();
         RongNotificationMessage rongNotificationMessage = RongNotificationMessage.obtain(content.getSendUserID(), content.getSendUserName(), content.getReceiveUserID(), content.getReceiveUserName(), content.getIsOpenMoney());
         if (content.getSendUserID().equals(userID)) {//如果当前用户是发送红包者,插入一条"XX领取了你的红包"
             RongIM.getInstance().getRongIMClient().insertMessage(message.getConversationType(), message.getTargetId(), content.getReceiveUserID(), rongNotificationMessage, null);
@@ -201,25 +198,19 @@ public class RedPacketUtil implements Response.Listener<JSONObject>, Response.Er
     @Override
     public void onResponse(JSONObject jsonObject) {
         if (jsonObject != null && jsonObject.length() > 0) {
-            try {
-                String partner = jsonObject.getString("partner");
-                String userId = jsonObject.getString("user_id");
-                String timestamp = jsonObject.getString("timestamp");
-                String sign = jsonObject.getString("sign");
-                //保存红包Token
-                if (mTokenData == null){
-                    mTokenData = new TokenData();
-                }
-                mTokenData.authPartner = partner;
-                mTokenData.appUserId = userId;
-                mTokenData.timestamp = timestamp;
-                mTokenData.authSign = sign;
-                mRPValueCallback.onSuccess(mTokenData);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                mRPValueCallback.onError(e.getMessage(), e.getMessage());
+            String partner = jsonObject.optString("partner");
+            String userId = jsonObject.optString("user_id");
+            String timestamp = jsonObject.optString("timestamp");
+            String sign = jsonObject.optString("sign");
+            //保存红包Token
+            if (mTokenData == null) {
+                mTokenData = new TokenData();
             }
-
+            mTokenData.authPartner = partner;
+            mTokenData.appUserId = userId;
+            mTokenData.timestamp = timestamp;
+            mTokenData.authSign = sign;
+            mRPValueCallback.onSuccess(mTokenData);
         } else {
             mRPValueCallback.onError("", "sign data is  null");
         }
