@@ -81,62 +81,61 @@
                     android:scheme="rong" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.activity.GroupListActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".ui.activity.FriendDetailActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <!--注册页面-->
         <activity
             android:name=".ui.activity.RegisterActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <!--发起聊天页面-->
 
 
         <!--我的账号-->
         <activity
             android:name=".ui.activity.MyAccountActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
 
         <!--新消息提醒-->
         <activity
             android:name=".ui.activity.NewMessageRemindActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <!--消息免打扰-->
         <activity
             android:name=".ui.activity.DisturbActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <!--隐私-->
         <activity
             android:name=".ui.activity.PrivacyActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <!--关于融云-->
         <activity
             android:name=".ui.activity.AboutRongCloudActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <!--关于融云－更新日志-->
         <activity
             android:name=".ui.activity.UpdateLogActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <!--关于融云－功能介绍-->
         <activity
             android:name=".ui.activity.FunctionIntroducedActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <!--关于融云－开发者文档-->
         <activity
             android:name=".ui.activity.DocumentActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <!--关于融云－官方网站-->
         <activity
             android:name=".ui.activity.RongWebActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <!--黑名单列表-->
         <activity
             android:name=".ui.activity.BlackListActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
 
 
         <!--点击会话页面图片展示页面-->
@@ -146,55 +145,56 @@
         <!--搜索好友-->
         <activity
             android:name=".ui.activity.SearchFriendActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <!--新的朋友列表-->
         <activity
             android:name=".ui.activity.NewFriendListActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
 
         <activity
             android:name=".ui.activity.TotalGroupMemberActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
 
 
         <activity
             android:name=".ui.activity.PublicServiceActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
 
         <activity
             android:name=".ui.activity.PublicServiceSearchActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
 
         <activity
             android:name=".ui.activity.RealTimeLocationActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
 
         <activity
             android:name=".ui.activity.NewTextMessageActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <!--选择联系人 多人聊天-->
         <activity
             android:name=".ui.activity.SelectFriendsActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".ui.activity.CreateGroupActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".ui.activity.NewGroupDetailActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
 
         <activity
             android:name=".ui.activity.DiscussionDetailActivity"
-            android:screenOrientation="portrait" />
-
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".ui.activity.ChangeGroupInfoActivity"
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".ui.activity.ForgetPasswordActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".ui.activity.AMAPLocationActivity"
-            android:screenOrientation="portrait" />
-
+            android:screenOrientation="portrait"></activity>
         <!--公众-->
         <activity
             android:name=".ui.activity.PublicServiceInfoActivity"
@@ -282,6 +282,31 @@
             android:name=".ui.activity.AccountSettingActivity"
             android:screenOrientation="portrait" />
 
+
+        <service
+            android:name="io.rong.imlib.ipc.RongService"
+            android:process=":ipc"></service>
+        <service android:name="io.rong.imlib.ReConnectService" />
+
+        <receiver android:name="io.rong.imlib.ConnectChangeReceiver" />
+
+        <receiver
+            android:name="io.rong.imlib.HeartbeatReceiver"
+            android:process=":ipc" />
+
+        <activity
+            android:name="io.rong.imkit.tools.RongWebviewActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="io.rong.imkit.widget.provider.TakingPicturesActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait" />
+
+
+        <activity
+            android:name=".ui.activity.PersonalProfileActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
         <!--红包相关界面 start-->
         <activity
             android:name="com.yunzhanghu.redpacketui.ui.activity.RPRedPacketActivity"
@@ -322,51 +347,6 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <!--红包相关界面 end-->
 
-
-        <service
-            android:name="io.rong.imlib.ipc.RongService"
-            android:process=":ipc"></service>
-        <service android:name="io.rong.imlib.ReConnectService" />
-
-        <receiver android:name="io.rong.imlib.ConnectChangeReceiver" />
-
-        <receiver
-            android:name="io.rong.imlib.HeartbeatReceiver"
-            android:process=":ipc" />
-
-        <activity
-            android:name="io.rong.imkit.tools.RongWebviewActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.activity.SingleContactActivity"
-            android:screenOrientation="portrait" />
-
-
-        <activity
-            android:name=".ui.activity.PersonalProfileActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ui.activity.SharedReceiverActivity"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="image/*" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND_MULTIPLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="image/*" />
-            </intent-filter>
-        </activity>
-        >>>>>>> upstream/master
-
         <receiver
             android:name=".SealNotificationReceiver"
             android:exported="true">
@@ -378,10 +358,10 @@
             </intent-filter>
         </receiver>
 
-
         <meta-data
             android:name="RONG_CLOUD_APP_KEY"
             android:value="n19jmcy59f1q9" />
+
 
         <!-- 请将CHANNAL改为app的发布渠道 < -->
         <meta-data

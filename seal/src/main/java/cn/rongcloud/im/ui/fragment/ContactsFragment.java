@@ -38,7 +38,6 @@ import cn.rongcloud.im.server.utils.CommonUtils;
 import cn.rongcloud.im.server.utils.NToast;
 import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
-import cn.rongcloud.im.ui.activity.FriendDetailActivity;
 import cn.rongcloud.im.ui.activity.GroupListActivity;
 import cn.rongcloud.im.ui.activity.NewFriendListActivity;
 import cn.rongcloud.im.ui.activity.PublicServiceActivity;
@@ -107,6 +106,8 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
 
     private String id;
     private String cacheName;
+
+    private View headView;
 //    private String deleteId;
 //    private AsyncTaskManager atm = AsyncTaskManager.getInstance(getActivity());
 
@@ -133,8 +134,8 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
         Collections.sort(sourceDataList, pinyinComparator);
 
         infalter = LayoutInflater.from(getActivity());
-        View headView = infalter.inflate(R.layout.item_contact_list_header,
-                                         null);
+        headView = infalter.inflate(R.layout.item_contact_list_header,
+                                    null);
         unread = (TextView) headView.findViewById(R.id.tv_unread);
         RelativeLayout re_newfriends = (RelativeLayout) headView.findViewById(R.id.re_newfriends);
         RelativeLayout re_group = (RelativeLayout) headView.findViewById(R.id.re_chatroom);
@@ -145,7 +146,7 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
         SharedPreferences sp = getActivity().getSharedPreferences("config", Context.MODE_PRIVATE);
         id = sp.getString("loginid", "");
         cacheName = sp.getString("loginnickname", "");
-        String header = sp.getString("loginPortrait", "");
+        final String header = sp.getString("loginPortrait", "");
         name.setText(cacheName);
         ImageLoader.getInstance().displayImage(TextUtils.isEmpty(header) ? RongGenerate.generateDefaultAvatar(cacheName, id) : header, img, App.getOptions());
 
@@ -159,18 +160,16 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position != 0) {
-                    if (!CommonUtils.isNetworkConnected(getActivity())) {
-                        NToast.shortToast(getActivity(), "请检查网络");
-                        return;
-                    }
-                    if (isFilter) {
-                        Friend bean = tempList.get(position - 1);
-                        startFriendDetailsPage(bean);
-                    } else {
-                        Friend bean = sourceDataList.get(position - 1);
-                        startFriendDetailsPage(bean);
-                    }
+                if (!CommonUtils.isNetworkConnected(getActivity())) {
+                    NToast.shortToast(getActivity(), "请检查网络");
+                    return;
+                }
+                if (isFilter) {
+                    Friend bean = tempList.get(position);
+                    startFriendDetailsPage(bean);
+                } else {
+                    Friend bean = sourceDataList.get(position - 1);
+                    startFriendDetailsPage(bean);
                 }
             }
         });
@@ -196,7 +195,12 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void afterTextChanged(Editable s) {
-
+                if (s.length() != 0) {
+                    mListView.removeHeaderView(headView);
+                } else {
+                    mListView.addHeaderView(headView);
+                    isFilter = false;
+                }
             }
         });
         refreshUIListener();
@@ -271,7 +275,7 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
      * @param filterStr
      */
     private void filterData(String filterStr) {
-        List<Friend> filterDateList = new ArrayList<Friend>();
+        List<Friend> filterDateList = new ArrayList<>();
 
         if (TextUtils.isEmpty(filterStr)) {
             filterDateList = sourceDataList;
@@ -300,7 +304,7 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
      * @return
      */
     private List<Friend> filledData(List<Friend> lsit) {
-        List<Friend> mFriendList = new ArrayList<Friend>();
+        List<Friend> mFriendList = new ArrayList<>();
 
         for (int i = 0; i < lsit.size(); i++) {
             Friend friendModel = new Friend();
@@ -345,18 +349,17 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
 
 
     private void refreshUIListener() {
-        BroadcastManager.getInstance(getActivity()).addAction(SealAppContext.UPDATEFRIEND, new BroadcastReceiver() {
+        BroadcastManager.getInstance(getActivity()).addAction(SealAppContext.UPDATE_FRIEND, new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String command = intent.getAction();
                 if (!TextUtils.isEmpty(command)) {
                     updateUI();
-
                 }
             }
         });
 
-        BroadcastManager.getInstance(getActivity()).addAction(SealAppContext.UPDATEREDDOT, new BroadcastReceiver() {
+        BroadcastManager.getInstance(getActivity()).addAction(SealAppContext.UPDATE_RED_DOT, new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String command = intent.getAction();
@@ -383,8 +386,8 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        BroadcastManager.getInstance(getActivity()).destroy(SealAppContext.UPDATEFRIEND);
-        BroadcastManager.getInstance(getActivity()).destroy(SealAppContext.UPDATEREDDOT);
+        BroadcastManager.getInstance(getActivity()).destroy(SealAppContext.UPDATE_FRIEND);
+        BroadcastManager.getInstance(getActivity()).destroy(SealAppContext.UPDATE_RED_DOT);
         BroadcastManager.getInstance(getActivity()).destroy(SealConst.CHANGEINFO);
     }
 
@@ -398,7 +401,7 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
                 sourceDataList.clear();
             }
             for (cn.rongcloud.im.db.Friend friend : list) {
-                dataLsit.add(new Friend(friend.getUserId(), friend.getName(), friend.getPortraitUri()));
+                dataLsit.add(new Friend(friend.getUserId(), friend.getName(), friend.getPortraitUri(), friend.getDisplayName()));
             }
 
         }

@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -20,7 +21,12 @@ import com.yunzhanghu.redpacketui.RedPacketUtil;
 import cn.rongcloud.im.App;
 import cn.rongcloud.im.R;
 import cn.rongcloud.im.SealConst;
+import cn.rongcloud.im.server.SealAction;
 import cn.rongcloud.im.server.broadcast.BroadcastManager;
+import cn.rongcloud.im.server.network.async.AsyncTaskManager;
+import cn.rongcloud.im.server.network.async.OnDataListener;
+import cn.rongcloud.im.server.network.http.HttpException;
+import cn.rongcloud.im.server.response.VersionResponse;
 import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
 import cn.rongcloud.im.ui.activity.AboutRongCloudActivity;
@@ -33,6 +39,8 @@ import io.rong.imkit.RongIM;
  * Company RongCloud
  */
 public class MineFragment extends Fragment implements View.OnClickListener {
+    private static final int COMPAREVERSION = 54;
+    public static final String SHOWRED = "SHOWRED";
     public static MineFragment instance = null;
 
     public static MineFragment getInstance() {
@@ -52,6 +60,12 @@ public class MineFragment extends Fragment implements View.OnClickListener {
 
     private LinearLayout mUserProfile, mMineStting, mMineService, mMineAbout, mMineChange;
 
+    private ImageView mNewVersionView;
+
+    private boolean isHasNewVersion;
+
+    private String url;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -68,7 +82,49 @@ public class MineFragment extends Fragment implements View.OnClickListener {
                 ImageLoader.getInstance().displayImage(TextUtils.isEmpty(userportrait) ? RongGenerate.generateDefaultAvatar(username, userid) : userportrait, imageView, App.getOptions());
             }
         });
+        compareVersion();
         return mView;
+    }
+
+    private void compareVersion() {
+        AsyncTaskManager.getInstance(getActivity()).request(COMPAREVERSION, new OnDataListener() {
+            @Override
+            public Object doInBackground(int requsetCode, String parameter) throws HttpException {
+                return new SealAction(getActivity()).getSealTalkVersion();
+            }
+
+            @Override
+            public void onSuccess(int requestCode, Object result) {
+                if (result != null) {
+                    VersionResponse response = (VersionResponse) result;
+                    if (response != null) {
+
+                        String[] s = response.getAndroid().getVersion().split("\\.");
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < s.length; i++) {
+                            sb.append(s[i]);
+                        }
+
+                        String[] s2 = SealConst.SEALTALKVERSION.split("\\.");
+                        StringBuilder sb2 = new StringBuilder();
+                        for (int i = 0; i < s2.length; i++) {
+                            sb2.append(s2[i]);
+                        }
+                        if (Integer.parseInt(sb.toString()) > Integer.parseInt(sb2.toString())) {
+                            mNewVersionView.setVisibility(View.VISIBLE);
+                            url = response.getAndroid().getUrl();
+                            isHasNewVersion = true;
+                            BroadcastManager.getInstance(getActivity()).sendBroadcast(SHOWRED);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(int requestCode, int state, Object result) {
+
+            }
+        });
     }
 
     private void initData() {
@@ -81,6 +137,7 @@ public class MineFragment extends Fragment implements View.OnClickListener {
     }
 
     private void initViews(View mView) {
+        mNewVersionView = (ImageView) mView.findViewById(R.id.new_version_icon);
         imageView = (SelectableRoundedImageView) mView.findViewById(R.id.mine_header);
         mName = (TextView) mView.findViewById(R.id.mine_name);
         mUserProfile = (LinearLayout) mView.findViewById(R.id.start_user_profile);
@@ -110,7 +167,13 @@ public class MineFragment extends Fragment implements View.OnClickListener {
                 RongIM.getInstance().startCustomerServiceChat(getActivity(), "KEFU146001495753714", "在线客服", null);
                 break;
             case R.id.mine_about:
-                startActivity(new Intent(getActivity(), AboutRongCloudActivity.class));
+                mNewVersionView.setVisibility(View.GONE);
+                Intent intent = new Intent(getActivity(), AboutRongCloudActivity.class);
+                intent.putExtra("isHasNewVersion", isHasNewVersion);
+                if (!TextUtils.isEmpty(url)) {
+                    intent.putExtra("url", url);
+                }
+                startActivity(intent);
                 break;
             case R.id.mine_change://我的零钱
                 RedPacketUtil.getInstance().toChangeActivity(getActivity());

@@ -3,63 +3,54 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#f0f0f6"
     android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="60dp"
-        android:background="@color/group_list_liner"
-        android:orientation="horizontal"
-        android:paddingTop="10dp">
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginTop="20dp"
+        android:background="#fff"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
         <EditText
-            android:id="@+id/de_ui_search"
-            android:layout_width="wrap_content"
+            android:id="@+id/search_edit"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="2dp"
-            android:layout_marginLeft="12dp"
-            android:hint="@string/edit_phone"
-            android:layout_weight="4"
+            android:layout_gravity="center"
+            android:layout_marginLeft="14dp"
+            android:layout_marginRight="14dp"
+            android:drawableLeft="@drawable/sealtalk_search"
+            android:drawablePadding="6dp"
+            android:hint="手机号"
             android:inputType="phone"
-            android:background="@drawable/rc_ed_public_service_search_selector"
-            android:paddingRight="24dp"
-            android:singleLine="true"
-            android:textColor="@color/black_textview" />
-
-        <Button
-            android:id="@+id/de_search"
-            android:layout_width="48dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_weight="1"
-            android:background="@drawable/de_add_friend_selector"
-            android:text="@string/Search"
-            android:textColor="#0099ff" />
+            android:maxLength="11"
+            android:singleLine="true" />
 
     </LinearLayout>
 
 
     <LinearLayout
-        android:visibility="gone"
         android:id="@+id/search_result"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_marginTop="1px"
+        android:background="#fff"
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <cn.rongcloud.im.server.widget.SelectableRoundedImageView
             android:id="@+id/search_header"
             android:layout_width="60dp"
-            android:layout_marginLeft="6dp"
             android:layout_height="60dp"
+            android:layout_margin="10dp"
+            android:layout_marginLeft="6dp"
+            android:scaleType="centerCrop"
             app:sriv_left_bottom_corner_radius="3dip"
             app:sriv_left_top_corner_radius="3dip"
             app:sriv_right_bottom_corner_radius="3dip"
-            app:sriv_right_top_corner_radius="3dip"
-            android:scaleType="centerCrop"
-            android:layout_margin="10dp" />
+            app:sriv_right_top_corner_radius="3dip" />
 
         <TextView
             android:id="@+id/search_name"

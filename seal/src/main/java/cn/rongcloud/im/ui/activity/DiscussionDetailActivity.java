@@ -373,7 +373,7 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
                     RongIMClient.getInstance().addMemberToDiscussion(targetId, addMember, new RongIMClient.OperationCallback() {
                         @Override
                         public void onSuccess() {
-                            List<cn.rongcloud.im.db.Friend> list = DBManager.getInstance(mContext).getDaoSession().getFriendDao().loadAll();
+                            List<Friend> list = DBManager.getInstance(mContext).getDaoSession().getFriendDao().loadAll();
                             for (Friend friend : list) {
                                 for (String userId : addMember) {
                                     if (userId.equals(friend.getUserId()))

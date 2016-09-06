@@ -48,7 +48,7 @@ public class CreateGroupActivity extends BaseActivity implements View.OnClickLis
 
     private static final int CREATEGROUP = 16;
     private static final int SETGROUPPORTRAITURI = 17;
-    public static final java.lang.String REFRESHGROUPUI = "REFRESHGROUPUI";
+    public static final String REFRESHGROUPUI = "REFRESHGROUPUI";
     private List<Friend> memberList;
 
     private AsyncImageView asyncImageView;

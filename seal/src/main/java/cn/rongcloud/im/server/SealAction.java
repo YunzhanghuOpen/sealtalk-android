@@ -70,6 +70,7 @@ import cn.rongcloud.im.server.response.SetPortraitResponse;
 import cn.rongcloud.im.server.response.UserRelationshipResponse;
 import cn.rongcloud.im.server.response.VerifyCodeResponse;
 import cn.rongcloud.im.server.response.SetGroupNameResponse;
+import cn.rongcloud.im.server.response.VersionResponse;
 import cn.rongcloud.im.server.utils.NLog;
 import cn.rongcloud.im.server.utils.json.JsonMananger;
 
@@ -913,6 +914,17 @@ public class SealAction extends BaseAction {
         GetUserInfosResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, GetUserInfosResponse.class);
+        }
+        return response;
+    }
+
+
+    public VersionResponse getSealTalkVersion() throws HttpException {
+        String url = getURL("misc/client_version");
+        String result = httpManager.get(mContext, url.trim());
+        VersionResponse response = null;
+        if (!TextUtils.isEmpty(result)) {
+            response = jsonToBean(result, VersionResponse.class);
         }
         return response;
     }

@@ -30,7 +30,7 @@ public class DialogWithYesOrNoUtils {
     private DialogWithYesOrNoUtils() {
     }
 
-    public void showDialog(Context context, String titleInfo, final DialogWithYesOrNoUtils.DialogCallBack callBack) {
+    public void showDialog(Context context, String titleInfo, final DialogCallBack callBack) {
         AlertDialog.Builder alterDialog = new AlertDialog.Builder(context);
         alterDialog.setMessage(titleInfo);
         alterDialog.setCancelable(true);
@@ -59,7 +59,7 @@ public class DialogWithYesOrNoUtils {
     }
 
 
-    public void showEditDialog(Context context, String hintText, String OKText, final DialogWithYesOrNoUtils.DialogCallBack callBack) {
+    public void showEditDialog(Context context, String hintText, String OKText, final DialogCallBack callBack) {
         final EditText et_search;
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -84,7 +84,7 @@ public class DialogWithYesOrNoUtils {
     }
 
 
-    public void showUpdatePasswordDialog(final Context context, final DialogWithYesOrNoUtils.DialogCallBack callBack) {
+    public void showUpdatePasswordDialog(final Context context, final DialogCallBack callBack) {
         final EditText oldPasswordEdit, newPasswrodEdit, newPassword2Edit;
         AlertDialog.Builder dialog = new AlertDialog.Builder(context);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

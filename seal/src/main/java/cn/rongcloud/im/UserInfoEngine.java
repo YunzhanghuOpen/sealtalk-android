@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 
 
-
 import cn.rongcloud.im.server.SealAction;
 import cn.rongcloud.im.server.network.async.AsyncTaskManager;
 import cn.rongcloud.im.server.network.async.OnDataListener;
@@ -22,6 +21,7 @@ public class UserInfoEngine implements OnDataListener {
 
     private static UserInfoEngine instance;
     private UserInfoListener mListener;
+    private Context context;
 
     public static UserInfoEngine getInstance(Context context) {
         if (instance == null) {
@@ -34,7 +34,6 @@ public class UserInfoEngine implements OnDataListener {
         this.context = context;
     }
 
-    private static Context context;
 
     private String userid;
 

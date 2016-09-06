@@ -1,6 +1,7 @@
 package cn.rongcloud.im.ui.activity;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import cn.rongcloud.im.App;
 import cn.rongcloud.im.R;
 import cn.rongcloud.im.server.network.http.HttpException;
 import cn.rongcloud.im.server.response.GetBlackListResponse;
+import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.widget.LoadDialog;
 
 /**
@@ -34,7 +36,6 @@ public class BlackListActivity extends BaseActionBarActivity {
     private List<GetBlackListResponse.ResultEntity> dataList;
 
     private MyBlackListAdapter adapter;
-
 
 
     @Override
@@ -67,7 +68,7 @@ public class BlackListActivity extends BaseActionBarActivity {
             GetBlackListResponse response = (GetBlackListResponse) result;
             if (response.getCode() == 200) {
                 LoadDialog.dismiss(mContext);
-                dataList =  response.getResult();
+                dataList = response.getResult();
                 if (dataList != null) {
                     if (dataList.size() > 0) {
                         adapter = new MyBlackListAdapter(dataList);
@@ -118,7 +119,7 @@ public class BlackListActivity extends BaseActionBarActivity {
                 viewHolder = (ViewHoler) convertView.getTag();
             }
             viewHolder.mName.setText(bean.getUser().getNickname());
-            ImageLoader.getInstance().displayImage(bean.getUser().getPortraitUri(), viewHolder.mHead, App.getOptions());
+            ImageLoader.getInstance().displayImage(TextUtils.isEmpty(bean.getUser().getPortraitUri()) ? RongGenerate.generateDefaultAvatar(bean.getUser().getNickname(), bean.getUser().getId()) : bean.getUser().getPortraitUri(), viewHolder.mHead, App.getOptions());
             return convertView;
         }
 

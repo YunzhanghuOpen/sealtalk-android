@@ -12,5 +12,6 @@ public class SealConst {
     public static final int PERSONALPROFILEFROMGROUP = 4;
     public static final String EXIT = "EXIT";
     public static final String CHANGEINFO = "CHANGEINFO";
+    public static final String SEALTALKVERSION = "1.1.0";
 
 }

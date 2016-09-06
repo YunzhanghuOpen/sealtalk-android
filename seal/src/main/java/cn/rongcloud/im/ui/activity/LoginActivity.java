@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -32,6 +33,7 @@ import cn.rongcloud.im.server.response.GetUserInfoByIdResponse;
 import cn.rongcloud.im.server.response.LoginResponse;
 import cn.rongcloud.im.server.response.UserRelationshipResponse;
 import cn.rongcloud.im.server.utils.AMUtils;
+import cn.rongcloud.im.server.utils.CommonUtils;
 import cn.rongcloud.im.server.utils.NLog;
 import cn.rongcloud.im.server.utils.NToast;
 import cn.rongcloud.im.server.utils.RongGenerate;
@@ -340,7 +342,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         RongIM.getInstance().setMessageAttachedUserInfo(true);
 
                         List<Groups> groupList = DBManager.getInstance(mContext).getDaoSession().getGroupsDao().loadAll();
-                        if (groupList.size() == 0 || groupList == null) {
+                        if (groupList.size() == 0) {
                             request(SYNCGROUP);
                         } else {
                             LoadDialog.dismiss(mContext);
@@ -399,7 +401,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                             RongIM.connect(token, new RongIMClient.ConnectCallback() {
                                 @Override
                                 public void onTokenIncorrect() {
-
+                                    Log.e("LoginActivity", "reToken Incorrect");
                                 }
 
                                 @Override
@@ -431,9 +433,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     @Override
     public void onFailure(int requestCode, int state, Object result) {
-        if (state == AsyncTaskManager.HTTP_NULL_CODE || state == AsyncTaskManager.HTTP_ERROR_CODE) {
-            LoadDialog.dismiss(mContext);
-            NToast.shortToast(mContext, R.string.network_not_available);
+        if (!CommonUtils.isNetworkConnected(mContext)) {
+            NToast.shortToast(mContext, getString(R.string.network_not_available));
             return;
         }
         switch (requestCode) {

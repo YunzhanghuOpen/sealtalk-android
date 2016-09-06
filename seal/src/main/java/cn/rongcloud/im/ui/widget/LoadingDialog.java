@@ -20,7 +20,7 @@ public class LoadingDialog extends Dialog {
     public LoadingDialog(Context context) {
 
         super(context, R.style.WinDialog);
-        setContentView(R.layout.de_ui_dialog_loading);
+        setContentView(R.layout.ui_dialog_loading);
         mTextView = (TextView) findViewById(android.R.id.message);
     }
 

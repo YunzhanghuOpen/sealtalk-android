@@ -139,7 +139,7 @@ public class NewFriendListActivity extends BaseActivity implements NewFriendList
                         // 通知好友列表刷新数据
                         NToast.shortToast(mContext, R.string.agreed_friend);
                         LoadDialog.dismiss(mContext);
-                        BroadcastManager.getInstance(mContext).sendBroadcast(SealAppContext.UPDATEFRIEND);
+                        BroadcastManager.getInstance(mContext).sendBroadcast(SealAppContext.UPDATE_FRIEND);
                         request(GETALL); //刷新 UI 按钮
                     }
 

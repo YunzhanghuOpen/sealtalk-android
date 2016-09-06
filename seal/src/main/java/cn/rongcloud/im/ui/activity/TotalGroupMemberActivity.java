@@ -47,6 +47,7 @@ public class TotalGroupMemberActivity extends BaseActivity {
         initViews();
         mGroupMember = (List<GetGroupMemberResponse.ResultEntity>) getIntent().getSerializableExtra("TotalMember");
         if (mGroupMember != null && mGroupMember.size() > 0) {
+            getSupportActionBar().setTitle(getString(R.string.total_member) + "(" + mGroupMember.size() + ")");
             adapter = new TotalGroupMember(mGroupMember, mContext);
             mTotalListView.setAdapter(adapter);
             mTotalListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

@@ -123,6 +123,7 @@ public class NewGroupDetailActivity extends BaseActivity implements View.OnClick
     private Uri selectUri;
 
     private String newGroupName;
+    private LinearLayout mGroupNotice;
 
     private static final int UPDATEGROUPHEADER = 25;
 
@@ -344,7 +345,11 @@ public class NewGroupDetailActivity extends BaseActivity implements View.OnClick
                             if (sp.getString("loginid", "").equals(response4.getResult().getCreatorId())) {
                                 isCreated = true;
                             }
-
+                            if (!isCreated) {
+                                mGroupNotice.setVisibility(View.GONE);
+                            } else {
+                                mGroupNotice.setVisibility(View.VISIBLE);
+                            }
                             request(GETGROUPMEMBER);
                         }
                     }
@@ -373,7 +378,7 @@ public class NewGroupDetailActivity extends BaseActivity implements View.OnClick
                             new Groups(mGroup.getId(), mGroup.getName(), mGroup.getPortraitUri(), newGroupName, null, null)
                         );
                         mGroupName.setText(newGroupName);
-                        RongIM.getInstance().refreshGroupInfoCache(new Group(fromConversationId, newGroupName, Uri.parse(mGroup.getPortraitUri())));
+                        RongIM.getInstance().refreshGroupInfoCache(new Group(fromConversationId, newGroupName, TextUtils.isEmpty(mGroup.getPortraitUri()) ? Uri.parse(RongGenerate.generateDefaultAvatar(newGroupName, mGroup.getId())) : Uri.parse(mGroup.getPortraitUri())));
                         LoadDialog.dismiss(mContext);
                         NToast.shortToast(mContext, getString(R.string.update_success));
                     }
@@ -503,6 +508,10 @@ public class NewGroupDetailActivity extends BaseActivity implements View.OnClick
                             if (TextUtils.isEmpty(editText)) {
                                 return;
                             }
+                            if (editText.length() < 2 && editText.length() > 10) {
+                                NToast.shortToast(mContext, "群名称应为 2-10 字");
+                                return;
+                            }
                             newGroupName = editText;
                             LoadDialog.show(mContext);
                             request(UPDATEGROUPNAME);
@@ -514,6 +523,12 @@ public class NewGroupDetailActivity extends BaseActivity implements View.OnClick
                         }
                     });
                 }
+                break;
+            case R.id.group_announcement:
+                Intent tempIntent = new Intent(mContext, GroupNoticeActivity.class);
+                tempIntent.putExtra("conversationType", Conversation.ConversationType.GROUP.getValue());
+                tempIntent.putExtra("targetId", fromConversationId);
+                startActivity(tempIntent);
                 break;
         }
     }
@@ -821,6 +836,7 @@ public class NewGroupDetailActivity extends BaseActivity implements View.OnClick
         totalGroupMember = (RelativeLayout) findViewById(R.id.group_member_size_item);
         mGroupPortL = (LinearLayout) findViewById(R.id.ll_group_port);
         mGroupNameL = (LinearLayout) findViewById(R.id.ll_group_name);
+        mGroupNotice = (LinearLayout) findViewById(R.id.group_announcement);
         mGroupPortL.setOnClickListener(this);
         mGroupNameL.setOnClickListener(this);
         totalGroupMember.setOnClickListener(this);
@@ -828,5 +844,6 @@ public class NewGroupDetailActivity extends BaseActivity implements View.OnClick
         mQuitBtn.setOnClickListener(this);
         mDismissBtn.setOnClickListener(this);
         groupClean.setOnClickListener(this);
+        mGroupNotice.setOnClickListener(this);
     }
 }

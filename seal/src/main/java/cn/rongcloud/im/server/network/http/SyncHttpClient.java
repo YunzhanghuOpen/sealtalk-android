@@ -1,6 +1,7 @@
 package cn.rongcloud.im.server.network.http;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -60,6 +61,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.Future;
 import java.util.zip.GZIPInputStream;
 
+import cn.rongcloud.im.SealConst;
 import cn.rongcloud.im.server.utils.NLog;
 
 public class SyncHttpClient {
@@ -92,6 +94,7 @@ public class SyncHttpClient {
 
     /**
      * get the SyncHttpClient instance
+     *
      * @return
      */
     public static SyncHttpClient getInstance(Context context) {
@@ -117,8 +120,7 @@ public class SyncHttpClient {
     /**
      * Creates a new AsyncHttpClient.
      *
-     * @param httpPort
-     *            non-standard HTTP-only port
+     * @param httpPort non-standard HTTP-only port
      */
     public SyncHttpClient(int httpPort) {
         this(false, httpPort, 443);
@@ -127,10 +129,8 @@ public class SyncHttpClient {
     /**
      * Creates a new AsyncHttpClient.
      *
-     * @param httpPort
-     *            non-standard HTTP-only port
-     * @param httpsPort
-     *            non-standard HTTPS-only port
+     * @param httpPort  non-standard HTTP-only port
+     * @param httpsPort non-standard HTTPS-only port
      */
     public SyncHttpClient(int httpPort, int httpsPort) {
         this(false, httpPort, httpsPort);
@@ -139,12 +139,9 @@ public class SyncHttpClient {
     /**
      * Creates new AsyncHttpClient using given params
      *
-     * @param fixNoHttpResponseException
-     *            Whether to fix or not issue, by ommiting SSL verification
-     * @param httpPort
-     *            HTTP port to be used, must be greater than 0
-     * @param httpsPort
-     *            HTTPS port to be used, must be greater than 0
+     * @param fixNoHttpResponseException Whether to fix or not issue, by ommiting SSL verification
+     * @param httpPort                   HTTP port to be used, must be greater than 0
+     * @param httpsPort                  HTTPS port to be used, must be greater than 0
      */
     public SyncHttpClient(boolean fixNoHttpResponseException, int httpPort, int httpsPort) {
         this(getDefaultSchemeRegistry(fixNoHttpResponseException, httpPort, httpsPort));
@@ -153,12 +150,9 @@ public class SyncHttpClient {
     /**
      * Returns default instance of SchemeRegistry
      *
-     * @param fixNoHttpResponseException
-     *            Whether to fix or not issue, by ommiting SSL verification
-     * @param httpPort
-     *            HTTP port to be used, must be greater than 0
-     * @param httpsPort
-     *            HTTPS port to be used, must be greater than 0
+     * @param fixNoHttpResponseException Whether to fix or not issue, by ommiting SSL verification
+     * @param httpPort                   HTTP port to be used, must be greater than 0
+     * @param httpsPort                  HTTPS port to be used, must be greater than 0
      */
     private static SchemeRegistry getDefaultSchemeRegistry(
         boolean fixNoHttpResponseException, int httpPort, int httpsPort) {
@@ -194,8 +188,7 @@ public class SyncHttpClient {
     /**
      * Creates a new AsyncHttpClient.
      *
-     * @param schemeRegistry
-     *            SchemeRegistry to be used
+     * @param schemeRegistry SchemeRegistry to be used
      */
     public SyncHttpClient(SchemeRegistry schemeRegistry) {
 
@@ -211,7 +204,7 @@ public class SyncHttpClient {
         HttpConnectionParams.setSocketBufferSize(httpParams, DEFAULT_SOCKET_BUFFER_SIZE);
 
         HttpProtocolParams.setVersion(httpParams, HttpVersion.HTTP_1_1);
-        HttpProtocolParams.setUserAgent(httpParams, String.format("android-async-http/%s", VERSION));
+        HttpProtocolParams.setUserAgent(httpParams, "SealTalk v" + SealConst.SEALTALKVERSION + " (Android; targetsdkversion " + Build.VERSION.SDK_INT + ";)");
 
         ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(httpParams, schemeRegistry);
 
@@ -277,9 +270,8 @@ public class SyncHttpClient {
     /**
      * Sets an optional CookieStore to use when making requests
      *
-     * @param cookieStore
-     *            The CookieStore implementation to use, usually an instance of
-     *            {@link PersistentCookieStore}
+     * @param cookieStore The CookieStore implementation to use, usually an instance of
+     *                    {@link PersistentCookieStore}
      */
     public void setCookieStore(CookieStore cookieStore) {
         httpContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
@@ -291,8 +283,7 @@ public class SyncHttpClient {
      * manually RedirectHandler on underlying HttpClient, effects of this method
      * will be canceled.
      *
-     * @param enableRedirects
-     *            boolean
+     * @param enableRedirects boolean
      */
     public void setEnableRedirects(final boolean enableRedirects) {
         httpClient.setRedirectHandler(new DefaultRedirectHandler() {
@@ -308,8 +299,7 @@ public class SyncHttpClient {
      * "Android Asynchronous Http Client/VERSION
      * (http://loopj.com/android-async-http/)" is used.
      *
-     * @param userAgent
-     *            the string to use in the User-Agent header.
+     * @param userAgent the string to use in the User-Agent header.
      */
     public void setUserAgent(String userAgent) {
         HttpProtocolParams.setUserAgent(this.httpClient.getParams(), userAgent);
@@ -327,8 +317,7 @@ public class SyncHttpClient {
     /**
      * Sets maximum limit of parallel connections
      *
-     * @param maxConnections
-     *            maximum parallel connections, must be at least 1
+     * @param maxConnections maximum parallel connections, must be at least 1
      */
     public void setMaxConnections(int maxConnections) {
         if (maxConnections < 1) maxConnections = DEFAULT_MAX_CONNECTIONS;
@@ -350,8 +339,7 @@ public class SyncHttpClient {
     /**
      * Set the connection and socket timeout. By default, 10 seconds.
      *
-     * @param timeout
-     *            the connect/socket timeout in milliseconds, at least 1 second
+     * @param timeout the connect/socket timeout in milliseconds, at least 1 second
      */
     public void setTimeout(int timeout) {
         if (timeout < 1000) timeout = DEFAULT_SOCKET_TIMEOUT;
@@ -365,10 +353,8 @@ public class SyncHttpClient {
     /**
      * Sets the Proxy by it's hostname and port
      *
-     * @param hostname
-     *            the hostname (IP or DNS name)
-     * @param port
-     *            the port number. -1 indicates the scheme default port.
+     * @param hostname the hostname (IP or DNS name)
+     * @param port     the port number. -1 indicates the scheme default port.
      */
     public void setProxy(String hostname, int port) {
         final HttpHost proxy = new HttpHost(hostname, port);
@@ -379,14 +365,10 @@ public class SyncHttpClient {
     /**
      * Sets the Proxy by it's hostname,port,username and password
      *
-     * @param hostname
-     *            the hostname (IP or DNS name)
-     * @param port
-     *            the port number. -1 indicates the scheme default port.
-     * @param username
-     *            the username
-     * @param password
-     *            the password
+     * @param hostname the hostname (IP or DNS name)
+     * @param port     the port number. -1 indicates the scheme default port.
+     * @param username the username
+     * @param password the password
      */
     public void setProxy(String hostname, int port, String username, String password) {
         httpClient.getCredentialsProvider().setCredentials(new AuthScope(hostname, port), new UsernamePasswordCredentials(username, password));
@@ -399,8 +381,7 @@ public class SyncHttpClient {
      * Sets the SSLSocketFactory to user when making requests. By default, a
      * new, default SSLSocketFactory is used.
      *
-     * @param sslSocketFactory
-     *            the socket factory to use for https requests.
+     * @param sslSocketFactory the socket factory to use for https requests.
      */
     public void setSSLSocketFactory(SSLSocketFactory sslSocketFactory) {
         this.httpClient.getConnectionManager().getSchemeRegistry().register(new Scheme("https", sslSocketFactory, 443));
@@ -409,10 +390,8 @@ public class SyncHttpClient {
     /**
      * Sets the maximum number of retries and timeout for a particular Request.
      *
-     * @param retries
-     *            maximum number of retries per request
-     * @param timeout
-     *            sleep between retries in milliseconds
+     * @param retries maximum number of retries per request
+     * @param timeout sleep between retries in milliseconds
      */
     public void setMaxRetriesAndTimeout(int retries, int timeout) {
         this.httpClient.setHttpRequestRetryHandler(new RetryHandler(retries,
@@ -423,10 +402,8 @@ public class SyncHttpClient {
      * Sets headers that will be added to all requests this client makes (before
      * sending).
      *
-     * @param header
-     *            the name of the header
-     * @param value
-     *            the contents of the header
+     * @param header the name of the header
+     * @param value  the contents of the header
      */
     public void addHeader(String header, String value) {
         clientHeaderMap.put(header, value);
@@ -435,8 +412,7 @@ public class SyncHttpClient {
     /**
      * Remove header from all requests this client makes (before sending).
      *
-     * @param header
-     *            the name of the header
+     * @param header the name of the header
      */
     public void removeHeader(String header) {
         clientHeaderMap.remove(header);
@@ -446,10 +422,8 @@ public class SyncHttpClient {
      * Sets basic authentication for the request. Uses AuthScope.ANY. This is
      * the same as setBasicAuth('username','password',AuthScope.ANY)
      *
-     * @param username
-     *            Basic Auth username
-     * @param password
-     *            Basic Auth password
+     * @param username Basic Auth username
+     * @param password Basic Auth password
      */
     public void setBasicAuth(String username, String password) {
         AuthScope scope = AuthScope.ANY;
@@ -462,12 +436,9 @@ public class SyncHttpClient {
      * setBasicAuth("username","password", new
      * AuthScope("host",port,AuthScope.ANY_REALM))
      *
-     * @param username
-     *            Basic Auth username
-     * @param password
-     *            Basic Auth password
-     * @param scope
-     *            - an AuthScope object
+     * @param username Basic Auth username
+     * @param password Basic Auth password
+     * @param scope    - an AuthScope object
      */
     public void setBasicAuth(String username, String password, AuthScope scope) {
         UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
@@ -494,11 +465,9 @@ public class SyncHttpClient {
      * onDestroy method of your android activities to destroy all requests which
      * are no longer required.
      *
-     * @param context
-     *            the android Context instance associated to the request.
-     * @param mayInterruptIfRunning
-     *            specifies if active requests should be cancelled along with
-     *            pending requests.
+     * @param context               the android Context instance associated to the request.
+     * @param mayInterruptIfRunning specifies if active requests should be cancelled along with
+     *                              pending requests.
      */
     public void cancelRequests(Context context, boolean mayInterruptIfRunning) {
         List<WeakReference<Future<?>>> requestList = requestMap.get(context);
@@ -517,11 +486,11 @@ public class SyncHttpClient {
     //
     // HTTP GET Requests
     //
+
     /**
      * Perform a HTTP GET request, without any parameters.
      *
-     * @param url
-     * 			the URL to send the request to.
+     * @param url the URL to send the request to.
      * @return String
      * @throws HttpException
      */
@@ -530,12 +499,10 @@ public class SyncHttpClient {
     }
 
     /**
-     *  Perform a HTTP GET request with parameters.
+     * Perform a HTTP GET request with parameters.
      *
-     * @param url
-     * 				the URL to send the request to.
-     * @param params
-     * 				additional GET parameters to send with the request.
+     * @param url    the URL to send the request to.
+     * @param params additional GET parameters to send with the request.
      * @return String
      * @throws HttpException
      */
@@ -547,12 +514,10 @@ public class SyncHttpClient {
      * Perform a HTTP GET request without any parameters and track the Android
      * Context which initiated the request.
      *
-     * @param context
-     * 				the Android Context which initiated the request.
-     * @param url
-     * 				the URL to send the request to.
-     * @return	String
+     * @param context the Android Context which initiated the request.
+     * @param url     the URL to send the request to.
      * @throws HttpException
+     * @return String
      */
     public String get(Context context, String url) throws HttpException {
         return get(context, url, null);
@@ -562,12 +527,9 @@ public class SyncHttpClient {
      * Perform a HTTP GET request and track the Android Context which initiated
      * the request.
      *
-     * @param context
-     * 				the Android Context which initiated the request.
-     * @param url
-     * 				the URL to send the request to.
-     * @param params
-     * 				additional GET parameters to send with the request.
+     * @param context the Android Context which initiated the request.
+     * @param url     the URL to send the request to.
+     * @param params  additional GET parameters to send with the request.
      * @return String
      * @throws HttpException
      */
@@ -579,20 +541,16 @@ public class SyncHttpClient {
      * Perform a HTTP GET request and track the Android Context which initiated
      * the request with customized headers
      *
-     * @param context
-     * 				Context to execute request against
-     * @param url
-     * 				the URL to send the request to.
-     * @param headers
-     * 				set headers only for this request
-     * @param params
-     * 				additional GET parameters to send with the request.
+     * @param context Context to execute request against
+     * @param url     the URL to send the request to.
+     * @param headers set headers only for this request
+     * @param params  additional GET parameters to send with the request.
      * @return String
      * @throws HttpException
      */
     public String get(Context context, String url, Header[] headers, RequestParams params) throws HttpException {
         HttpUriRequest request = new HttpGet(getUrlWithQueryString(isUrlEncodingEnabled, url, params));
-        if (headers != null)request.setHeaders(headers);
+        if (headers != null) request.setHeaders(headers);
         return sendRequest(httpClient, httpContext, request, null, context);
     }
 
@@ -603,8 +561,7 @@ public class SyncHttpClient {
     /**
      * Perform a HTTP POST request, without any parameters.
      *
-     * @param url
-     *            the URL to send the request to.
+     * @param url the URL to send the request to.
      * @return String
      * @throws HttpException
      */
@@ -615,10 +572,8 @@ public class SyncHttpClient {
     /**
      * Perform a HTTP POST request with parameters.
      *
-     * @param url
-     *            the URL to send the request to.
-     * @param params
-     *            additional POST parameters or files to send with the request.
+     * @param url    the URL to send the request to.
+     * @param params additional POST parameters or files to send with the request.
      * @return String
      * @throws HttpException
      */
@@ -630,12 +585,9 @@ public class SyncHttpClient {
      * Perform a HTTP POST request and track the Android Context which initiated
      * the request.
      *
-     * @param context
-     *            the Android Context which initiated the request.
-     * @param url
-     *            the URL to send the request to.
-     * @param params
-     *            additional POST parameters or files to send with the request.
+     * @param context the Android Context which initiated the request.
+     * @param url     the URL to send the request to.
+     * @param params  additional POST parameters or files to send with the request.
      * @return String
      * @throws HttpException
      */
@@ -651,18 +603,14 @@ public class SyncHttpClient {
      * Perform a HTTP POST request and track the Android Context which initiated
      * the request.
      *
-     * @param context
-     *            the Android Context which initiated the request.
-     * @param url
-     *            the URL to send the request to.
-     * @param entity
-     *            a raw {@link HttpEntity} to send with the
-     *            request, for example, use this to send string/json/xml
-     *            payloads to a server by passing a
-     *            {@link StringEntity}.
-     * @param contentType
-     *            the content type of the payload you are sending, for example
-     *            application/json if sending a json payload.
+     * @param context     the Android Context which initiated the request.
+     * @param url         the URL to send the request to.
+     * @param entity      a raw {@link HttpEntity} to send with the
+     *                    request, for example, use this to send string/json/xml
+     *                    payloads to a server by passing a
+     *                    {@link StringEntity}.
+     * @param contentType the content type of the payload you are sending, for example
+     *                    application/json if sending a json payload.
      * @return String
      * @throws HttpException
      */
@@ -674,17 +622,12 @@ public class SyncHttpClient {
      * Perform a HTTP POST request and track the Android Context which initiated
      * the request. Set headers only for this request
      *
-     * @param context
-     *            the Android Context which initiated the request.
-     * @param url
-     *            the URL to send the request to.
-     * @param headers
-     *            set headers only for this request
-     * @param params
-     *            additional POST parameters to send with the request.
-     * @param contentType
-     *            the content type of the payload you are sending, for example
-     *            application/json if sending a json payload.
+     * @param context     the Android Context which initiated the request.
+     * @param url         the URL to send the request to.
+     * @param headers     set headers only for this request
+     * @param params      additional POST parameters to send with the request.
+     * @param contentType the content type of the payload you are sending, for example
+     *                    application/json if sending a json payload.
      * @return String
      * @throws HttpException
      */
@@ -699,6 +642,7 @@ public class SyncHttpClient {
     /**
      * 支持post提交Restful风格的json字符串
      * post
+     *
      * @param context
      * @param url
      * @param params
@@ -736,19 +680,14 @@ public class SyncHttpClient {
      * Perform a HTTP POST request and track the Android Context which initiated
      * the request. Set headers only for this request
      *
-     * @param context
-     *            the Android Context which initiated the request.
-     * @param url
-     *            the URL to send the request to.
-     * @param headers
-     *            set headers only for this request
-     * @param entity
-     *            a raw {@link HttpEntity} to send with the request, for
-     *            example, use this to send string/json/xml payloads to a server
-     *            by passing a {@link StringEntity}.
-     * @param contentType
-     *            the content type of the payload you are sending, for example
-     *            application/json if sending a json payload.
+     * @param context     the Android Context which initiated the request.
+     * @param url         the URL to send the request to.
+     * @param headers     set headers only for this request
+     * @param entity      a raw {@link HttpEntity} to send with the request, for
+     *                    example, use this to send string/json/xml payloads to a server
+     *                    by passing a {@link StringEntity}.
+     * @param contentType the content type of the payload you are sending, for example
+     *                    application/json if sending a json payload.
      * @return String
      * @throws HttpException
      */
@@ -762,17 +701,12 @@ public class SyncHttpClient {
     /**
      * Puts a new request in queue as a new thread in pool to be executed
      *
-     * @param client
-     * 				HttpClient to be used for request, can differ in single requests
-     * @param httpContext
-     * 				HttpContext in which the request will be executed
-     * @param uriRequest
-     * 				instance of HttpUriRequest, which means it must be of
-     *            HttpDelete, HttpPost, HttpGet, HttpPut, etc.
-     * @param contentType
-     * 				MIME body type, for POST and PUT requests, may be null
-     * @param context
-     * 				 Context of Android application
+     * @param client      HttpClient to be used for request, can differ in single requests
+     * @param httpContext HttpContext in which the request will be executed
+     * @param uriRequest  instance of HttpUriRequest, which means it must be of
+     *                    HttpDelete, HttpPost, HttpGet, HttpPut, etc.
+     * @param contentType MIME body type, for POST and PUT requests, may be null
+     * @param context     Context of Android application
      * @return
      * @throws HttpException
      */
@@ -872,8 +806,7 @@ public class SyncHttpClient {
      * Sets state of URL encoding feature, see bug #227, this method allows you
      * to turn off and on this auto-magic feature on-demand.
      *
-     * @param enabled
-     *            desired state of feature
+     * @param enabled desired state of feature
      */
     public void setURLEncodingEnabled(boolean enabled) {
         this.isUrlEncodingEnabled = enabled;
@@ -882,12 +815,9 @@ public class SyncHttpClient {
     /**
      * Will encode url, if not disabled, and adds params on the end of it
      *
-     * @param url
-     *            String with URL, should be valid URL without params
-     * @param params
-     *            RequestParams to be appended on the end of URL
-     * @param shouldEncodeUrl
-     *            whether url should be encoded (replaces spaces with %20)
+     * @param url             String with URL, should be valid URL without params
+     * @param params          RequestParams to be appended on the end of URL
+     * @param shouldEncodeUrl whether url should be encoded (replaces spaces with %20)
      * @return encoded url if requested with params appended if any available
      */
     public static String getUrlWithQueryString(boolean shouldEncodeUrl,
@@ -912,8 +842,7 @@ public class SyncHttpClient {
      * request declaration. Allows also passing progress from upload via
      * provided ResponseHandler
      *
-     * @param params
-     *            additional request params
+     * @param params additional request params
      */
     private HttpEntity paramsToEntity(RequestParams params) {
         HttpEntity entity = null;
@@ -936,10 +865,8 @@ public class SyncHttpClient {
      * Applicable only to HttpRequest methods extending
      * HttpEntityEnclosingRequestBase, which is for example not DELETE
      *
-     * @param entity
-     *            entity to be included within the request
-     * @param requestBase
-     *            HttpRequest instance, must not be null
+     * @param entity      entity to be included within the request
+     * @param requestBase HttpRequest instance, must not be null
      */
     private HttpEntityEnclosingRequestBase addEntityToRequestBase(
         HttpEntityEnclosingRequestBase requestBase, HttpEntity entity) {
@@ -974,7 +901,7 @@ public class SyncHttpClient {
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         byte[] data = new byte[1024];
         int count = -1;
-        while ((count = in.read(data, 0 , 1024)) != -1) {
+        while ((count = in.read(data, 0, 1024)) != -1) {
             outStream.write(data, 0, count);
         }
         data = null;

@@ -106,6 +106,7 @@
     <string name="confirm">确认</string>
     <string name="forget_password">忘记密码</string>
     <string name="cancel">取消</string>
+    <string name="Done">完成</string>
     <string name="exit_app">确定退出应用?</string>
     <string name="No_friends">暂无好友</string>
     <string name="Search">搜索</string>
@@ -122,7 +123,7 @@
     <string name="chatroom3">聊天室 III</string>
     <string name="chatroom4">聊天室 IV</string>
     <string name="agreed_friend">已同意好友关系</string>
-    <string name="agree">接受</string>
+    <string name="agree">接&#160;&#160;&#160;受</string>
     <string name="request">已请求</string>
     <string name="ignore">已忽略</string>
     <string name="added">已添加</string>
@@ -237,4 +238,19 @@
     <string name="password_hint">6-16个字符,区分大小写</string>
     <string name="start_voice">语音通话</string>
     <string name="start_video">视频聊天</string>
+    <string name="browser_download">浏览器打开</string>
+    <string name="loacation_download">本地下载</string>
+    <string name="update_app_model_prepare">准备下载</string>
+    <string name="update_app_model_progress">正在下载 %1$d%2$s</string>
+    <string name="update_app_model_success">下载成功(点击安装)</string>
+    <string name="update_app_model_error">下载失败(点击浏览器下载)</string>
+    <string name="downloading_apk">正在后台下载...</string>
+    <string name="empty_group_notice">请编辑群公告</string>
+    <string name="group_notice_exist_confirm">退出本次编辑</string>
+    <string name="group_notice_post_confirm">该公告会通知全部群成员，是否发布？</string>
+    <string name="group_notice_prefix">\@所有人\n</string>
+    <string name="search_friend">添加好友</string>
+    <string name="setdisplayname">设置备注</string>
+    <string name="new_and_old_password">新旧密码一致</string>
+    <string name="nickname_show">昵称:</string>
 </resources>

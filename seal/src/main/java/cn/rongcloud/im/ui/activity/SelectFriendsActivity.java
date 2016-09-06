@@ -4,11 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -45,6 +41,7 @@ import cn.rongcloud.im.server.utils.NLog;
 import cn.rongcloud.im.server.utils.NToast;
 import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.widget.DialogWithYesOrNoUtils;
+import cn.rongcloud.im.server.widget.HorizontalListView;
 import cn.rongcloud.im.server.widget.LoadDialog;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
 import io.rong.imkit.RongIM;
@@ -55,11 +52,11 @@ import io.rong.imlib.model.UserInfo;
  * Created by AMing on 16/1/21.
  * Company RongCloud
  */
-public class SelectFriendsActivity extends BaseActivity {
+public class SelectFriendsActivity extends BaseActivity implements View.OnClickListener {
 
     private static final int ADDGROUPMEMBER = 21;
     private static final int DELEGROUPMEMBER = 23;
-    public static final java.lang.String DISCUSSIONUPDATE = "DISCUSSIONUPDATE";
+    public static final String DISCUSSIONUPDATE = "DISCUSSIONUPDATE";
     /**
      * 好友列表的 ListView
      */
@@ -89,9 +86,17 @@ public class SelectFriendsActivity extends BaseActivity {
 
     private TextView mNoFriends;
 
+    private TextView mTitleTextView;
+
+    private TextView mConfirmTextView;
+
     private List<Friend> dataLsit = new ArrayList<>();
 
     private List<Friend> sourceDataList = new ArrayList<>();
+
+    private HorizontalListView mSelectedListView;
+
+    private SelectedAdapter selectAdapter;
 
     private boolean isCrateGroup;
     private boolean isConversationActivityStartDiscussion;
@@ -114,6 +119,14 @@ public class SelectFriendsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_disc);
+        getSupportActionBar().hide();
+        mTitleTextView = (TextView) findViewById(R.id.select_title);
+        mConfirmTextView = (TextView) findViewById(R.id.select_ok);
+        mSelectedListView = (HorizontalListView) findViewById(R.id.selected_listview);
+        List<Friend> tempList = new ArrayList<>();
+        selectAdapter = new SelectedAdapter(tempList, mContext);
+        mSelectedListView.setAdapter(selectAdapter);
+        mConfirmTextView.setOnClickListener(this);
         isCrateGroup = getIntent().getBooleanExtra("createGroup", false);
         isConversationActivityStartDiscussion = getIntent().getBooleanExtra("CONVERSATION_DISCUSSION", false);
         isConversationActivityStartPrivate = getIntent().getBooleanExtra("CONVERSATION_PRIVATE", false);
@@ -131,29 +144,31 @@ public class SelectFriendsActivity extends BaseActivity {
         if (isConversationActivityStartPrivate) {
             conversationStartType = "PRIVATE";
             conversationStartId = getIntent().getStringExtra("DEMO_FRIEND_TARGETID");
-            getSupportActionBar().setTitle("选择讨论组成员");
+            mTitleTextView.setText("选择讨论组成员");
         } else if (isConversationActivityStartDiscussion) {
             conversationStartType = "DISCUSSION";
             conversationStartId = getIntent().getStringExtra("DEMO_FRIEND_TARGETID");
             discListMember = getIntent().getStringArrayListExtra("DISCUSSIONMEMBER");
-            getSupportActionBar().setTitle("选择讨论组成员");
+            mTitleTextView.setText("选择讨论组成员");
         } else if (deleteGroupMemberList != null) {
-            getSupportActionBar().setTitle(R.string.remove_group_member);
+            mTitleTextView.setText(getString(R.string.remove_group_member));
         } else if (addGroupMemberList != null) {
-            getSupportActionBar().setTitle(R.string.add_group_member);
+            mTitleTextView.setText(getString(R.string.add_group_member));
         } else if (isCrateGroup) {
-            getSupportActionBar().setTitle(R.string.select_group_member);
+            mTitleTextView.setText(getString(R.string.select_group_member));
         } else if (addDisList != null) {
-            getSupportActionBar().setTitle("增加讨论组成员");
+            mTitleTextView.setText("增加讨论组成员");
         } else if (deleDisList != null) {
-            getSupportActionBar().setTitle("移除讨论组成员");
+            mTitleTextView.setText("移除讨论组成员");
         } else {
-            getSupportActionBar().setTitle(R.string.select_contact);
-            isStartPrivateChat = true;
+            mTitleTextView.setText(getString(R.string.select_contact));
+            if (getSharedPreferences("config", MODE_PRIVATE).getBoolean("isDebug", false)) {
+                isStartPrivateChat = false;
+            } else {
+                isStartPrivateChat = true;
+            }
         }
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
         initView();
         initData();
 
@@ -228,7 +243,8 @@ public class SelectFriendsActivity extends BaseActivity {
                 }
                 dataLsit.add(new Friend(deleDisList.get(i).getUserId(),
                                         deleDisList.get(i).getName(),
-                                        deleDisList.get(i).getPortraitUri().toString()
+                                        deleDisList.get(i).getPortraitUri().toString(),
+                                        null //TODO displayName 需要处理 暂为 null
                                        ));
             }
         } else if (deleteGroupMemberList != null && deleteGroupMemberList.size() > 0) {
@@ -238,7 +254,8 @@ public class SelectFriendsActivity extends BaseActivity {
                 }
                 dataLsit.add(new Friend(deleteGroupMemberList.get(i).getUser().getId(),
                                         deleteGroupMemberList.get(i).getUser().getNickname(),
-                                        deleteGroupMemberList.get(i).getUser().getPortraitUri()
+                                        deleteGroupMemberList.get(i).getUser().getPortraitUri(),
+                                        null //TODO displayName 需要处理 暂为 null
                                        ));
             }
         } else {
@@ -274,6 +291,7 @@ public class SelectFriendsActivity extends BaseActivity {
     public Map<String, Boolean> addGroupFlag = null;
 
     public List<Friend> adapterList;
+
 
     class StartDiscussionAdapter extends BaseAdapter implements SectionIndexer {
 
@@ -320,7 +338,7 @@ public class SelectFriendsActivity extends BaseActivity {
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
 
-            ViewHolder viewHolder = null;
+            final ViewHolder viewHolder;
             final Friend mContent = adapterList.get(position);
             if (convertView == null) {
                 viewHolder = new ViewHolder();
@@ -363,27 +381,35 @@ public class SelectFriendsActivity extends BaseActivity {
                         }
                     }
                 });
-            }
-            viewHolder.isSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    Log.d("RYM", "isChecked = " + isChecked);
-                    if (isChecked) {
-                        mCBFlag.put(position, true);
-                    } else {
-                        mCBFlag.put(position, false);
+                viewHolder.isSelect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        mCBFlag.put(position, viewHolder.isSelect.isChecked());
                     }
-                }
-            });
+                });
+            } else {
+                viewHolder.isSelect.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mCBFlag.put(position, viewHolder.isSelect.isChecked());
+                        updateSelectedSizeView(mCBFlag);
+                    }
+                });
+            }
             viewHolder.isSelect.setChecked(mCBFlag.get(position));
-            viewHolder.tvTitle.setText(adapterList.get(position).getName());
+
+            if (TextUtils.isEmpty(adapterList.get(position).getDisplayName())) {
+                viewHolder.tvTitle.setText(adapterList.get(position).getName());
+            } else {
+                viewHolder.tvTitle.setText(adapterList.get(position).getDisplayName());
+            }
+
             String url = adapterList.get(position).getPortraitUri();
             if (!TextUtils.isEmpty(url)) {
                 ImageLoader.getInstance().displayImage(url, viewHolder.mImageView, App.getOptions());
             } else {
                 ImageLoader.getInstance().displayImage(RongGenerate.generateDefaultAvatar(adapterList.get(position).getName(), adapterList.get(position).getUserId()), viewHolder.mImageView, App.getOptions());
             }
-
             return convertView;
         }
 
@@ -443,12 +469,85 @@ public class SelectFriendsActivity extends BaseActivity {
 
     }
 
+    private void updateSelectedSizeView(Map<Integer, Boolean> mCBFlag) {
+        if (!isStartPrivateChat && mCBFlag != null) {
+            int size = 0;
+            for (int i = 0; i < mCBFlag.size(); i++) {
+                if (mCBFlag.get(i).booleanValue() == true) {
+                    size++;
+                }
+            }
+            if (size == 0) {
+                mConfirmTextView.setText("确定");
+                mSelectedListView.setVisibility(View.GONE);
+            } else {
+                mConfirmTextView.setText("确定(" + size + ")");
+                List<Friend> selectedList = new ArrayList<>();
+                for (int i = 0; i < sourceDataList.size(); i++) {
+                    if (mCBFlag.get(i).booleanValue() == true) {
+                        selectedList.add(sourceDataList.get(i));
+                    }
+                }
+                mSelectedListView.setVisibility(View.VISIBLE);
+                selectAdapter.updateListView(selectedList);
+            }
+        }
+    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.de_select_ok, menu);
-        return super.onCreateOptionsMenu(menu);
+    class SelectedAdapter extends BaseAdapter {
+
+        private List<Friend> list;
+
+        private Context context;
+
+        public SelectedAdapter(List<Friend> list, Context context) {
+            this.list = list;
+            this.context = context;
+        }
+
+        /**
+         * 传入新的数据 刷新UI的方法
+         */
+        public void updateListView(List<Friend> list) {
+            this.list = list;
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public int getCount() {
+            return list.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return list.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder viewHolder = null;
+            final Friend bean = list.get(position);
+            if (convertView == null) {
+                viewHolder = new ViewHolder();
+                convertView = LayoutInflater.from(context).inflate(R.layout.item_selected, null);
+                viewHolder.imageView = (SelectableRoundedImageView) convertView.findViewById(R.id.selected_icon);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+            ImageLoader.getInstance().displayImage(TextUtils.isEmpty(bean.getPortraitUri()) ? RongGenerate.generateDefaultAvatar(bean.getName(), bean.getUserId()) : bean.getPortraitUri(), viewHolder.imageView);
+            return convertView;
+        }
+
+
+        class ViewHolder {
+            SelectableRoundedImageView imageView;
+        }
     }
 
 
@@ -513,140 +612,6 @@ public class SelectFriendsActivity extends BaseActivity {
     private List<String> startDisList;
     private List<Friend> createGroupList;
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.ok) {
-            if (mCBFlag != null && sourceDataList != null && sourceDataList.size() > 0) {
-                startDisList = new ArrayList<>();
-                List<String> disNameList = new ArrayList<>();
-                createGroupList = new ArrayList<>();
-                for (int i = 0; i < sourceDataList.size(); i++) {
-                    if (mCBFlag.get(i)) {
-                        startDisList.add(sourceDataList.get(i).getUserId());
-                        disNameList.add(sourceDataList.get(i).getName());
-                        createGroupList.add(sourceDataList.get(i));
-                    }
-                }
-
-                if (isConversationActivityStartDiscussion) {
-                    if (RongIM.getInstance() != null) {
-                        RongIM.getInstance().addMemberToDiscussion(conversationStartId, startDisList, new RongIMClient.OperationCallback() {
-                            @Override
-                            public void onSuccess() {
-                                NToast.shortToast(SelectFriendsActivity.this, getString(R.string.add_successful));
-                                BroadcastManager.getInstance(mContext).sendBroadcast(DISCUSSIONUPDATE);
-                                finish();
-                            }
-
-                            @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
-
-                            }
-                        });
-                    }
-                } else if (isConversationActivityStartPrivate) {
-                    if (RongIM.getInstance() != null) { // 没有被调用 二人讨论组时候
-                        RongIM.getInstance().addMemberToDiscussion(conversationStartId, startDisList, new RongIMClient.OperationCallback() {
-                            @Override
-                            public void onSuccess() {
-                                NToast.shortToast(SelectFriendsActivity.this, getString(R.string.add_successful));
-                                finish();
-                            }
-
-                            @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
-
-                            }
-                        });
-                    }
-                } else if (deleteGroupMemberList != null && startDisList != null && sourceDataList.size() > 0) {
-                    DialogWithYesOrNoUtils.getInstance().showDialog(mContext, getString(R.string.remove_group_members), new DialogWithYesOrNoUtils.DialogCallBack() {
-
-                        @Override
-                        public void exectEvent() {
-                            LoadDialog.show(mContext);
-                            request(DELEGROUPMEMBER);
-                        }
-
-                        @Override
-                        public void exectEditEvent(String editText) {
-
-                        }
-
-                        @Override
-                        public void updatePassword(String oldPassword, String newPassword) {
-
-                        }
-                    });
-                } else if (deleDisList != null && startDisList != null && startDisList.size() > 0) {
-                    Intent intent = new Intent();
-                    intent.putExtra("deleteDiscuMember", (Serializable) startDisList);
-                    setResult(RESULT_OK, intent);
-                    finish();
-
-                } else if (addGroupMemberList != null && startDisList != null && startDisList.size() > 0) {
-                    //TODO 选中添加成员的数据添加到服务端数据库  返回本地也需要更改
-                    LoadDialog.show(mContext);
-                    request(ADDGROUPMEMBER);
-
-                } else if (addDisList != null && startDisList != null && startDisList.size() > 0) {
-                    Intent intent = new Intent();
-                    intent.putExtra("addDiscuMember", (Serializable) startDisList);
-                    setResult(RESULT_OK, intent);
-                    finish();
-                } else if (isCrateGroup) {
-                    if (createGroupList.size() > 0) {
-                        Intent intent = new Intent(SelectFriendsActivity.this, CreateGroupActivity.class);
-                        intent.putExtra("GroupMember", (Serializable) createGroupList);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        NToast.shortToast(mContext, "请至少邀请一位好友创建群组");
-                    }
-                } else {
-
-                    if (startDisList != null && startDisList.size() == 1) {
-                        RongIM.getInstance().startPrivateChat(mContext, startDisList.get(0), getUserInfoById(startDisList.get(0)).getName());
-                    } else if (startDisList.size() > 1) {
-
-                        String disName;
-                        if (disNameList.size() < 2) {
-                            disName = disNameList.get(0) + "和我的讨论组";
-                        } else {
-                            StringBuilder sb = new StringBuilder();
-                            for (String s : disNameList) {
-                                sb.append(s);
-                                sb.append(",");
-                            }
-                            String str = sb.toString();
-                            disName = str.substring(0, str.length() - 1);
-                            disName = disName + "和我的讨论组";
-                        }
-                        RongIM.getInstance().createDiscussion(disName, startDisList, new RongIMClient.CreateDiscussionCallback() {
-                            @Override
-                            public void onSuccess(String s) {
-                                NLog.e("disc", "onSuccess" + s);
-                                RongIM.getInstance().startDiscussionChat(SelectFriendsActivity.this, s, "");
-                            }
-
-                            @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
-                                NLog.e("disc", errorCode.getValue());
-                            }
-                        });
-                    } else {
-                        NToast.shortToast(mContext, getString(R.string.least_one_friend));
-                    }
-                }
-            } else {
-                Toast.makeText(SelectFriendsActivity.this, "无数据", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            finish();
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
 
     /**
      * 为ListView填充数据
@@ -691,6 +656,145 @@ public class SelectFriendsActivity extends BaseActivity {
             return friend;
         }
         return null;
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.select_ok:
+                if (mCBFlag != null && sourceDataList != null && sourceDataList.size() > 0) {
+                    startDisList = new ArrayList<>();
+                    List<String> disNameList = new ArrayList<>();
+                    createGroupList = new ArrayList<>();
+                    for (int i = 0; i < sourceDataList.size(); i++) {
+                        if (mCBFlag.get(i)) {
+                            startDisList.add(sourceDataList.get(i).getUserId());
+                            disNameList.add(sourceDataList.get(i).getName());
+                            createGroupList.add(sourceDataList.get(i));
+                        }
+                    }
+
+                    if (isConversationActivityStartDiscussion) {
+                        if (RongIM.getInstance() != null) {
+                            RongIM.getInstance().addMemberToDiscussion(conversationStartId, startDisList, new RongIMClient.OperationCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    NToast.shortToast(SelectFriendsActivity.this, getString(R.string.add_successful));
+                                    BroadcastManager.getInstance(mContext).sendBroadcast(DISCUSSIONUPDATE);
+                                    finish();
+                                }
+
+                                @Override
+                                public void onError(RongIMClient.ErrorCode errorCode) {
+
+                                }
+                            });
+                        }
+                    } else if (isConversationActivityStartPrivate) {
+                        if (RongIM.getInstance() != null) { // 没有被调用 二人讨论组时候
+                            RongIM.getInstance().addMemberToDiscussion(conversationStartId, startDisList, new RongIMClient.OperationCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    NToast.shortToast(SelectFriendsActivity.this, getString(R.string.add_successful));
+                                    finish();
+                                }
+
+                                @Override
+                                public void onError(RongIMClient.ErrorCode errorCode) {
+
+                                }
+                            });
+                        }
+                    } else if (deleteGroupMemberList != null && startDisList != null && sourceDataList.size() > 0) {
+                        DialogWithYesOrNoUtils.getInstance().showDialog(mContext, getString(R.string.remove_group_members), new DialogWithYesOrNoUtils.DialogCallBack() {
+
+                            @Override
+                            public void exectEvent() {
+                                LoadDialog.show(mContext);
+                                request(DELEGROUPMEMBER);
+                            }
+
+                            @Override
+                            public void exectEditEvent(String editText) {
+
+                            }
+
+                            @Override
+                            public void updatePassword(String oldPassword, String newPassword) {
+
+                            }
+                        });
+                    } else if (deleDisList != null && startDisList != null && startDisList.size() > 0) {
+                        Intent intent = new Intent();
+                        intent.putExtra("deleteDiscuMember", (Serializable) startDisList);
+                        setResult(RESULT_OK, intent);
+                        finish();
+
+                    } else if (addGroupMemberList != null && startDisList != null && startDisList.size() > 0) {
+                        //TODO 选中添加成员的数据添加到服务端数据库  返回本地也需要更改
+                        LoadDialog.show(mContext);
+                        request(ADDGROUPMEMBER);
+
+                    } else if (addDisList != null && startDisList != null && startDisList.size() > 0) {
+                        Intent intent = new Intent();
+                        intent.putExtra("addDiscuMember", (Serializable) startDisList);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    } else if (isCrateGroup) {
+                        if (createGroupList.size() > 0) {
+                            Intent intent = new Intent(SelectFriendsActivity.this, CreateGroupActivity.class);
+                            intent.putExtra("GroupMember", (Serializable) createGroupList);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            NToast.shortToast(mContext, "请至少邀请一位好友创建群组");
+                        }
+                    } else {
+
+                        if (startDisList != null && startDisList.size() == 1) {
+                            RongIM.getInstance().startPrivateChat(mContext, startDisList.get(0), getUserInfoById(startDisList.get(0)).getName());
+                        } else if (startDisList.size() > 1) {
+
+                            String disName;
+                            if (disNameList.size() < 2) {
+                                disName = disNameList.get(0) + "和我的讨论组";
+                            } else {
+                                StringBuilder sb = new StringBuilder();
+                                for (String s : disNameList) {
+                                    sb.append(s);
+                                    sb.append(",");
+                                }
+                                String str = sb.toString();
+                                disName = str.substring(0, str.length() - 1);
+                                disName = disName + "和我的讨论组";
+                            }
+                            RongIM.getInstance().createDiscussion(disName, startDisList, new RongIMClient.CreateDiscussionCallback() {
+                                @Override
+                                public void onSuccess(String s) {
+                                    NLog.e("disc", "onSuccess" + s);
+                                    RongIM.getInstance().startDiscussionChat(SelectFriendsActivity.this, s, "");
+                                }
+
+                                @Override
+                                public void onError(RongIMClient.ErrorCode errorCode) {
+                                    NLog.e("disc", errorCode.getValue());
+                                }
+                            });
+                        } else {
+                            NToast.shortToast(mContext, getString(R.string.least_one_friend));
+                        }
+                    }
+                } else {
+                    Toast.makeText(SelectFriendsActivity.this, "无数据", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
+
+    public void selectFinish(View view) {
+        finish();
     }
 
 }

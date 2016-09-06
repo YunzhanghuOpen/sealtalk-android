@@ -50,7 +50,7 @@
 
     </RelativeLayout>
 
-    <include layout="@layout/de_merge_view" />
+    <include layout="@layout/merge_view" />
 
     <LinearLayout
         android:id="@+id/close_notification"
@@ -85,7 +85,7 @@
                 android:layout_marginTop="18dp" />
         </RelativeLayout>
 
-        <include layout="@layout/de_merge_view" />
+        <include layout="@layout/merge_view" />
 
         <RelativeLayout
             android:id="@+id/end_notification"

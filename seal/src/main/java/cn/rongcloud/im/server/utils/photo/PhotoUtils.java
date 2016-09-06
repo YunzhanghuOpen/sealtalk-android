@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.graphics.Interpolator;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -188,7 +189,7 @@ public class PhotoUtils {
 
             //截图
             case INTENT_CROP:
-                if (new File(buildUri(activity).getPath()).exists()) {
+                if (resultCode == Activity.RESULT_OK && new File(buildUri(activity).getPath()).exists()) {
                     onPhotoResultListener.onPhotoResult(buildUri(activity));
                 }
                 break;

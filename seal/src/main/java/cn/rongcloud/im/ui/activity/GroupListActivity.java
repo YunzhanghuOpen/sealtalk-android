@@ -49,7 +49,7 @@ public class GroupListActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.de_fr_group_list);
+        setContentView(R.layout.fr_group_list);
         getSupportActionBar().setTitle(R.string.my_groups);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
@@ -176,7 +176,7 @@ public class GroupListActivity extends BaseActivity {
                 convertView = LayoutInflater.from(context).inflate(R.layout.group_item_new, null);
                 viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.groupname);
                 viewHolder.mImageView = (SelectableRoundedImageView) convertView.findViewById(R.id.groupuri);
-                viewHolder.groupChat = (Button) convertView.findViewById(R.id.group_chat);
+                viewHolder.groupId = (TextView) convertView.findViewById(R.id.group_id);
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
@@ -187,12 +187,10 @@ public class GroupListActivity extends BaseActivity {
             } else {
                 ImageLoader.getInstance().displayImage(mContent.getPortraitUri(), viewHolder.mImageView, App.getOptions());
             }
-            viewHolder.groupChat.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    RongIM.getInstance().startConversation(mContext, Conversation.ConversationType.GROUP, mContent.getQunId(), mContent.getName());
-                }
-            });
+            if (context.getSharedPreferences("config", MODE_PRIVATE).getBoolean("isDebug", false)) {
+                viewHolder.groupId.setVisibility(View.VISIBLE);
+                viewHolder.groupId.setText(mContent.getQunId());
+            }
             return convertView;
         }
 
@@ -209,7 +207,7 @@ public class GroupListActivity extends BaseActivity {
             /**
              * userid
              */
-            Button groupChat;
+            TextView groupId;
         }
     }
 

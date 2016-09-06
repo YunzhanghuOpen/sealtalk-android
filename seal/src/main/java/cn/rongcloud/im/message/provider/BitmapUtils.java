@@ -496,7 +496,7 @@ public class BitmapUtils {
      * 保存文件
      * @param bm
      * @param fileName
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public static String saveFile(Bitmap bm, String fileName) throws IOException {
         String path = getSDPath() + "/revoeye/";

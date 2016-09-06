@@ -35,5 +35,5 @@
     <style name="RCTheme.ActionBar.Item">
         <item name="android:padding">3dp</item>
     </style>
-   
+
 </resources>

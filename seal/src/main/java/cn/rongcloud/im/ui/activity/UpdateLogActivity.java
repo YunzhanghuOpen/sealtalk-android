@@ -34,9 +34,9 @@ public class UpdateLogActivity extends BaseActionBarActivity {
         mWebView.getSettings().setSupportZoom(true);
 
         MyWebViewClient mMyWebViewClient = new MyWebViewClient();
-        mMyWebViewClient.onPageFinished(mWebView, "http://rongcloud.cn/downloads/history/Android");
-        mMyWebViewClient.shouldOverrideUrlLoading(mWebView, "http://rongcloud.cn/downloads/history/Android");
-        mMyWebViewClient.onPageFinished(mWebView, "http://rongcloud.cn/downloads/history/Android");
+        mMyWebViewClient.onPageFinished(mWebView, "http://www.rongcloud.cn/changelog");
+        mMyWebViewClient.shouldOverrideUrlLoading(mWebView, "http://www.rongcloud.cn/changelog");
+        mMyWebViewClient.onPageFinished(mWebView, "http://www.rongcloud.cn/changelog");
         mWebView.setWebViewClient(mMyWebViewClient);
     }
 

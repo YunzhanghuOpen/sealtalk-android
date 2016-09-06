@@ -10,7 +10,6 @@ import cn.rongcloud.im.server.network.async.AsyncTaskManager;
 import cn.rongcloud.im.server.network.async.OnDataListener;
 import cn.rongcloud.im.server.network.http.HttpException;
 import cn.rongcloud.im.server.response.GetGroupMemberResponse;
-import cn.rongcloud.im.server.utils.NLog;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.model.GroupUserInfo;
 
@@ -22,14 +21,15 @@ public class GroupUserInfoEngine implements OnDataListener {
 
     private String groupId, userId;
 
-    private static final int REQUESTGROUPUSERINFO = 50;
+    private static final int REQUEST_GROUP_USER_INFO = 50;
     private static GroupUserInfoEngine instance;
+
+    private Context context;
 
     private GroupUserInfoEngine(Context context) {
         this.context = context;
     }
 
-    private static Context context;
 
     private GroupUserInfo groupUserInfo;
 
@@ -52,7 +52,7 @@ public class GroupUserInfoEngine implements OnDataListener {
         if (!TextUtils.isEmpty(groupId) && !TextUtils.isEmpty(userid)) {
             this.groupId = groupId;
             this.userId = userid;
-            AsyncTaskManager.getInstance(context).request(REQUESTGROUPUSERINFO, this);
+            AsyncTaskManager.getInstance(context).request(REQUEST_GROUP_USER_INFO, this);
         }
         return getGroupUserInfo();
     }
@@ -63,14 +63,13 @@ public class GroupUserInfoEngine implements OnDataListener {
         return new SealAction(context).getGroupMember(id);
     }
 
-    private List<GetGroupMemberResponse.ResultEntity> mGroupMember;
 
     @Override
     public void onSuccess(int requestCode, Object result) {
         if (result != null) {
             GetGroupMemberResponse res = (GetGroupMemberResponse) result;
             if (res.getCode() == 200) {
-                mGroupMember = res.getResult();
+                List<GetGroupMemberResponse.ResultEntity> mGroupMember = res.getResult();
                 for (GetGroupMemberResponse.ResultEntity g : mGroupMember) {
                     if (g.getUser().getId().equals(userId)) {
                         if (RongIM.getInstance() != null && RongIM.getInstance().getRongIMClient() != null) {

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
+    android:background="#fff"
     android:gravity="center_vertical"
     android:orientation="vertical">
 
@@ -11,7 +12,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1.0"
-        android:background="#E0E0E0"
+        android:background="#f0f0f6"
         android:paddingBottom="5dip"
         android:paddingLeft="5dip"
         android:paddingTop="5dip"
@@ -43,12 +44,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="8dp"
             android:singleLine="true"
             android:ellipsize="end"
             android:layout_weight="1"
-            android:textColor="@color/text_tips_color"
-            android:textSize="18sp" />
+            android:textColor="@color/text_color"
+            android:textSize="16sp" />
 
         <CheckBox
             android:id="@+id/dis_select"

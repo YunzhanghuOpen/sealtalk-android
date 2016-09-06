@@ -26,12 +26,18 @@
                 android:listSelector="@android:color/transparent"
                 android:numColumns="4"></cn.rongcloud.im.ui.widget.DemoGridView>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.25dp"
-                android:layout_marginLeft="14dp"
-                android:layout_marginRight="14dp"
-                android:background="#dfdfdd" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.25dp"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:background="#dfdfdd" />
+            </LinearLayout>
 
             <RelativeLayout
                 android:id="@+id/group_member_size_item"
@@ -58,8 +64,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="0.25dp"
                 android:layout_marginLeft="14dp"
-                android:layout_marginTop="20dp"
                 android:layout_marginRight="14dp"
+                android:layout_marginTop="20dp"
                 android:background="#dfdfdd" />
 
             <LinearLayout
@@ -95,12 +101,18 @@
 
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.25dp"
-                android:layout_marginLeft="14dp"
-                android:layout_marginRight="14dp"
-                android:background="#dfdfdd" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.25dp"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:background="#dfdfdd" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/ll_group_name"
@@ -117,17 +129,19 @@
                     android:layout_marginLeft="16dp"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:singleLine="true"
                     android:text="@string/group_name"
                     android:textSize="16dp" />
 
                 <TextView
                     android:id="@+id/group_name"
-                    android:layout_marginRight="14dp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginBottom="10dp"
                     android:layout_marginLeft="16dp"
+                    android:layout_marginRight="14dp"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:ellipsize="end"
@@ -140,14 +154,19 @@
             </LinearLayout>
 
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.25dp"
-                android:layout_marginLeft="14dp"
-                android:layout_marginRight="14dp"
-                android:layout_marginTop="20dp"
-                android:background="#dfdfdd"
-                android:visibility="gone" />
+            <LinearLayout
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.25dp"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:background="#dfdfdd" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/group_announcement"
@@ -155,8 +174,7 @@
                 android:layout_height="48dp"
                 android:background="@drawable/btn_list_item_bg"
                 android:clickable="true"
-                android:orientation="horizontal"
-                android:visibility="gone">
+                android:orientation="horizontal">
 
 
                 <TextView
@@ -245,12 +263,18 @@
                     app:kswThumbMarginTop="-2.5dp" />
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.25dp"
-                android:layout_marginLeft="14dp"
-                android:layout_marginRight="14dp"
-                android:background="#dfdfdd" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.25dp"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:background="#dfdfdd" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -286,12 +310,18 @@
                     app:kswThumbMarginTop="-2.5dp" />
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.25dp"
-                android:layout_marginLeft="14dp"
-                android:layout_marginRight="14dp"
-                android:background="#dfdfdd" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.25dp"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:background="#dfdfdd" />
+            </LinearLayout>
 
 
             <LinearLayout

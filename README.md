@@ -1,4 +1,8 @@
 # sealtalk-android
+[![Platform](https://img.shields.io/badge/platform-android-green.svg)](http://developer.android.com/index.html)
+[![API](https://img.shields.io/badge/API-9%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=9)<br/>
+
+
 [中文版](https://github.com/sealtalk/sealtalk-android/blob/master/README.zh.md)  <br/>
 Android App of SealTalk powered by RongCloud.  
 
@@ -17,6 +21,10 @@ Android App of SealTalk powered by RongCloud.
 ![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image2.png)<br/>
 ![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image3.png)<br/>
 
+## UML
+  LoginClassDiagram
+ ![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/LoginClassDiagram.png)<br/>
+
 ## Uses
 #### Step 1:
 [Download RongCloud SDK](http://rongcloud.cn/downloads) Android IMKit SDK Package
@@ -31,6 +39,12 @@ Read Android [Android Dev Doc](http://www.rongcloud.cn/docs/android.html), Learn
  - [Knowledge Base](http://support.rongcloud.cn/)
  - [Dev Repair Order](https://developer.rongcloud.cn/signin?returnUrl=%2Fticket), Need to log in
  - [Android Video Tutorial](http://www.rongcloud.cn/docs/android_video_tutorials.html)
+ 
+## Thanks
+- [androidone](https://github.com/devinhu/androidone)
+- [android-async-http](https://github.com/loopj/android-async-http)
+- [greendao](https://github.com/greenrobot/greenDAO)
+- [fastjson](https://github.com/alibaba/fastjson)
 
 ### Stronger than what you can imagine, Upgrades on the way.
 

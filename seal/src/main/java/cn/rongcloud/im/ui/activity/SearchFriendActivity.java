@@ -1,9 +1,13 @@
 package cn.rongcloud.im.ui.activity;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -32,8 +36,6 @@ public class SearchFriendActivity extends BaseActivity {
     private static final int ADDFRIEND = 11;
     private EditText mEtSearch;
 
-    private Button mBtSearch;
-
     private LinearLayout searchItem;
 
     private TextView searchName;
@@ -47,33 +49,39 @@ public class SearchFriendActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        getSupportActionBar().setTitle(R.string.Search);
+        getSupportActionBar().setTitle(R.string.search_friend);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
 
-        mEtSearch = (EditText) findViewById(R.id.de_ui_search);
-        mBtSearch = (Button) findViewById(R.id.de_search);
+        mEtSearch = (EditText) findViewById(R.id.search_edit);
         searchItem = (LinearLayout) findViewById(R.id.search_result);
         searchName = (TextView) findViewById(R.id.search_name);
         searchImage = (SelectableRoundedImageView) findViewById(R.id.search_header);
-
-
-        mBtSearch.setOnClickListener(new View.OnClickListener() {
+        mEtSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View v) {
-                mPhone = mEtSearch.getText().toString().trim();
-                if (TextUtils.isEmpty(mPhone)) {
-                    NToast.shortToast(mContext, R.string.phone_number_is_null);
-                    return;
-                }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                if (!AMUtils.isMobile(mPhone)) {
-                    NToast.shortToast(mContext, "手机号正则验证失败");
-                    return;
-                }
+            }
 
-                LoadDialog.show(mContext);
-                request(SEARCHPHONE, true);
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 11) {
+                    mPhone = s.toString().trim();
+                    if (!AMUtils.isMobile(mPhone)) {
+                        NToast.shortToast(mContext, "非法手机号");
+                        return;
+                    }
+                    hintKbTwo();
+                    LoadDialog.show(mContext);
+                    request(SEARCHPHONE, true);
+                } else {
+                    searchItem.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
 
@@ -102,7 +110,7 @@ public class SearchFriendActivity extends BaseActivity {
                         mFriendId = guifres.getResult().getId();
                         searchItem.setVisibility(View.VISIBLE);
                         if (TextUtils.isEmpty(guifres.getResult().getPortraitUri())) {
-                            ImageLoader.getInstance().displayImage(RongGenerate.generateDefaultAvatar(guifres.getResult().getNickname(), guifres.getResult().getId()) , searchImage, App.getOptions());
+                            ImageLoader.getInstance().displayImage(RongGenerate.generateDefaultAvatar(guifres.getResult().getNickname(), guifres.getResult().getId()), searchImage, App.getOptions());
                         } else {
                             ImageLoader.getInstance().displayImage(guifres.getResult().getPortraitUri(), searchImage, App.getOptions());
                         }
@@ -175,7 +183,17 @@ public class SearchFriendActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        hintKbTwo();
         finish();
         return super.onOptionsItemSelected(item);
+    }
+
+    private void hintKbTwo() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm.isActive() && getCurrentFocus() != null) {
+            if (getCurrentFocus().getWindowToken() != null) {
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        }
     }
 }

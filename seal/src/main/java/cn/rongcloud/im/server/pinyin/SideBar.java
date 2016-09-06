@@ -72,7 +72,7 @@ public class SideBar extends View {
         int width = getWidth();//获取对应的宽度
         int singleHeight = height / b.length; //获取每一个字母的高度
         for (int i = 0; i < b.length; i++) {
-            paint.setColor(Color.GRAY);  // 所有字母的默认颜色 目前为灰色(右侧字体颜色)
+            paint.setColor(Color.parseColor("#858c94"));  // 所有字母的默认颜色 目前为灰色(右侧字体颜色)
             paint.setTypeface(Typeface.DEFAULT);//(右侧字体样式)
             paint.setAntiAlias(true);
             paint.setTextSize(30); //(右侧字体大小)

@@ -8,8 +8,9 @@ android {
         applicationId "cn.rongcloud.im"
         minSdkVersion 11
         targetSdkVersion 23
-        versionCode 2016061311
-        versionName "2.6.6 stable"
+
+        versionCode 2016081820
+        versionName "2.7.0 Dev"
         multiDexEnabled true
     }
 
@@ -66,7 +67,8 @@ dependencies {
     compile files('libs/org.apache.http.legacy.jar')
     compile project(':redpacketlibrary')
     compile 'com.android.support:multidex:1.0.0'
-    //compile project(':Rong_Cloud_Android_IMKit_SDK_v2_6_7_stable_with_CallKit')
 
+    compile files('libs/jsoup-1.8.3.jar')
+    //compile project(':Rong_Cloud_Android_IMKit_SDK_v2_7_0_dev_with_CallKit')
 }
 apply plugin: 'com.google.gms.google-services'

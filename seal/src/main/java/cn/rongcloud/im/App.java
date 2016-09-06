@@ -15,20 +15,19 @@ import com.yunzhanghu.redpacketui.RedPacketUtil;
 
 import cn.rongcloud.im.message.provider.ContactNotificationMessageProvider;
 import cn.rongcloud.im.message.provider.GroupNotificationMessageProvider;
-import cn.rongcloud.im.message.provider.NewDiscussionConversationProvider;
 import cn.rongcloud.im.message.provider.RealTimeLocationMessageProvider;
+import cn.rongcloud.im.server.utils.NLog;
 import cn.rongcloud.im.utils.SharedPreferencesContext;
-import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
+import io.rong.imkit.widget.provider.FileMessageItemProvider;
 import io.rong.imlib.ipc.RongExceptionHandler;
+import io.rong.message.FileMessage;
 import io.rong.message.GroupNotificationMessage;
 import io.rong.push.RongPushClient;
 import io.rong.push.common.RongException;
 
 
-/**
- * Created by bob on 2015/1/30.
- */
+
 public class App extends Application {
 
     private static DisplayImageOptions options;
@@ -57,6 +56,7 @@ public class App extends Application {
          */
         //RongIM.setServerInfo("nav.cn.ronghub.com", "img.cn.ronghub.com");
         RongIM.init(this);
+        NLog.setDebug(true);//Seal Module Log 开关
         SealAppContext.init(this);
         SharedPreferencesContext.init(this);
         Thread.setDefaultUncaughtExceptionHandler(new RongExceptionHandler(this));
@@ -65,21 +65,19 @@ public class App extends Application {
             //注册红包消息、回执消息类以及消息展示模板
             RedPacketUtil.getInstance().registerMsgTypeAndTemplate(this);
             RongIM.registerMessageType(GroupNotificationMessage.class);
+            RongIM.registerMessageType(FileMessage.class);
             RongIM.registerMessageTemplate(new ContactNotificationMessageProvider());
             RongIM.registerMessageTemplate(new RealTimeLocationMessageProvider());
             RongIM.registerMessageTemplate(new GroupNotificationMessageProvider());
-            //@ 消息模板展示
-            if (RongContext.getInstance() != null) {
-                RongContext.getInstance().registerConversationTemplate(new NewDiscussionConversationProvider());
-            }
+            RongIM.registerMessageTemplate(new FileMessageItemProvider());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         options = new DisplayImageOptions.Builder()
-        .showImageForEmptyUri(cn.rongcloud.im.R.drawable.de_default_portrait)
-        .showImageOnFail(cn.rongcloud.im.R.drawable.de_default_portrait)
-        .showImageOnLoading(cn.rongcloud.im.R.drawable.de_default_portrait)
+        .showImageForEmptyUri(R.drawable.de_default_portrait)
+        .showImageOnFail(R.drawable.de_default_portrait)
+        .showImageOnLoading(R.drawable.de_default_portrait)
         .displayer(new FadeInBitmapDisplayer(300))
         .cacheInMemory(true)
         .cacheOnDisk(true)

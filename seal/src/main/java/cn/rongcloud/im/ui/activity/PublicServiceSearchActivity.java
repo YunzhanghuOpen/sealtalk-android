@@ -12,7 +12,7 @@ public class PublicServiceSearchActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.de_pub_search);
+        setContentView(R.layout.pub_search);
 
     }
 

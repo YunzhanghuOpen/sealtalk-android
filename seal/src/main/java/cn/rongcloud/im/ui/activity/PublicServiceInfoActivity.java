@@ -17,7 +17,7 @@ public class PublicServiceInfoActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e("", "---------PublicServiceInfoActivity------------");
-        setContentView(R.layout.de_pub_account_info);
+        setContentView(R.layout.pub_account_info);
 
     }
 

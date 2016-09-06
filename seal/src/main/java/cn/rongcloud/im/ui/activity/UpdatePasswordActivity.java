@@ -83,6 +83,11 @@ public class UpdatePasswordActivity extends BaseActivity implements View.OnClick
             return;
         }
 
+        if (new1.equals(old)) {
+            NToast.shortToast(mContext, R.string.new_and_old_password);
+            return;
+        }
+
         mOldPassword = old;
         mNewPassword = new1;
         LoadDialog.show(mContext);
@@ -101,8 +106,6 @@ public class UpdatePasswordActivity extends BaseActivity implements View.OnClick
         ChangePasswordResponse cpRes = (ChangePasswordResponse) result;
         if (cpRes.getCode() == 200) {
             NToast.shortToast(mContext, getString(R.string.update_success));
-            editor.putString("loginpassword", mNewPassword);
-            editor.commit();
             LoadDialog.dismiss(mContext);
             finish();
         } else if (cpRes.getCode() == 1000) {
