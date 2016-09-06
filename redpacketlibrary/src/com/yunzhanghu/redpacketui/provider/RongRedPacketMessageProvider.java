@@ -73,7 +73,7 @@ public class RongRedPacketMessageProvider extends IContainerItemProvider.Message
         holder.special = (TextView) view.findViewById(R.id.tv_packet_type);
         holder.view = view.findViewById(R.id.bubble);
         view.setTag(holder);
-        this.mContext=context;
+        this.mContext = context;
         return view;
     }
 
@@ -225,7 +225,7 @@ public class RongRedPacketMessageProvider extends IContainerItemProvider.Message
                 RedPacketUtil.getInstance().getTokenData(), (FragmentActivity) mContext,
                 new RPOpenPacketUtil.RPOpenPacketCallBack() {
                     @Override
-                    public void onSuccess(String s, String s1) {
+                    public void onSuccess(String senderId, String senderNickname, String myAmount) {
                         //打开红包消息成功,然后发送回执消息例如"你领取了XX的红包"
                         sendAckMsg(mContent, mMessage, RedPacketUtil.getInstance().getUserName());
                     }
