@@ -104,7 +104,7 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
         // @param userId       商户用户id
         // @param timestamp    签名使用的时间戳
         // @param sign         签名
-        final String url = "http://rpv2.easemob.com/api/sign?duid=" + RedPacketUtil.getInstance().getUserID();
+        final String url = "http://rpv2.easemob.com/api/sign?duid=" + RedPacketUtil.getInstance().getUserID()+"&dcode=1101%23testrongyun";
         RedPacket.getInstance().setRefreshSignListener(new RPRefreshSignListener() {
             @Override
             public void onRefreshSign(RPValueCallback<TokenData> rpValueCallback) {
