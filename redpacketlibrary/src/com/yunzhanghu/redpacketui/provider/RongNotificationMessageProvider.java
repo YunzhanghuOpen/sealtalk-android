@@ -63,23 +63,23 @@ public class RongNotificationMessageProvider extends IContainerItemProvider.Mess
     }
 
     public String getMessage(RongNotificationMessage content) {
-        String mContent = "";
+        String msgContent;
         if (TextUtils.isEmpty(content.getSendUserID()) || TextUtils.isEmpty(content.getReceiveUserID())) {
             return "";
         }
         if (content.getSendUserID().equals(content.getReceiveUserID())) {//自己领取了自己的红包
-            mContent = mContext.getString(R.string.yzh_receive_self_red_packet);
+            msgContent = mContext.getString(R.string.yzh_receive_self_red_packet);
         } else {
 
             if (content.getReceiveUserID().equals(RedPacketUtil.getInstance().getUserID())) {//接受红包者
                 //你领取了XX红包
-                mContent = String.format(mContext.getString(R.string.yzh_you_receive_red_packet), content.getSendUserName());
+                msgContent = String.format(mContext.getString(R.string.yzh_you_receive_red_packet), content.getSendUserName());
             } else {//红包发送者
                 //XX领取了你的红包
-                mContent = String.format(mContext.getString(R.string.yzh_other_receive_you_red_packet), content.getReceiveUserName());
+                msgContent = String.format(mContext.getString(R.string.yzh_other_receive_you_red_packet), content.getReceiveUserName());
             }
         }
-        return mContent;
+        return msgContent;
     }
 
     @Override
