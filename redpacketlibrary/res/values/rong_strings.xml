@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--融云红包配置-->
+      
+    <string name="red_packet">红包</string>
+      <string name="sponsor_red_packet">融云红包</string>  
+    <string name="special_red_packet">专属红包</string>
+    <string name="yzh_dialog_item_delete">删除信息</string>
+    <string name="yzh_you_receive_red_packet">你领取了%1$s的红包</string>
+      <string name="yzh_other_receive_you_red_packet">%1$s领取了你的红包</string>  
+    <string name="yzh_receive_self_red_packet">你领取了自己的红包</string>
+</resources>

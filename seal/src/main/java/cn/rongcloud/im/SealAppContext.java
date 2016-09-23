@@ -211,8 +211,8 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
         InputProvider.ExtendProvider[] singleProvider = {
                 new ImageInputProvider(RongContext.getInstance()),
                 new RealTimeLocationInputProvider(RongContext.getInstance()), //带位置共享的地理位
-                new RongRedPacketProvider(RongContext.getInstance()),//单聊红包
-                new FileInputProvider(RongContext.getInstance())//文件消息
+                new FileInputProvider(RongContext.getInstance()),//文件消息
+                new RongRedPacketProvider(RongContext.getInstance())//单聊红包
         };
 
         InputProvider.ExtendProvider[] muiltiProvider = {

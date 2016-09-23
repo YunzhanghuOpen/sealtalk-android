@@ -195,9 +195,9 @@
     <string name="money_record_status">已领取%1$s/%2$s个</string>
     <string name="hint_title">提示</string>
     <string name="limit_hint_title">支付超限</string>
-    <string name="single_limit_msg">单日发出金额超限，剩余额度%1$s元，请修改金额。</string>
+    <string name="single_limit_msg">当日限额还剩%1$s元，请修改金额</string>
     <string name="jd_limit_msg">零钱不足。%1$s尾号%2$s京东支付今日剩余额度%3$s元，请修改金额。</string>
-    <string name="single_out_msg">单日发出金额已达上限。</string>
+    <string name="single_out_msg">当日限额还剩0元，请明天再试</string>
     <string name="sms_error_title">验证码输入错误</string>
     <string name="sms_error_msg">重新输入，或者等倒计时结束后重新获取一个再试。</string>
     <string name="change_limit_msg">为了账户安全，需通过银行卡信息验证是您本人操作后，前往设置支付密码。</string>
@@ -260,13 +260,4 @@
     <string name="transfer_see_change">查看零钱</string>
     <string name="transfer_time">转账时间：</string>
     <string name="safe_hint_title">安全提示</string>
-    <!--融云红包配置-->
-      <string name="red_packet">红包</string>
-      <string name="sponsor_red_packet">融云红包</string>  
-    <string name="special_red_packet">专属红包</string>
-      <string name="yzh_dialog_item_delete">删除信息</string>
-      <string name="yzh_you_receive_red_packet">你领取了%1$s的红包</string>
-      <string name="yzh_other_receive_you_red_packet">%1$s领取了你的红包</string>  
-    <string name="yzh_receive_self_red_packet">你领取了自己的红包</string>
-
 </resources>
