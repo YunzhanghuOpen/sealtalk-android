@@ -125,8 +125,8 @@ public class RongRedPacketMessageProvider extends IContainerItemProvider.Message
         //以下是打开红包所需要的参数
         redPacketInfo = new RedPacketInfo();
         redPacketInfo.redPacketId = content.getMoneyID();//获取红包id
-        redPacketInfo.toAvatarUrl = RedPacketUtil.getInstance().getUserAvatar();//获取打开红包者的名字
-        redPacketInfo.toNickName = RedPacketUtil.getInstance().getUserName();//获取打开红包者的头像
+        redPacketInfo.toAvatarUrl = RedPacketUtil.getInstance().getUserAvatar();//获取打开红包者的头像
+        redPacketInfo.toNickName = RedPacketUtil.getInstance().getUserName();//获取打开红包者的名字
         //判断发送方还是接收方
         if (message.getMessageDirection() == UIMessage.MessageDirection.SEND) {
             redPacketInfo.moneyMsgDirect = RPConstant.MESSAGE_DIRECT_SEND;//发送者
