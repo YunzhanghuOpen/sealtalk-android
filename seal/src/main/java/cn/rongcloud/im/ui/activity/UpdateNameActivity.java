@@ -8,6 +8,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.yunzhanghu.redpacketui.RedPacketUtil;
+
 import cn.rongcloud.im.R;
 import cn.rongcloud.im.SealConst;
 import cn.rongcloud.im.server.broadcast.BroadcastManager;
@@ -91,6 +93,7 @@ public class UpdateNameActivity extends BaseActivity {
 
             LoadDialog.dismiss(mContext);
             NToast.shortToast(mContext, "昵称更改成功");
+            RedPacketUtil.getInstance().setUserName(newName);
             finish();
         }
     }
