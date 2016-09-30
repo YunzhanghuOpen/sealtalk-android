@@ -187,7 +187,7 @@
             android:name=".ui.activity.DiscussionDetailActivity"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".ui.activity.ChangeGroupInfoActivity"
+            android:name=".ui.activity.SingleContactActivity"
             android:screenOrientation="portrait"></activity>
         <activity
             android:name=".ui.activity.ForgetPasswordActivity"

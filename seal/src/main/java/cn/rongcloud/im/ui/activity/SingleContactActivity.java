@@ -19,15 +19,13 @@ import cn.rongcloud.im.R;
 import cn.rongcloud.im.server.pinyin.Friend;
 import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.ui.widget.SinglePopWindow;
-//VoIP start 1
 import io.rong.calllib.RongCallClient;
 import io.rong.calllib.RongCallSession;
 import io.rong.imkit.RongCallAction;
+import io.rong.imkit.RongIM;
 import io.rong.imkit.RongVoIPIntent;
-//VoIP end 1
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
-import io.rong.imkit.RongIM;
 
 /**
  * Created by AMing on 16/7/12.
