@@ -106,10 +106,6 @@
 
         <item name="android:button">@drawable/de_pic_checkbox</item>
 
-        <item name="android:paddingLeft">2.0dip</item>
-
-        <item name="android:maxHeight">10.0dip</item>
-
     </style>
 
     <style name="PicCheckBox" parent="@android:style/Widget.CompoundButton.CheckBox">
@@ -149,6 +145,11 @@
     <style name="AnimationPreview">
         <item name="android:windowEnterAnimation">@anim/fade_in</item>
         <item name="android:windowExitAnimation">@anim/fade_out</item>
+    </style>
+
+    <style name="AnimationPage">
+        <item name="android:windowEnterAnimation">@anim/slide_in</item>
+        <item name="android:windowExitAnimation">@anim/slide_out</item>
     </style>
 
 

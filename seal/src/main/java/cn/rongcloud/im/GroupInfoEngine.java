@@ -17,19 +17,20 @@ import io.rong.imlib.model.Group;
  */
 public class GroupInfoEngine implements OnDataListener {
 
-    private static final int REQUESTGROUPINFO = 19;
+    private static final int REQUEST_GROUP_INFO = 19;
     private static GroupInfoEngine instance;
     private GroupInfoListeners mListener;
 
     private String groupId;
     private Group group;
 
+    private Context context;
+
 
     private GroupInfoEngine(Context context) {
         this.context = context;
     }
 
-    private static Context context;
 
     public static GroupInfoEngine getInstance(Context context) {
         if (instance == null) {
@@ -41,12 +42,12 @@ public class GroupInfoEngine implements OnDataListener {
 
     public Group startEngine(String groupId) {
         setGroupId(groupId);
-        AsyncTaskManager.getInstance(context).request(groupId, REQUESTGROUPINFO, this);
+        AsyncTaskManager.getInstance(context).request(groupId, REQUEST_GROUP_INFO, this);
         return getGroup();
     }
 
     @Override
-    public Object doInBackground(int requsetCode, String id) throws HttpException {
+    public Object doInBackground(int requestCode, String id) throws HttpException {
         return new SealAction(context).getGroupInfo(id);
     }
 
@@ -66,7 +67,7 @@ public class GroupInfoEngine implements OnDataListener {
     @Override
     public void onFailure(int requestCode, int state, Object result) {
         switch (requestCode) {
-            case REQUESTGROUPINFO:
+            case REQUEST_GROUP_INFO:
                 break;
         }
     }

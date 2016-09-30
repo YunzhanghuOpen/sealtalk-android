@@ -1,12 +1,12 @@
 package cn.rongcloud.im.ui.activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -28,84 +28,71 @@ import cn.rongcloud.im.server.utils.CommonUtils;
 import cn.rongcloud.im.server.utils.NToast;
 import cn.rongcloud.im.server.widget.LoadDialog;
 import cn.rongcloud.im.ui.adapter.NewFriendListAdapter;
-import cn.rongcloud.im.utils.Constants;
 
 
-/**
- * Created by Bob on 2015/3/26.
- */
-public class NewFriendListActivity extends BaseActivity implements NewFriendListAdapter.OnItemButtonClick {
+public class NewFriendListActivity extends BaseActivity implements NewFriendListAdapter.OnItemButtonClick, View.OnClickListener {
 
-    private static final String TAG = NewFriendListActivity.class.getSimpleName();
-    private static final int GETALL = 11;
-    private static final int AGREEFRIENDS = 12;
-
+    private static final int GET_ALL = 11;
+    private static final int AGREE_FRIENDS = 12;
+    public static final int FRIEND_LIST_REQUEST_CODE = 1001;
     private ListView shipListView;
     private NewFriendListAdapter adapter;
     private String friendId;
     private TextView isData;
-
-    private SharedPreferences sp;
-
-    private SharedPreferences.Editor editor;
-
+    private UserRelationshipResponse userRelationshipResponse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_friendlist);
         initView();
-
         if (!CommonUtils.isNetworkConnected(mContext)) {
             NToast.shortToast(mContext, R.string.check_network);
             return;
         }
         LoadDialog.show(mContext);
-        request(GETALL);
+        request(GET_ALL);
         adapter = new NewFriendListAdapter(mContext);
         shipListView.setAdapter(adapter);
-
     }
 
     protected void initView() {
-        getSupportActionBar().setTitle(R.string.new_friends);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
+        setTitle(R.string.new_friends);
         shipListView = (ListView) findViewById(R.id.shiplistview);
         isData = (TextView) findViewById(R.id.isData);
-        sp = getSharedPreferences("config", MODE_PRIVATE);
-        editor = sp.edit();
-
+        Button rightButton = getBtn_right();
+        rightButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.de_address_new_friend));
+        rightButton.setOnClickListener(this);
     }
 
 
     @Override
     public Object doInBackground(int requestCode, String id) throws HttpException {
         switch (requestCode) {
-            case GETALL:
+            case GET_ALL:
                 return action.getAllUserRelationship();
-            case AGREEFRIENDS:
+            case AGREE_FRIENDS:
                 return action.agreeFriends(friendId);
         }
         return super.doInBackground(requestCode, id);
     }
 
-    UserRelationshipResponse urres;
 
     @Override
+    @SuppressWarnings("unchecked")
     public void onSuccess(int requestCode, Object result) {
         if (result != null) {
             switch (requestCode) {
-                case GETALL:
-                    urres = (UserRelationshipResponse) result;
+                case GET_ALL:
+                    userRelationshipResponse = (UserRelationshipResponse) result;
 
-                    if (urres.getResult().size() == 0) {
+                    if (userRelationshipResponse.getResult().size() == 0) {
                         isData.setVisibility(View.VISIBLE);
                         LoadDialog.dismiss(mContext);
                         return;
                     }
 
-                    Collections.sort(urres.getResult(), new Comparator<UserRelationshipResponse.ResultEntity>() {
+                    Collections.sort(userRelationshipResponse.getResult(), new Comparator<UserRelationshipResponse.ResultEntity>() {
 
                         @Override
                         public int compare(UserRelationshipResponse.ResultEntity lhs, UserRelationshipResponse.ResultEntity rhs) {
@@ -119,28 +106,28 @@ public class NewFriendListActivity extends BaseActivity implements NewFriendList
                     });
 
                     adapter.removeAll();
-                    adapter.addData(urres.getResult());
+                    adapter.addData(userRelationshipResponse.getResult());
 
                     adapter.notifyDataSetChanged();
                     adapter.setOnItemButtonClick(this);
                     LoadDialog.dismiss(mContext);
                     break;
-                case AGREEFRIENDS:
+                case AGREE_FRIENDS:
                     AgreeFriendsResponse afres = (AgreeFriendsResponse) result;
                     if (afres.getCode() == 200) {
-                        UserRelationshipResponse.ResultEntity bean = urres.getResult().get(index);
+                        UserRelationshipResponse.ResultEntity bean = userRelationshipResponse.getResult().get(index);
                         DBManager.getInstance(mContext).getDaoSession().getFriendDao().insertOrReplace(new Friend(bean.getUser().getId()
                                 , bean.getUser().getNickname()
                                 , bean.getUser().getPortraitUri()
                                 , bean.getDisplayName()
                                 , String.valueOf(bean.getStatus())
-                                , null  //TODO 不是时间戳 格式错误 2016-01-07T06:22:55.000Z
+                                , null
                                                                                                                  ));
                         // 通知好友列表刷新数据
                         NToast.shortToast(mContext, R.string.agreed_friend);
                         LoadDialog.dismiss(mContext);
-                        BroadcastManager.getInstance(mContext).sendBroadcast(SealAppContext.UPDATEFRIEND);
-                        request(GETALL); //刷新 UI 按钮
+                        BroadcastManager.getInstance(mContext).sendBroadcast(SealAppContext.UPDATE_FRIEND);
+                        request(GET_ALL); //刷新 UI 按钮
                     }
 
             }
@@ -151,33 +138,10 @@ public class NewFriendListActivity extends BaseActivity implements NewFriendList
     @Override
     public void onFailure(int requestCode, int state, Object result) {
         switch (requestCode) {
-            case GETALL:
+            case GET_ALL:
                 break;
 
         }
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.de_add_friend_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.icon:
-                Intent intent = new Intent(NewFriendListActivity.this, SearchFriendActivity.class);
-                startActivityForResult(intent, Constants.FRIENDLIST_REQUESTCODE);
-                break;
-            case android.R.id.home:
-                finish();
-                break;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
 
@@ -202,8 +166,8 @@ public class NewFriendListActivity extends BaseActivity implements NewFriendList
                 }
                 LoadDialog.show(mContext);
 //                friendId = null;
-                friendId = urres.getResult().get(position).getUser().getId();
-                request(AGREEFRIENDS);
+                friendId = userRelationshipResponse.getResult().get(position).getUser().getId();
+                request(AGREE_FRIENDS);
                 break;
             case 10: // 发出了好友邀请
                 break;
@@ -230,4 +194,9 @@ public class NewFriendListActivity extends BaseActivity implements NewFriendList
         return updateAtDate;
     }
 
+    @Override
+    public void onClick(View v) {
+        Intent intent = new Intent(NewFriendListActivity.this, SearchFriendActivity.class);
+        startActivityForResult(intent, FRIEND_LIST_REQUEST_CODE);
+    }
 }

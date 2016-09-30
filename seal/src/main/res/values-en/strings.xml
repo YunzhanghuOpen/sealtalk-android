@@ -36,6 +36,7 @@
     <string name="confirm">Confirm</string>
     <string name="forget_password">Forget Password</string>
     <string name="cancel">Cancel</string>
+    <string name="Done">Done</string>
     <string name="exit_app">Determine the exit application?</string>
     <string name="main_conversation">Chats</string>
     <string name="main_group">Square</string>
@@ -55,7 +56,7 @@
     <string name="add_success">add success</string>
     <string name="not_group_members">Not a member of group cannot view group details</string>
     <string name="check_network">Please check the network</string>
-    <string name="agreed_friend">Has agreed to a friend request</string>
+    <string name="agreed_friend">Has agreed to a friendInfo request</string>
     <string name="agree">agree</string>
     <string name="request">request</string>
     <string name="ignore">ignore</string>
@@ -93,7 +94,7 @@
     <string name="create_group"> Create a Group</string>
     <string name="created_group">&#160;created group</string>
     <string name="you">You</string>
-    <string name="request_friends">request to add you as a friend</string>
+    <string name="request_friends">request to add you as a friendInfo</string>
     <string name="edit_phone">Enter the 11 phone number</string>
     <string name="original_password">The original password cannot be empty</string>
     <string name="new_password_not_null">The new password cannot be empty</string>
@@ -126,14 +127,14 @@
     <string name="invitation">&#160;invited&#160;</string>
     <string name="remove_group_before_str">&#160;removed&#160;</string>
     <string name="remove_group_after_str">&#160;from the group chat</string>
-    <string name="my_groups">My Groups</string>
+    <string name="my_groups">Groups</string>
     <string name="code_is_null">Verification code is empty</string>
     <string name="name_is_null">Nickname cannot be empty</string>
     <string name="name_contain_spaces">Pet name cannot contain Spaces</string>
     <string name="remove_group_members">Confirm to remove the following group members?</string>
     <string name="add_successful">add successful</string>
     <string name="remove_successful">remove successful</string>
-    <string name="least_one_friend">Select at least one friend</string>
+    <string name="least_one_friend">Select at least one friendInfo</string>
     <string name="not_send_code">Not to the server for verification code</string>
     <string name="get_code">get code</string>
     <string name="de_actionbar_set_public">Official Accounts</string>
@@ -187,15 +188,32 @@
     <string name="location_sharing_exit_promt">Real time location sharing will be canceled if exit,confirm to exit？</string>
     <string name="prompt">Prompt</string>
     <string name="launched_a_location_sharing">I lauched a location sharing</string>
-    <string name="sdk_version_update">SDK版本</string>
+    <string name="sdk_version_update">SDK Version</string>
     <string name="sealtalk_version_update">SealTalk 当前版本</string>
-    <string name="all_group_member">全部群成员</string>
-    <string name="group_announcement">群公告</string>
-    <string name="group_code">群二维码</string>
-    <string name="total_member">全部群成员</string>
+    <string name="all_group_member">Total Group Member</string>
+    <string name="group_announcement">Group Notice</string>
+    <string name="group_code">Group Code</string>
+    <string name="total_member">Total Group Member</string>
     <string name="select_contact">Select Contact</string>
     <string name="current_password">Current Password</string>
     <string name="password_hint">6-16 characters,case sensitive</string>
+    <string name="start_voice">Start Voice</string>
+    <string name="start_video">Start Video</string>
+    <string name="browser_download">Open the browser</string>
+    <string name="loacation_download">Local download</string>
+    <string name="downloading_apk">Is the background to download...</string>
+    <string name="update_app_model_prepare">preparing to download</string>
+    <string name="update_app_model_progress">downloading %1$d%2$s</string>
+    <string name="update_app_model_success">download success(click install)</string>
+    <string name="update_app_model_error">download fail(click to use the browser to download)</string>
 
 
+    <string name="empty_group_notice">Edit group notice</string>
+    <string name="group_notice_exist_confirm">退出本次编辑</string>
+    <string name="group_notice_post_confirm">All members will be notified of this notice. Post it now?</string>
+    <string name="group_notice_prefix">\@ all people\n</string>
+    <string name="search_friend">Add Friend</string>
+    <string name="setdisplayname">设置备注</string>
+    <string name="new_and_old_password">The old and new password consistent</string>
+    <string name="nickname_show">nickname:</string>
 </resources>

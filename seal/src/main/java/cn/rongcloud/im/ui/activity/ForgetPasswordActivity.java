@@ -2,11 +2,9 @@ package cn.rongcloud.im.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -28,29 +26,24 @@ import cn.rongcloud.im.server.widget.LoadDialog;
  * Created by AMing on 16/2/2.
  * Company RongCloud
  */
+@SuppressWarnings("deprecation")
 public class ForgetPasswordActivity extends BaseActivity implements View.OnClickListener, DownTimerListener {
 
-    private static final int CHECKPHONE = 31;
-    private static final int SENDCODE = 32;
-    private static final int CHANGEPASSWORD = 33;
-    private static final int VERIFYCODE = 34;
-    private static final int CHANGEPASSWORD_BACK = 1002;
+    private static final int CHECK_PHONE = 31;
+    private static final int SEND_CODE = 32;
+    private static final int CHANGE_PASSWORD = 33;
+    private static final int VERIFY_CODE = 34;
+    private static final int CHANGE_PASSWORD_BACK = 1002;
     private ClearWriteEditText mPhone, mCode, mPassword1, mPassword2;
-
     private Button mGetCode, mOK;
-
     private String phone, mCodeToken;
-
     private boolean available;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forget);
-        ActionBar actionBar = getSupportActionBar();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
-        actionBar.setTitle(R.string.forget_password);
+        setTitle(R.string.forget_password);
         initView();
 
     }
@@ -75,7 +68,7 @@ public class ForgetPasswordActivity extends BaseActivity implements View.OnClick
                 if (s.length() == 11) {
                     if (AMUtils.isMobile(s.toString().trim())) {
                         phone = mPhone.getText().toString().trim();
-                        request(CHECKPHONE, true);
+                        request(CHECK_PHONE, true);
                         AMUtils.onInactive(mContext, mPhone);
                     } else {
                         Toast.makeText(mContext, R.string.Illegal_phone_number, Toast.LENGTH_SHORT).show();
@@ -122,13 +115,13 @@ public class ForgetPasswordActivity extends BaseActivity implements View.OnClick
     @Override
     public Object doInBackground(int requestCode, String id) throws HttpException {
         switch (requestCode) {
-            case CHECKPHONE:
+            case CHECK_PHONE:
                 return action.checkPhoneAvailable("86", phone);
-            case SENDCODE:
+            case SEND_CODE:
                 return action.sendCode("86", phone);
-            case CHANGEPASSWORD:
+            case CHANGE_PASSWORD:
                 return action.restPassword(mPassword1.getText().toString(), mCodeToken);
-            case VERIFYCODE:
+            case VERIFY_CODE:
                 return action.verifyCode("86", phone, mCode.getText().toString());
         }
         return super.doInBackground(requestCode, id);
@@ -138,10 +131,10 @@ public class ForgetPasswordActivity extends BaseActivity implements View.OnClick
     public void onSuccess(int requestCode, Object result) {
         if (result != null) {
             switch (requestCode) {
-                case CHECKPHONE:
+                case CHECK_PHONE:
                     CheckPhoneResponse response = (CheckPhoneResponse) result;
                     if (response.getCode() == 200) {
-                        if (response.isResult() == true) {
+                        if (response.isResult()) {
                             NToast.shortToast(mContext, getString(R.string.phone_unregister));
                             mGetCode.setClickable(false);
                             mGetCode.setBackgroundDrawable(getResources().getDrawable(R.drawable.rs_select_btn_gray));
@@ -152,7 +145,7 @@ public class ForgetPasswordActivity extends BaseActivity implements View.OnClick
                         }
                     }
                     break;
-                case SENDCODE:
+                case SEND_CODE:
                     SendCodeResponse scrres = (SendCodeResponse) result;
                     if (scrres.getCode() == 200) {
                         NToast.shortToast(mContext, R.string.messge_send);
@@ -160,13 +153,13 @@ public class ForgetPasswordActivity extends BaseActivity implements View.OnClick
                         NToast.shortToast(mContext, R.string.message_frequency);
                     }
                     break;
-                case VERIFYCODE:
+                case VERIFY_CODE:
                     VerifyCodeResponse vcres = (VerifyCodeResponse) result;
                     switch (vcres.getCode()) {
                         case 200:
                             mCodeToken = vcres.getResult().getVerification_token();
                             if (!TextUtils.isEmpty(mCodeToken)) {
-                                request(CHANGEPASSWORD);
+                                request(CHANGE_PASSWORD);
                             } else {
                                 NToast.shortToast(mContext, "code token is null");
                                 LoadDialog.dismiss(mContext);
@@ -185,7 +178,7 @@ public class ForgetPasswordActivity extends BaseActivity implements View.OnClick
                     }
                     break;
 
-                case CHANGEPASSWORD:
+                case CHANGE_PASSWORD:
                     RestPasswordResponse response1 = (RestPasswordResponse) result;
                     if (response1.getCode() == 200) {
                         LoadDialog.dismiss(mContext);
@@ -193,7 +186,7 @@ public class ForgetPasswordActivity extends BaseActivity implements View.OnClick
                         Intent data = new Intent();
                         data.putExtra("phone", phone);
                         data.putExtra("password", mPassword1.getText().toString());
-                        setResult(CHANGEPASSWORD_BACK, data);
+                        setResult(CHANGE_PASSWORD_BACK, data);
                         this.finish();
                     }
                     break;
@@ -204,16 +197,14 @@ public class ForgetPasswordActivity extends BaseActivity implements View.OnClick
     @Override
     public void onFailure(int requestCode, int state, Object result) {
         switch (requestCode) {
-            case CHECKPHONE:
+            case CHECK_PHONE:
                 Toast.makeText(mContext, "手机号可用请求失败", Toast.LENGTH_SHORT).show();
                 break;
-            case SENDCODE:
+            case SEND_CODE:
                 NToast.shortToast(mContext, "获取验证码请求失败");
                 break;
         }
     }
-
-    private DownTimer downTimer;
 
     @Override
     public void onClick(View v) {
@@ -222,10 +213,10 @@ public class ForgetPasswordActivity extends BaseActivity implements View.OnClick
                 if (TextUtils.isEmpty(mPhone.getText().toString().trim())) {
                     NToast.longToast(mContext, getString(R.string.phone_number_is_null));
                 } else {
-                    downTimer = new DownTimer();
+                    DownTimer downTimer = new DownTimer();
                     downTimer.setListener(this);
                     downTimer.startDown(60 * 1000);
-                    request(SENDCODE);
+                    request(SEND_CODE);
                 }
                 break;
             case R.id.forget_button:
@@ -259,15 +250,9 @@ public class ForgetPasswordActivity extends BaseActivity implements View.OnClick
                 }
 
                 LoadDialog.show(mContext);
-                request(VERIFYCODE);
+                request(VERIFY_CODE);
                 break;
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
-        return super.onOptionsItemSelected(item);
     }
 
 

@@ -21,10 +21,12 @@ public class DaoSession extends AbstractDaoSession {
     private final DaoConfig friendDaoConfig;
     private final DaoConfig groupsDaoConfig;
     private final DaoConfig blackListDaoConfig;
+    private final DaoConfig groupMemberDapConfig;
 
     private final FriendDao friendDao;
     private final GroupsDao groupsDao;
     private final BlackListDao blackListDao;
+    private final GroupMemberDao groupMemberDao;
 
     public DaoSession(SQLiteDatabase db, IdentityScopeType type, Map<Class<? extends AbstractDao<?, ?>>, DaoConfig>
                       daoConfigMap) {
@@ -39,19 +41,25 @@ public class DaoSession extends AbstractDaoSession {
         blackListDaoConfig = daoConfigMap.get(BlackListDao.class).clone();
         blackListDaoConfig.initIdentityScope(type);
 
+        groupMemberDapConfig = daoConfigMap.get(GroupMemberDao.class).clone();
+        groupMemberDapConfig.initIdentityScope(type);
+
         friendDao = new FriendDao(friendDaoConfig, this);
         groupsDao = new GroupsDao(groupsDaoConfig, this);
         blackListDao = new BlackListDao(blackListDaoConfig, this);
+        groupMemberDao = new GroupMemberDao(groupMemberDapConfig, this);
 
         registerDao(Friend.class, friendDao);
         registerDao(Groups.class, groupsDao);
         registerDao(BlackList.class, blackListDao);
+        registerDao(GroupMember.class, groupMemberDao);
     }
 
     public void clear() {
         friendDaoConfig.getIdentityScope().clear();
         groupsDaoConfig.getIdentityScope().clear();
         blackListDaoConfig.getIdentityScope().clear();
+        groupMemberDapConfig.getIdentityScope().clear();
     }
 
     public FriendDao getFriendDao() {
@@ -65,6 +73,10 @@ public class DaoSession extends AbstractDaoSession {
 
     public BlackListDao getBlackListDao() {
         return blackListDao;
+    }
+
+    public GroupMemberDao getGroupMemberDao() {
+        return groupMemberDao;
     }
 
 }

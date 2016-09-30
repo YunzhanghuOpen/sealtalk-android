@@ -17,12 +17,9 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -61,7 +58,7 @@ import io.rong.message.LocationMessage;
  * Created by AMing on 16/5/9.
  * Company RongCloud
  */
-public class AMAPLocationActivity extends ActionBarActivity implements View.OnClickListener, LocationSource, GeocodeSearch.OnGeocodeSearchListener, AMapLocationListener, AMap.OnCameraChangeListener {
+public class AMAPLocationActivity extends BaseActivity implements View.OnClickListener, LocationSource, GeocodeSearch.OnGeocodeSearchListener, AMapLocationListener, AMap.OnCameraChangeListener {
     static public final int REQUEST_CODE_ASK_PERMISSIONS = 101;
     private MapView mapView;
     private AMap aMap;
@@ -83,9 +80,11 @@ public class AMAPLocationActivity extends ActionBarActivity implements View.OnCl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_amap);
-        getSupportActionBar().setTitle(getApplicationContext().getString(R.string.geographical_position));
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
+        setTitle(R.string.geographical_position);
+        Button rightButton = getBtn_right();
+        rightButton.setText("确定");
+        rightButton.setTextSize(12);
+        rightButton.setOnClickListener(this);
         mapView = (MapView) findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
 
@@ -113,7 +112,9 @@ public class AMAPLocationActivity extends ActionBarActivity implements View.OnCl
 
         initUI();
         initAmap();
-
+        if (isPerview) {
+            setRightVisibility(View.GONE);
+        }
         setUpLocationStyle();
     }
 
@@ -136,6 +137,8 @@ public class AMAPLocationActivity extends ActionBarActivity implements View.OnCl
                 aMap.addMarker(new MarkerOptions().anchor(0.5f, 0.5f)
                                .position(new LatLng(mMsg.getLat(), mMsg.getLng())).title(mMsg.getPoi())
                                .snippet(mMsg.getLat() + "," + mMsg.getLng()).draggable(false));
+                aMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                                .target(new LatLng(mMsg.getLat(), mMsg.getLng())).zoom(16).bearing(0).tilt(30).build()));
             }
             return;
         }
@@ -184,6 +187,7 @@ public class AMAPLocationActivity extends ActionBarActivity implements View.OnCl
 
 
     @Override
+    @TargetApi(23)
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.myLocation:
@@ -193,6 +197,36 @@ public class AMAPLocationActivity extends ActionBarActivity implements View.OnCl
                 }
                 break;
             default:
+
+                if (mMsg != null) {
+
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        int checkPermission = this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                        if (checkPermission != PackageManager.PERMISSION_GRANTED) {
+                            if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                                requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_ASK_PERMISSIONS);
+                            } else {
+                                new AlertDialog.Builder(this)
+                                .setMessage("您需要在设置里打开存储权限。")
+                                .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_ASK_PERMISSIONS);
+                                    }
+                                })
+                                .setNegativeButton("取消", null)
+                                .create().show();
+                            }
+                            return;
+                        }
+                    }
+                    SealAppContext.getInstance().getLastLocationCallback().onSuccess(mMsg);
+                    SealAppContext.getInstance().setLastLocationCallback(null);
+                    finish();
+                } else {
+                    SealAppContext.getInstance().getLastLocationCallback()
+                    .onFailure("定位失败");
+                }
                 break;
         }
     }
@@ -424,58 +458,6 @@ public class AMAPLocationActivity extends ActionBarActivity implements View.OnCl
         return Uri.parse(url);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.de_location_menu, menu);
-
-        if (isPerview) {
-            menu.getItem(0).setVisible(false);
-        }
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    @TargetApi(23)
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.send_location:
-                if (mMsg != null) {
-
-                    if (Build.VERSION.SDK_INT >= 23) {
-                        int checkPermission = this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                        if (checkPermission != PackageManager.PERMISSION_GRANTED) {
-                            if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                                requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_ASK_PERMISSIONS);
-                            } else {
-                                new AlertDialog.Builder(this)
-                                .setMessage("您需要在设置里打开存储权限。")
-                                .setPositiveButton("确认", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_ASK_PERMISSIONS);
-                                    }
-                                })
-                                .setNegativeButton("取消", null)
-                                .create().show();
-                            }
-                            return false;
-                        }
-                    }
-                    SealAppContext.getInstance().getLastLocationCallback().onSuccess(mMsg);
-                    SealAppContext.getInstance().setLastLocationCallback(null);
-                    finish();
-                } else {
-                    SealAppContext.getInstance().getLastLocationCallback()
-                    .onFailure("定位失败");
-                }
-                break;
-            case android.R.id.home:
-                finish();
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {

@@ -11,11 +11,8 @@ import android.webkit.WebViewClient;
 import cn.rongcloud.im.R;
 
 
-/**
- * Created by Administrator on 2015/3/19.
- */
 @SuppressLint("SetJavaScriptEnabled")
-public class UpdateLogActivity extends BaseActionBarActivity {
+public class UpdateLogActivity extends BaseActivity {
 
     private WebView mWebView = null;
 
@@ -23,8 +20,7 @@ public class UpdateLogActivity extends BaseActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_log);
-
-        getSupportActionBar().setTitle(R.string.update_log);
+        setTitle(R.string.update_log);
         mWebView = (WebView) findViewById(R.id.update_log_webview);
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.getSettings().setUseWideViewPort(true);
@@ -34,9 +30,9 @@ public class UpdateLogActivity extends BaseActionBarActivity {
         mWebView.getSettings().setSupportZoom(true);
 
         MyWebViewClient mMyWebViewClient = new MyWebViewClient();
-        mMyWebViewClient.onPageFinished(mWebView, "http://rongcloud.cn/downloads/history/Android");
-        mMyWebViewClient.shouldOverrideUrlLoading(mWebView, "http://rongcloud.cn/downloads/history/Android");
-        mMyWebViewClient.onPageFinished(mWebView, "http://rongcloud.cn/downloads/history/Android");
+        mMyWebViewClient.onPageFinished(mWebView, "http://www.rongcloud.cn/changelog");
+        mMyWebViewClient.shouldOverrideUrlLoading(mWebView, "http://www.rongcloud.cn/changelog");
+        mMyWebViewClient.onPageFinished(mWebView, "http://www.rongcloud.cn/changelog");
         mWebView.setWebViewClient(mMyWebViewClient);
     }
 

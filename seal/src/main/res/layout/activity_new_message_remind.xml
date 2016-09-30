@@ -23,10 +23,12 @@
             android:textSize="16sp" />
 
         <cn.rongcloud.im.ui.widget.switchbutton.SwitchButton
+            android:id="@+id/remind_switch"
             style="@style/SwitchButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:checked="true"
             android:padding="8dp"
             app:kswAnimationDuration="300"
             app:kswBackDrawable="@drawable/ios_back_drawable"
@@ -71,7 +73,8 @@
         android:layout_height="45.5dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/btn_list_item_bg"
-        android:clickable="true">
+        android:clickable="true"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
@@ -106,7 +109,8 @@
         android:layout_height="45.5dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/btn_list_item_bg"
-        android:clickable="true">
+        android:clickable="true"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
@@ -146,7 +150,8 @@
         android:layout_width="match_parent"
         android:layout_height="45.5dp"
         android:background="@drawable/btn_list_item_bg"
-        android:clickable="true">
+        android:clickable="true"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"

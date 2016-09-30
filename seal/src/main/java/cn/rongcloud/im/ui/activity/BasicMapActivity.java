@@ -8,9 +8,6 @@ import android.view.Window;
 import com.amap.api.maps2d.AMap;
 import com.amap.api.maps2d.MapView;
 
-/**
- * Created by zhjchen on 8/12/15.
- */
 public abstract class BasicMapActivity extends FragmentActivity implements  Handler.Callback {
 
     private MapView mapView;

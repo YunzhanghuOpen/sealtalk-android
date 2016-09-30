@@ -3,11 +3,9 @@ package cn.rongcloud.im.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -33,31 +31,25 @@ import cn.rongcloud.im.server.widget.LoadDialog;
  * Created by AMing on 16/1/14.
  * Company RongCloud
  */
+@SuppressWarnings("deprecation")
 public class RegisterActivity extends BaseActivity implements View.OnClickListener, DownTimerListener {
 
-    private static final int CHECKPHONE = 1;
-    private static final int SENDCODE = 2;
-    private static final int VERIFYCODE = 3;
+    private static final int CHECK_PHONE = 1;
+    private static final int SEND_CODE = 2;
+    private static final int VERIFY_CODE = 3;
     private static final int REGISTER = 4;
-    private static final int REGIST_BACK = 1001;
-    private ImageView mImgBackgroud;
-
-    private TextView goLogin , goForget;
-
+    private static final int REGISTER_BACK = 1001;
+    private ImageView mImgBackground;
     private ClearWriteEditText mPhoneEdit, mCodeEdit, mNickEdit, mPasswordEdit;
-
     private Button mGetCode, mConfirm;
-
     private String mPhone, mCode, mNickName, mPassword, mCodeToken;
-
     private boolean isRequestCode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.hide();
+        setHeadVisibility(View.GONE);
         initView();
     }
 
@@ -73,17 +65,17 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         mGetCode.setClickable(false);
         mConfirm.setOnClickListener(this);
 
-        goLogin = (TextView) findViewById(R.id.reg_login);
-        goForget = (TextView) findViewById(R.id.reg_forget);
+        TextView goLogin = (TextView) findViewById(R.id.reg_login);
+        TextView goForget = (TextView) findViewById(R.id.reg_forget);
         goLogin.setOnClickListener(this);
         goForget.setOnClickListener(this);
 
-        mImgBackgroud = (ImageView) findViewById(R.id.rg_img_backgroud);
+        mImgBackground = (ImageView) findViewById(R.id.rg_img_backgroud);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 Animation animation = AnimationUtils.loadAnimation(RegisterActivity.this, R.anim.translate_anim);
-                mImgBackgroud.startAnimation(animation);
+                mImgBackground.startAnimation(animation);
             }
         }, 200);
 
@@ -103,7 +95,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                 if (s.length() == 11 && isBright) {
                     if (AMUtils.isMobile(s.toString().trim())) {
                         mPhone = s.toString().trim();
-                        request(CHECKPHONE, true);
+                        request(CHECK_PHONE, true);
                         AMUtils.onInactive(mContext, mPhoneEdit);
                     } else {
                         Toast.makeText(mContext, R.string.Illegal_phone_number, Toast.LENGTH_SHORT).show();
@@ -165,11 +157,11 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     @Override
     public Object doInBackground(int requestCode, String id) throws HttpException {
         switch (requestCode) {
-            case CHECKPHONE:
+            case CHECK_PHONE:
                 return action.checkPhoneAvailable("86", mPhone);
-            case SENDCODE:
+            case SEND_CODE:
                 return action.sendCode("86", mPhone);
-            case VERIFYCODE:
+            case VERIFY_CODE:
                 return action.verifyCode("86", mPhone, mCode);
             case REGISTER:
                 return action.register(mNickName, mPassword, mCodeToken);
@@ -181,21 +173,21 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     public void onSuccess(int requestCode, Object result) {
         if (result != null) {
             switch (requestCode) {
-                case CHECKPHONE:
+                case CHECK_PHONE:
                     CheckPhoneResponse cprres = (CheckPhoneResponse) result;
                     if (cprres.getCode() == 200) {
-                        if (cprres.isResult() == true) {
+                        if (cprres.isResult()) {
                             mGetCode.setClickable(true);
                             mGetCode.setBackgroundDrawable(getResources().getDrawable(R.drawable.rs_select_btn_blue));
                             Toast.makeText(mContext, R.string.phone_number_available, Toast.LENGTH_SHORT).show();
                         } else {
                             mGetCode.setClickable(false);
                             mGetCode.setBackgroundDrawable(getResources().getDrawable(R.drawable.rs_select_btn_gray));
-                            Toast.makeText(mContext, R.string.phone_number_has_been_registered , Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContext, R.string.phone_number_has_been_registered, Toast.LENGTH_SHORT).show();
                         }
                     }
                     break;
-                case SENDCODE:
+                case SEND_CODE:
                     SendCodeResponse scrres = (SendCodeResponse) result;
                     if (scrres.getCode() == 200) {
                         NToast.shortToast(mContext, R.string.messge_send);
@@ -204,7 +196,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                     }
                     break;
 
-                case VERIFYCODE:
+                case VERIFY_CODE:
                     VerifyCodeResponse vcres = (VerifyCodeResponse) result;
                     switch (vcres.getCode()) {
                         case 200:
@@ -240,7 +232,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                             data.putExtra("password", mPassword);
                             data.putExtra("nickname", mNickName);
                             data.putExtra("id", rres.getResult().getId());
-                            setResult(REGIST_BACK, data);
+                            setResult(REGISTER_BACK, data);
                             this.finish();
                             break;
                         case 400:
@@ -261,13 +253,13 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     @Override
     public void onFailure(int requestCode, int state, Object result) {
         switch (requestCode) {
-            case CHECKPHONE:
+            case CHECK_PHONE:
                 Toast.makeText(mContext, "手机号可用请求失败", Toast.LENGTH_SHORT).show();
                 break;
-            case SENDCODE:
+            case SEND_CODE:
                 NToast.shortToast(mContext, "获取验证码请求失败");
                 break;
-            case VERIFYCODE:
+            case VERIFY_CODE:
                 LoadDialog.dismiss(mContext);
                 NToast.shortToast(mContext, "验证码是否可用请求失败");
                 break;
@@ -283,8 +275,6 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         return null;
     }
 
-    private DownTimer downTimer;
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -299,10 +289,10 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                     NToast.longToast(mContext, R.string.phone_number_is_null);
                 } else {
                     isRequestCode = true;
-                    downTimer = new DownTimer();
+                    DownTimer downTimer = new DownTimer();
                     downTimer.setListener(this);
                     downTimer.startDown(60 * 1000);
-                    request(SENDCODE);
+                    request(SEND_CODE);
                 }
                 break;
             case R.id.reg_button:
@@ -350,7 +340,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                 }
 
                 LoadDialog.show(mContext);
-                request(VERIFYCODE, true);
+                request(VERIFY_CODE, true);
 
                 break;
         }
@@ -360,7 +350,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     public void onTick(long millisUntilFinished) {
-        mGetCode.setText("seconds:" + String.valueOf(millisUntilFinished / 1000));
+        mGetCode.setText(String.valueOf(millisUntilFinished / 1000) + "s");
         mGetCode.setClickable(false);
         mGetCode.setBackgroundDrawable(getResources().getDrawable(R.drawable.rs_select_btn_gray));
         isBright = false;
@@ -374,9 +364,4 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         isBright = true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
-        return super.onOptionsItemSelected(item);
-    }
 }

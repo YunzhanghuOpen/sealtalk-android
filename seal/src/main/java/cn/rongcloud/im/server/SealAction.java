@@ -67,9 +67,11 @@ import cn.rongcloud.im.server.response.SetGroupDisplayNameResponse;
 import cn.rongcloud.im.server.response.SetGroupPortraitResponse;
 import cn.rongcloud.im.server.response.SetNameResponse;
 import cn.rongcloud.im.server.response.SetPortraitResponse;
+import cn.rongcloud.im.server.response.SyncTotalDataResponse;
 import cn.rongcloud.im.server.response.UserRelationshipResponse;
 import cn.rongcloud.im.server.response.VerifyCodeResponse;
 import cn.rongcloud.im.server.response.SetGroupNameResponse;
+import cn.rongcloud.im.server.response.VersionResponse;
 import cn.rongcloud.im.server.utils.NLog;
 import cn.rongcloud.im.server.utils.json.JsonMananger;
 
@@ -77,14 +79,15 @@ import cn.rongcloud.im.server.utils.json.JsonMananger;
  * Created by AMing on 16/1/14.
  * Company RongCloud
  */
+@SuppressWarnings("deprecation")
 public class SealAction extends BaseAction {
-    private final String CONTENTTYPE = "application/json";
+    private final String CONTENT_TYPE = "application/json";
     private final String ENCODING = "utf-8";
 
     /**
      * 构造方法
      *
-     * @param context
+     * @param context 上下文
      */
     public SealAction(Context context) {
         super(context);
@@ -94,9 +97,8 @@ public class SealAction extends BaseAction {
     /**
      * 检查手机是否被注册
      *
-     * @param region
-     * @param phone
-     * @return
+     * @param region 国家码
+     * @param phone  手机号
      * @throws HttpException
      */
     public CheckPhoneResponse checkPhoneAvailable(String region, String phone) throws HttpException {
@@ -105,12 +107,12 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         CheckPhoneResponse response = null;
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, CheckPhoneResponse.class);
         }
@@ -121,9 +123,8 @@ public class SealAction extends BaseAction {
     /**
      * 发送验证码
      *
-     * @param region
-     * @param phone
-     * @return
+     * @param region 国家码
+     * @param phone  手机号
      * @throws HttpException
      */
     public SendCodeResponse sendCode(String region, String phone) throws HttpException {
@@ -132,12 +133,12 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         SendCodeResponse response = null;
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         if (!TextUtils.isEmpty(result)) {
             response = JsonMananger.jsonToBean(result, SendCodeResponse.class);
         }
@@ -157,23 +158,22 @@ public class SealAction extends BaseAction {
     /**
      * 验证验证码是否正确(必选先用手机号码调sendcode)
      *
-     * @param region
-     * @param phone
-     * @return
+     * @param region 国家码
+     * @param phone  手机号
      * @throws HttpException
      */
     public VerifyCodeResponse verifyCode(String region, String phone, String code) throws HttpException {
         String url = getURL("user/verify_code");
-        String josn = JsonMananger.beanToJson(new VerifyCodeRequest(region, phone, code));
+        String json = JsonMananger.beanToJson(new VerifyCodeRequest(region, phone, code));
         VerifyCodeResponse response = null;
         StringEntity entity = null;
         try {
-            entity = new StringEntity(josn, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity = new StringEntity(json, ENCODING);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         if (!TextUtils.isEmpty(result)) {
             Log.e("VerifyCodeResponse", result);
             response = jsonToBean(result, VerifyCodeResponse.class);
@@ -184,10 +184,9 @@ public class SealAction extends BaseAction {
     /**
      * 注册
      *
-     * @param nickname
-     * @param password
-     * @param
-     * @return
+     * @param nickname           昵称
+     * @param password           密码
+     * @param verification_token 验证码
      * @throws HttpException
      */
     public RegisterResponse register(String nickname, String password, String verification_token) throws HttpException {
@@ -199,7 +198,7 @@ public class SealAction extends BaseAction {
             e.printStackTrace();
         }
         RegisterResponse response = null;
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         if (!TextUtils.isEmpty(result)) {
             NLog.e("RegisterResponse", result);
             response = jsonToBean(result, RegisterResponse.class);
@@ -210,10 +209,9 @@ public class SealAction extends BaseAction {
     /**
      * 登录: 登录成功后，会设置 Cookie，后续接口调用需要登录的权限都依赖于 Cookie。
      *
-     * @param region
-     * @param phone
-     * @param password
-     * @return
+     * @param region   国家码
+     * @param phone    手机号
+     * @param password 密码
      * @throws HttpException
      */
     public LoginResponse login(String region, String phone, String password) throws HttpException {
@@ -222,11 +220,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, uri, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, uri, entity, CONTENT_TYPE);
         LoginResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             NLog.e("LoginResponse", result);
@@ -239,7 +237,6 @@ public class SealAction extends BaseAction {
     /**
      * 获取 token 前置条件需要登录   502 坏的网关 测试环境用户已达上限
      *
-     * @return
      * @throws HttpException
      */
     public GetTokenResponse getToken() throws HttpException {
@@ -256,8 +253,7 @@ public class SealAction extends BaseAction {
     /**
      * 设置自己的昵称
      *
-     * @param nickname
-     * @return
+     * @param nickname 昵称
      * @throws HttpException
      */
     public SetNameResponse setName(String nickname) throws HttpException {
@@ -266,12 +262,12 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         SetNameResponse response = null;
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, SetNameResponse.class);
         }
@@ -281,8 +277,7 @@ public class SealAction extends BaseAction {
     /**
      * 设置用户头像
      *
-     * @param portraitUri
-     * @return
+     * @param portraitUri 头像 path
      * @throws HttpException
      */
     public SetPortraitResponse setPortrait(String portraitUri) throws HttpException {
@@ -291,12 +286,12 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         SetPortraitResponse response = null;
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, SetPortraitResponse.class);
         }
@@ -307,9 +302,8 @@ public class SealAction extends BaseAction {
     /**
      * 当前登录用户通过旧密码设置新密码  前置条件需要登录才能访问
      *
-     * @param oldPassword
-     * @param newPassword
-     * @return
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
      * @throws HttpException
      */
     public ChangePasswordResponse changePassword(String oldPassword, String newPassword) throws HttpException {
@@ -318,11 +312,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         ChangePasswordResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             NLog.e("ChangePasswordResponse", result);
@@ -337,7 +331,6 @@ public class SealAction extends BaseAction {
      *
      * @param password           密码，6 到 20 个字节，不能包含空格
      * @param verification_token 调用 /user/verify_code 成功后返回的 activation_token
-     * @return
      * @throws HttpException
      */
     public RestPasswordResponse restPassword(String password, String verification_token) throws HttpException {
@@ -346,11 +339,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, uri, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, uri, entity, CONTENT_TYPE);
         RestPasswordResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             NLog.e("RestPasswordResponse", result);
@@ -362,8 +355,7 @@ public class SealAction extends BaseAction {
     /**
      * 根据 id 去服务端查询用户信息
      *
-     * @param userid
-     * @return
+     * @param userid 用户ID
      * @throws HttpException
      */
     public GetUserInfoByIdResponse getUserInfoById(String userid) throws HttpException {
@@ -380,9 +372,8 @@ public class SealAction extends BaseAction {
     /**
      * 通过国家码和手机号查询用户信息
      *
-     * @param region
-     * @param phone
-     * @return
+     * @param region 国家码
+     * @param phone  手机号
      * @throws HttpException
      */
     public GetUserInfoByPhoneResponse getUserInfoFromPhone(String region, String phone) throws HttpException {
@@ -401,7 +392,6 @@ public class SealAction extends BaseAction {
      *
      * @param userid           好友id
      * @param addFriendMessage 添加好友的信息
-     * @return
      * @throws HttpException
      */
     public FriendInvitationResponse sendFriendInvitation(String userid, String addFriendMessage) throws HttpException {
@@ -410,11 +400,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         FriendInvitationResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, FriendInvitationResponse.class);
@@ -426,7 +416,6 @@ public class SealAction extends BaseAction {
     /**
      * 获取发生过用户关系的列表
      *
-     * @return
      * @throws HttpException
      */
     public UserRelationshipResponse getAllUserRelationship() throws HttpException {
@@ -443,8 +432,7 @@ public class SealAction extends BaseAction {
     /**
      * 同意对方好友邀请
      *
-     * @param friendId
-     * @return
+     * @param friendId 好友ID
      * @throws HttpException
      */
     public AgreeFriendsResponse agreeFriends(String friendId) throws HttpException {
@@ -453,11 +441,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         AgreeFriendsResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, AgreeFriendsResponse.class);
@@ -470,7 +458,6 @@ public class SealAction extends BaseAction {
      *
      * @param name      群组名
      * @param memberIds 群组成员id
-     * @return
      * @throws HttpException
      */
     public CreateGroupResponse createGroup(String name, List<String> memberIds) throws HttpException {
@@ -479,11 +466,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         CreateGroupResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, CreateGroupResponse.class);
@@ -494,9 +481,8 @@ public class SealAction extends BaseAction {
     /**
      * 创建者设置群组头像
      *
-     * @param groupId
-     * @param portraitUri
-     * @return
+     * @param groupId     群组Id
+     * @param portraitUri 群组头像
      * @throws HttpException
      */
     public SetGroupPortraitResponse setGroupPortrait(String groupId, String portraitUri) throws HttpException {
@@ -505,11 +491,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         SetGroupPortraitResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, SetGroupPortraitResponse.class);
@@ -520,7 +506,6 @@ public class SealAction extends BaseAction {
     /**
      * 获取当前用户所属群组列表
      *
-     * @return
      * @throws HttpException
      */
     public GetGroupResponse getGroups() throws HttpException {
@@ -536,8 +521,7 @@ public class SealAction extends BaseAction {
     /**
      * 根据 群组id 查询该群组信息   403 群组成员才能看
      *
-     * @param groupId
-     * @return
+     * @param groupId 群组Id
      * @throws HttpException
      */
     public GetGroupInfoResponse getGroupInfo(String groupId) throws HttpException {
@@ -553,8 +537,7 @@ public class SealAction extends BaseAction {
     /**
      * 根据群id获取群组成员
      *
-     * @param groupId
-     * @return
+     * @param groupId 群组Id
      * @throws HttpException
      */
     public GetGroupMemberResponse getGroupMember(String groupId) throws HttpException {
@@ -570,9 +553,8 @@ public class SealAction extends BaseAction {
     /**
      * 当前用户添加群组成员
      *
-     * @param groupId
-     * @param memberIds
-     * @return
+     * @param groupId   群组Id
+     * @param memberIds 成员集合
      * @throws HttpException
      */
     public AddGroupMemberResponse addGroupMember(String groupId, List<String> memberIds) throws HttpException {
@@ -581,11 +563,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         AddGroupMemberResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, AddGroupMemberResponse.class);
@@ -596,9 +578,8 @@ public class SealAction extends BaseAction {
     /**
      * 创建者将群组成员提出群组
      *
-     * @param groupId
-     * @param memberIds
-     * @return
+     * @param groupId   群组Id
+     * @param memberIds 成员集合
      * @throws HttpException
      */
     public DeleteGroupMemberResponse deleGroupMember(String groupId, List<String> memberIds) throws HttpException {
@@ -607,11 +588,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         DeleteGroupMemberResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, DeleteGroupMemberResponse.class);
@@ -622,9 +603,8 @@ public class SealAction extends BaseAction {
     /**
      * 创建者更改群组昵称
      *
-     * @param groupId
-     * @param name
-     * @return
+     * @param groupId 群组Id
+     * @param name    群昵称
      * @throws HttpException
      */
     public SetGroupNameResponse setGroupName(String groupId, String name) throws HttpException {
@@ -633,11 +613,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         SetGroupNameResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, SetGroupNameResponse.class);
@@ -648,8 +628,7 @@ public class SealAction extends BaseAction {
     /**
      * 用户自行退出群组
      *
-     * @param groupId
-     * @return
+     * @param groupId 群组Id
      * @throws HttpException
      */
     public QuitGroupResponse quitGroup(String groupId) throws HttpException {
@@ -658,11 +637,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         QuitGroupResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, QuitGroupResponse.class);
@@ -673,8 +652,7 @@ public class SealAction extends BaseAction {
     /**
      * 创建者解散群组
      *
-     * @param groupId
-     * @return
+     * @param groupId 群组Id
      * @throws HttpException
      */
     public DismissGroupResponse dissmissGroup(String groupId) throws HttpException {
@@ -683,11 +661,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         DismissGroupResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, DismissGroupResponse.class);
@@ -699,9 +677,8 @@ public class SealAction extends BaseAction {
     /**
      * 修改自己的当前的群昵称
      *
-     * @param groupId
-     * @param displayName
-     * @return
+     * @param groupId     群组Id
+     * @param displayName 群名片
      * @throws HttpException
      */
     public SetGroupDisplayNameResponse setGroupDisplayName(String groupId, String displayName) throws HttpException {
@@ -710,11 +687,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         SetGroupDisplayNameResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, SetGroupDisplayNameResponse.class);
@@ -725,8 +702,7 @@ public class SealAction extends BaseAction {
     /**
      * 删除好友
      *
-     * @param friendId
-     * @return
+     * @param friendId 好友Id
      * @throws HttpException
      */
     public DeleteFriendResponse deleteFriend(String friendId) throws HttpException {
@@ -735,11 +711,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         DeleteFriendResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, DeleteFriendResponse.class);
@@ -748,11 +724,10 @@ public class SealAction extends BaseAction {
     }
 
     /**
-     * 设置好友的备注名称 未测试
+     * 设置好友的备注名称
      *
-     * @param friendId
-     * @param displayName
-     * @return
+     * @param friendId    好友Id
+     * @param displayName 备注名
      * @throws HttpException
      */
     public SetFriendDisplayNameResponse setFriendDisplayName(String friendId, String displayName) throws HttpException {
@@ -761,11 +736,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         SetFriendDisplayNameResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, SetFriendDisplayNameResponse.class);
@@ -776,7 +751,6 @@ public class SealAction extends BaseAction {
     /**
      * 获取黑名单
      *
-     * @return
      * @throws HttpException
      */
     public GetBlackListResponse getBlackList() throws HttpException {
@@ -792,8 +766,7 @@ public class SealAction extends BaseAction {
     /**
      * 加入黑名单
      *
-     * @param friendId
-     * @return
+     * @param friendId 群组Id
      * @throws HttpException
      */
     public AddToBlackListResponse addToBlackList(String friendId) throws HttpException {
@@ -802,11 +775,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         AddToBlackListResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, AddToBlackListResponse.class);
@@ -817,8 +790,7 @@ public class SealAction extends BaseAction {
     /**
      * 移除黑名单
      *
-     * @param friendId
-     * @return
+     * @param friendId 好友Id
      * @throws HttpException
      */
     public RemoveFromBlackListResponse removeFromBlackList(String friendId) throws HttpException {
@@ -827,11 +799,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         RemoveFromBlackListResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, RemoveFromBlackListResponse.class);
@@ -853,8 +825,7 @@ public class SealAction extends BaseAction {
     /**
      * 当前用户加入某群组
      *
-     * @param groupId
-     * @return
+     * @param groupId 群组Id
      * @throws HttpException
      */
     public JoinGroupResponse JoinGroup(String groupId) throws HttpException {
@@ -863,11 +834,11 @@ public class SealAction extends BaseAction {
         StringEntity entity = null;
         try {
             entity = new StringEntity(json, ENCODING);
-            entity.setContentType(CONTENTTYPE);
+            entity.setContentType(CONTENT_TYPE);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String result = httpManager.post(mContext, url, entity, CONTENTTYPE);
+        String result = httpManager.post(mContext, url, entity, CONTENT_TYPE);
         JoinGroupResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, JoinGroupResponse.class);
@@ -879,7 +850,6 @@ public class SealAction extends BaseAction {
     /**
      * 获取默认群组 和 聊天室
      *
-     * @return
      * @throws HttpException
      */
     public DefaultConversationResponse getDefaultConversation() throws HttpException {
@@ -895,8 +865,7 @@ public class SealAction extends BaseAction {
     /**
      * 根据一组ids 获取 一组用户信息
      *
-     * @param ids
-     * @return
+     * @param ids 用户 id 集合
      * @throws HttpException
      */
     public GetUserInfosResponse getUserInfos(List<String> ids) throws HttpException {
@@ -913,6 +882,31 @@ public class SealAction extends BaseAction {
         GetUserInfosResponse response = null;
         if (!TextUtils.isEmpty(result)) {
             response = jsonToBean(result, GetUserInfosResponse.class);
+        }
+        return response;
+    }
+
+    /**
+     * 获取版本信息
+     *
+     * @throws HttpException
+     */
+    public VersionResponse getSealTalkVersion() throws HttpException {
+        String url = getURL("misc/client_version");
+        String result = httpManager.get(mContext, url.trim());
+        VersionResponse response = null;
+        if (!TextUtils.isEmpty(result)) {
+            response = jsonToBean(result, VersionResponse.class);
+        }
+        return response;
+    }
+
+    public SyncTotalDataResponse syncTotalData(String version) throws HttpException {
+        String url = getURL("user/sync/" + version);
+        String result = httpManager.get(mContext, url);
+        SyncTotalDataResponse response = null;
+        if (!TextUtils.isEmpty(result)) {
+            response = jsonToBean(result, SyncTotalDataResponse.class);
         }
         return response;
     }

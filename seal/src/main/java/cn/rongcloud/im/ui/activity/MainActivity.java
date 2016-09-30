@@ -3,12 +3,14 @@ package cn.rongcloud.im.ui.activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -24,6 +26,7 @@ import java.util.List;
 
 import cn.rongcloud.im.R;
 import cn.rongcloud.im.SealConst;
+import cn.rongcloud.im.server.HomeWatcherReceiver;
 import cn.rongcloud.im.server.broadcast.BroadcastManager;
 import cn.rongcloud.im.server.utils.NToast;
 import cn.rongcloud.im.server.widget.LoadDialog;
@@ -40,47 +43,81 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.message.ContactNotificationMessage;
 
-public class MainActivity extends BaseActivity implements ViewPager.OnPageChangeListener, View.OnClickListener, DragPointView.OnDragListencer {
+@SuppressWarnings("deprecation")
+public class MainActivity extends FragmentActivity implements ViewPager.OnPageChangeListener, View.OnClickListener, DragPointView.OnDragListencer {
 
-    private FragmentPagerAdapter mFragmentPagerAdapter; //将 tab  页面持久在内存中
 
     private ViewPager mViewPager;
-
-    private Fragment mConversationList;
-
     private List<Fragment> mFragment = new ArrayList<>();
-
-    private RelativeLayout chatRLayout, contactRLayout, foundRLayout, mineRLayout;
-
-    private ImageView moreImage , mImageChats, mImageContact, mImageFind, mImageMe;
-
-    private TextView  mTextChats , mTextContact, mTextFind, mTextMe;
-
+    private ImageView moreImage, mImageChats, mImageContact, mImageFind, mImageMe, mMineRed;
+    private TextView mTextChats, mTextContact, mTextFind, mTextMe;
     private DragPointView mUnreadNumView;
-
     /**
      * 会话列表的fragment
      */
     private Fragment mConversationListFragment = null;
-
+    private boolean isDebug;
+    private Context mContext;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportActionBar().hide();
-        initViews();
-        initMianViewPager();
-        changeTextViewColor();
-        changeSelectedTabState(0);
+        mContext = this;
+        isDebug = getSharedPreferences("config", MODE_PRIVATE).getBoolean("isDebug", false);
+        if (RongIM.getInstance() != null && RongIM.getInstance().getCurrentConnectionStatus().equals(RongIMClient.ConnectionStatusListener.ConnectionStatus.DISCONNECTED)) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    initViews();
+                    initMainViewPager();
+                    changeTextViewColor();
+                    changeSelectedTabState(0);
+                    if (RongIM.getInstance() != null && RongIM.getInstance().getCurrentConnectionStatus().equals(RongIMClient.ConnectionStatusListener.ConnectionStatus.DISCONNECTED)) {
+                        reconnect();
+                    }
+                }
+            }, 300);
+        } else {
+            initViews();
+            initMainViewPager();
+            changeTextViewColor();
+            changeSelectedTabState(0);
+        }
+        registerHomeKeyReceiver(this);
+    }
+
+
+    private void reconnect() {
+        SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
+        String token = sp.getString("loginToken", "");
+        RongIM.connect(token, new RongIMClient.ConnectCallback() {
+            @Override
+            public void onTokenIncorrect() {
+
+            }
+
+            @Override
+            public void onSuccess(String s) {
+                initViews();
+                initMainViewPager();
+                changeTextViewColor();
+                changeSelectedTabState(0);
+            }
+
+            @Override
+            public void onError(RongIMClient.ErrorCode e) {
+
+            }
+        });
     }
 
     private void initViews() {
-        chatRLayout = (RelativeLayout) findViewById(R.id.seal_chat);
-        contactRLayout = (RelativeLayout) findViewById(R.id.seal_contact_list);
-        foundRLayout = (RelativeLayout) findViewById(R.id.seal_find);
-        mineRLayout = (RelativeLayout) findViewById(R.id.seal_me);
+        RelativeLayout chatRLayout = (RelativeLayout) findViewById(R.id.seal_chat);
+        RelativeLayout contactRLayout = (RelativeLayout) findViewById(R.id.seal_contact_list);
+        RelativeLayout foundRLayout = (RelativeLayout) findViewById(R.id.seal_find);
+        RelativeLayout mineRLayout = (RelativeLayout) findViewById(R.id.seal_me);
         mImageChats = (ImageView) findViewById(R.id.tab_img_chats);
         mImageContact = (ImageView) findViewById(R.id.tab_img_contact);
         mImageFind = (ImageView) findViewById(R.id.tab_img_find);
@@ -89,31 +126,36 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
         mTextContact = (TextView) findViewById(R.id.tab_text_contact);
         mTextFind = (TextView) findViewById(R.id.tab_text_find);
         mTextMe = (TextView) findViewById(R.id.tab_text_me);
-
+        mMineRed = (ImageView) findViewById(R.id.mine_red);
         moreImage = (ImageView) findViewById(R.id.seal_more);
-
 
         chatRLayout.setOnClickListener(this);
         contactRLayout.setOnClickListener(this);
         foundRLayout.setOnClickListener(this);
         mineRLayout.setOnClickListener(this);
         moreImage.setOnClickListener(this);
+        BroadcastManager.getInstance(mContext).addAction(MineFragment.SHOW_RED, new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                mMineRed.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
 
-    private void initMianViewPager() {
-        mConversationList = initConversationList();
+    private void initMainViewPager() {
+        Fragment conversationList = initConversationList();
         mViewPager = (ViewPager) findViewById(R.id.main_viewpager);
 
         mUnreadNumView = (DragPointView) findViewById(R.id.seal_num);
         mUnreadNumView.setOnClickListener(this);
         mUnreadNumView.setDragListencer(this);
 
-        mFragment.add(mConversationList);
-        mFragment.add(ContactsFragment.getInstance());
-        mFragment.add(DiscoverFragment.getInstance());
-        mFragment.add(MineFragment.getInstance());
-        mFragmentPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
+        mFragment.add(conversationList);
+        mFragment.add(new ContactsFragment());
+        mFragment.add(new DiscoverFragment());
+        mFragment.add(new MineFragment());
+        FragmentPagerAdapter fragmentPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
                 return mFragment.get(position);
@@ -124,7 +166,7 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
                 return mFragment.size();
             }
         };
-        mViewPager.setAdapter(mFragmentPagerAdapter);
+        mViewPager.setAdapter(fragmentPagerAdapter);
         mViewPager.setOffscreenPageLimit(4);
         mViewPager.setOnPageChangeListener(this);
         initData();
@@ -136,7 +178,7 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
             ConversationListFragment listFragment = ConversationListFragment.getInstance();
             listFragment.setAdapter(new ConversationListAdapterEx(RongContext.getInstance()));
             Uri uri;
-            if (SealConst.ISOPENDISCUSSION) {
+            if (isDebug) {
                 uri = Uri.parse("rong://" + getApplicationInfo().packageName).buildUpon()
                       .appendPath("conversationlist")
                       .appendQueryParameter(Conversation.ConversationType.PRIVATE.getName(), "false") //设置私聊会话是否聚合显示
@@ -211,29 +253,37 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
 
     }
 
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.seal_chat:
-                mViewPager.setCurrentItem(0);
+                mViewPager.setCurrentItem(0, false);
                 break;
             case R.id.seal_contact_list:
-                mViewPager.setCurrentItem(1);
+                mViewPager.setCurrentItem(1, false);
                 break;
             case R.id.seal_find:
-                mViewPager.setCurrentItem(2);
+                mViewPager.setCurrentItem(2, false);
                 break;
             case R.id.seal_me:
-                mViewPager.setCurrentItem(3);
+                mViewPager.setCurrentItem(3, false);
+                mMineRed.setVisibility(View.GONE);
                 break;
             case R.id.seal_more:
                 MorePopWindow morePopWindow = new MorePopWindow(MainActivity.this);
                 morePopWindow.showPopupWindow(moreImage);
                 break;
-
         }
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getBooleanExtra("systemconversation", false)) {
+            mViewPager.setCurrentItem(0, false);
+        }
+    }
 
     protected void initData() {
 
@@ -258,8 +308,10 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
         BroadcastManager.getInstance(mContext).addAction(SealConst.EXIT, new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                SharedPreferences.Editor editor =  getSharedPreferences("config", MODE_PRIVATE).edit();
+                SharedPreferences.Editor editor = getSharedPreferences("config", MODE_PRIVATE).edit();
                 editor.putBoolean("exit", true);
+                editor.putString("loginToken", "");
+                editor.putString("loginid", "");
                 editor.apply();
 
                 RongIM.getInstance().logout();
@@ -316,7 +368,7 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
             String path = intent.getData().getPath();
             if (path.contains("push_message")) {
                 SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
-                String  cacheToken = sharedPreferences.getString("loginToken", "");
+                String cacheToken = sharedPreferences.getString("loginToken", "");
                 if (TextUtils.isEmpty(cacheToken)) {
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 } else {
@@ -369,7 +421,6 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
     }
 
 
-
     private void hintKbTwo() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm.isActive() && getCurrentFocus() != null) {
@@ -382,7 +433,6 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        BroadcastManager.getInstance(mContext).destroy(SealConst.EXIT);
     }
 
     @Override
@@ -394,6 +444,16 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
             for (Conversation c : conversations) {
                 RongIM.getInstance().clearMessagesUnreadStatus(c.getConversationType(), c.getTargetId(), null);
             }
+        }
+    }
+
+    private HomeWatcherReceiver mHomeKeyReceiver = null;
+
+    private void registerHomeKeyReceiver(Context context) {
+        if (mHomeKeyReceiver == null) {
+            mHomeKeyReceiver = new HomeWatcherReceiver();
+            final IntentFilter homeFilter = new IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+            context.registerReceiver(mHomeKeyReceiver, homeFilter);
         }
     }
 }

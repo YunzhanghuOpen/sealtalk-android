@@ -21,11 +21,11 @@ public class LoadDialog extends Dialog {
      */
     private static LoadDialog loadDialog;
     /**
-     * canNotCancel, the dialog dimiss or undimiss flag
+     * canNotCancel, the mDialogTextView dimiss or undimiss flag
      */
     private boolean canNotCancel;
     /**
-     * if the dialog don't dimiss, what is the tips.
+     * if the mDialogTextView don't dimiss, what is the tips.
      */
     private String tipMsg;
 
@@ -72,7 +72,7 @@ public class LoadDialog extends Dialog {
     }
 
     /**
-     * show the dialog
+     * show the mDialogTextView
      *
      * @param context
      */
@@ -81,7 +81,7 @@ public class LoadDialog extends Dialog {
     }
 
     /**
-     * show the dialog
+     * show the mDialogTextView
      *
      * @param context Context
      * @param message String
@@ -91,7 +91,7 @@ public class LoadDialog extends Dialog {
     }
 
     /**
-     * show the dialog
+     * show the mDialogTextView
      *
      * @param context  Context
      * @param message  String, show the message to user when isCancel is true.
@@ -111,7 +111,7 @@ public class LoadDialog extends Dialog {
     }
 
     /**
-     * dismiss the dialog
+     * dismiss the mDialogTextView
      */
     public static void dismiss(Context context) {
         try {

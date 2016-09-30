@@ -10,20 +10,18 @@ import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 
 import cn.rongcloud.im.message.provider.ContactNotificationMessageProvider;
 import cn.rongcloud.im.message.provider.GroupNotificationMessageProvider;
-import cn.rongcloud.im.message.provider.NewDiscussionConversationProvider;
 import cn.rongcloud.im.message.provider.RealTimeLocationMessageProvider;
+import cn.rongcloud.im.server.utils.NLog;
 import cn.rongcloud.im.utils.SharedPreferencesContext;
-import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
+import io.rong.imkit.widget.provider.FileMessageItemProvider;
 import io.rong.imlib.ipc.RongExceptionHandler;
+import io.rong.message.FileMessage;
 import io.rong.message.GroupNotificationMessage;
 import io.rong.push.RongPushClient;
 import io.rong.push.common.RongException;
 
 
-/**
- * Created by bob on 2015/1/30.
- */
 public class App extends Application {
 
     private static DisplayImageOptions options;
@@ -33,7 +31,7 @@ public class App extends Application {
 
         super.onCreate();
 
-
+//        LeakCanary.install(this);//内存泄露检测
         RongPushClient.registerHWPush(this);
         RongPushClient.registerMiPush(this, "2882303761517473625", "5451747338625");
         try {
@@ -52,18 +50,17 @@ public class App extends Application {
          */
         //RongIM.setServerInfo("nav.cn.ronghub.com", "img.cn.ronghub.com");
         RongIM.init(this);
-
         SealAppContext.init(this);
         SharedPreferencesContext.init(this);
         Thread.setDefaultUncaughtExceptionHandler(new RongExceptionHandler(this));
 
         try {
             RongIM.registerMessageType(GroupNotificationMessage.class);
+            RongIM.registerMessageType(FileMessage.class);
             RongIM.registerMessageTemplate(new ContactNotificationMessageProvider());
             RongIM.registerMessageTemplate(new RealTimeLocationMessageProvider());
             RongIM.registerMessageTemplate(new GroupNotificationMessageProvider());
-            //@ 消息模板展示
-            RongContext.getInstance().registerConversationTemplate(new NewDiscussionConversationProvider());
+            RongIM.registerMessageTemplate(new FileMessageItemProvider());
         } catch (Exception e) {
             e.printStackTrace();
         }

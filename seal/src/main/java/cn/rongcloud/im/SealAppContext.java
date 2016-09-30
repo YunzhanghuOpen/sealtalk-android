@@ -9,9 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.ArrayList;
 
 import cn.rongcloud.im.db.DBManager;
 import cn.rongcloud.im.db.Friend;
@@ -31,6 +29,7 @@ import io.rong.imkit.RongIM;
 import io.rong.imkit.model.GroupUserInfo;
 import io.rong.imkit.model.UIConversation;
 import io.rong.imkit.widget.AlterDialogFragment;
+import io.rong.imkit.widget.provider.FileInputProvider;
 import io.rong.imkit.widget.provider.ImageInputProvider;
 import io.rong.imkit.widget.provider.InputProvider;
 import io.rong.imkit.widget.provider.LocationInputProvider;
@@ -55,21 +54,20 @@ import io.rong.message.LocationMessage;
 public class SealAppContext implements RongIM.ConversationListBehaviorListener, RongIMClient.OnReceiveMessageListener, RongIM.UserInfoProvider, RongIM.GroupInfoProvider, RongIM.GroupUserInfoProvider, RongIMClient.ConnectionStatusListener, RongIM.LocationProvider, RongIM.ConversationBehaviorListener {
 
 
-    public static final String UPDATEFRIEND = "updatefriend";
-    public static final String UPDATEREDDOT = "updatereddot";
-    public static String NETUPDATEGROUP = "netupdategroup";
+    public static final String UPDATE_FRIEND = "update_friend";
+    public static final String UPDATE_RED_DOT = "update_red_dot";
     private Context mContext;
 
     private static SealAppContext mRongCloudInstance;
 
-    private LocationCallback mLastLocationCallback;
+    private RongIM.LocationProvider.LocationCallback mLastLocationCallback;
 
-    private Stack<Map<String, Activity>> mActivityStack;
+    private static ArrayList<Activity> mActivities;
 
     public SealAppContext(Context mContext) {
         this.mContext = mContext;
         initListener();
-        mActivityStack = new Stack<>();
+        mActivities = new ArrayList<>();
     }
 
     /**
@@ -89,39 +87,6 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
             }
         }
 
-    }
-
-    public boolean pushActivity(Conversation.ConversationType conversationType, String targetId, Activity activity) {
-        if (conversationType == null || targetId == null || activity == null)
-            return false;
-
-        String key = conversationType.getName() + targetId;
-        Map<String, Activity> map = new HashMap<>();
-        map.put(key, activity);
-        mActivityStack.push(map);
-        return true;
-    }
-
-    public boolean popActivity(Conversation.ConversationType conversationType, String targetId) {
-        if (conversationType == null || targetId == null)
-            return false;
-
-        String key = conversationType.getName() + targetId;
-        Map<String, Activity> map = mActivityStack.peek();
-        if (map.containsKey(key)) {
-            mActivityStack.pop();
-            return true;
-        }
-        return false;
-    }
-
-    public boolean containsInQue(Conversation.ConversationType conversationType, String targetId) {
-        if (conversationType == null || targetId == null)
-            return false;
-
-        String key = conversationType.getName() + targetId;
-        Map<String, Activity> map = mActivityStack.peek();
-        return map.containsKey(key);
     }
 
     /**
@@ -144,7 +109,17 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
         RongIM.setLocationProvider(this);//设置地理位置提供者,不用位置的同学可以注掉此行代码
         setInputProvider();
         setUserInfoEngineListener();
+        setReadReceiptConversationType();
 //        RongIM.setGroupUserInfoProvider(this, true);
+    }
+
+    private void setReadReceiptConversationType() {
+        Conversation.ConversationType[] types = new Conversation.ConversationType[] {
+            Conversation.ConversationType.PRIVATE,
+            Conversation.ConversationType.GROUP,
+            Conversation.ConversationType.DISCUSSION
+        };
+        RongIM.getInstance().setReadReceiptConversationTypeList(types);
     }
 
     private void setInputProvider() {
@@ -154,18 +129,21 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
 
         InputProvider.ExtendProvider[] singleProvider = {
             new ImageInputProvider(RongContext.getInstance()),
-            new RealTimeLocationInputProvider(RongContext.getInstance()) //带位置共享的地理位置
+            new RealTimeLocationInputProvider(RongContext.getInstance()), //带位置共享的地理位置
+            new FileInputProvider(RongContext.getInstance())//文件消息
         };
 
         InputProvider.ExtendProvider[] muiltiProvider = {
             new ImageInputProvider(RongContext.getInstance()),
             new LocationInputProvider(RongContext.getInstance()),//地理位置
+            new FileInputProvider(RongContext.getInstance())//文件消息
         };
 
         RongIM.resetInputExtensionProvider(Conversation.ConversationType.PRIVATE, singleProvider);
         RongIM.resetInputExtensionProvider(Conversation.ConversationType.DISCUSSION, muiltiProvider);
         RongIM.resetInputExtensionProvider(Conversation.ConversationType.CUSTOMER_SERVICE, muiltiProvider);
         RongIM.resetInputExtensionProvider(Conversation.ConversationType.GROUP, muiltiProvider);
+        RongIM.resetInputExtensionProvider(Conversation.ConversationType.CHATROOM, muiltiProvider);
     }
 
     /**
@@ -246,7 +224,7 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
             ContactNotificationMessage contactNotificationMessage = (ContactNotificationMessage) messageContent;
             if (contactNotificationMessage.getOperation().equals("Request")) {
                 //对方发来好友邀请
-                BroadcastManager.getInstance(mContext).sendBroadcast(SealAppContext.UPDATEREDDOT);
+                BroadcastManager.getInstance(mContext).sendBroadcast(SealAppContext.UPDATE_RED_DOT);
             } else if (contactNotificationMessage.getOperation().equals("AcceptResponse")) {
                 //对方同意我的好友请求
                 ContactNotificationMessageData c = null;
@@ -258,11 +236,11 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
                 if (c != null) {
                     DBManager.getInstance(mContext).getDaoSession().getFriendDao().insertOrReplace(new Friend(contactNotificationMessage.getSourceUserId(), c.getSourceUserNickname(), null, null, null, null));
                 }
-                BroadcastManager.getInstance(mContext).sendBroadcast(UPDATEFRIEND);
-                BroadcastManager.getInstance(mContext).sendBroadcast(SealAppContext.UPDATEREDDOT);
+                BroadcastManager.getInstance(mContext).sendBroadcast(UPDATE_FRIEND);
+                BroadcastManager.getInstance(mContext).sendBroadcast(SealAppContext.UPDATE_RED_DOT);
             }
 //                // 发广播通知更新好友列表
-//            BroadcastManager.getInstance(mContext).sendBroadcast(UPDATEREDDOT);
+//            BroadcastManager.getInstance(mContext).sendBroadcast(UPDATE_RED_DOT);
 //            }
         } else if (messageContent instanceof GroupNotificationMessage) {
             GroupNotificationMessage groupNotificationMessage = (GroupNotificationMessage) messageContent;
@@ -273,7 +251,6 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
             } else if (groupNotificationMessage.getOperation().equals("Rename")) {
             }
 
-            BroadcastManager.getInstance(mContext).sendBroadcast(SealAppContext.NETUPDATEGROUP);
         } else if (messageContent instanceof ImageMessage) {
             ImageMessage imageMessage = (ImageMessage) messageContent;
             Log.e("imageMessage", imageMessage.getRemoteUri().toString());
@@ -283,13 +260,11 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
 
     @Override
     public UserInfo getUserInfo(String s) {
-        NLog.e("Rongcloudevent : getUserInfo:" + s);
         return UserInfoEngine.getInstance(mContext).startEngine(s);
     }
 
     @Override
     public Group getGroupInfo(String s) {
-        NLog.e("Rongcloudevent : getGroupInfo:" + s);
         return GroupInfoEngine.getInstance(mContext).startEngine(s);
     }
 
@@ -320,6 +295,9 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
 
     @Override
     public boolean onUserPortraitClick(Context context, Conversation.ConversationType conversationType, UserInfo userInfo) {
+        if (conversationType == Conversation.ConversationType.CUSTOMER_SERVICE || conversationType == Conversation.ConversationType.PUBLIC_SERVICE || conversationType == Conversation.ConversationType.APP_PUBLIC_SERVICE) {
+            return false;
+        }
         if (userInfo != null) {
             Intent intent = new Intent(context, PersonalProfileActivity.class);
             intent.putExtra("conversationType", conversationType.getValue());
@@ -430,11 +408,35 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
     }
 
 
-    public LocationCallback getLastLocationCallback() {
+    public RongIM.LocationProvider.LocationCallback getLastLocationCallback() {
         return mLastLocationCallback;
     }
 
-    public void setLastLocationCallback(LocationCallback lastLocationCallback) {
+    public void setLastLocationCallback(RongIM.LocationProvider.LocationCallback lastLocationCallback) {
         this.mLastLocationCallback = lastLocationCallback;
+    }
+
+    public void pushActivity(Activity activity) {
+        mActivities.add(activity);
+    }
+
+    public void popActivity(Activity activity) {
+        if (mActivities.contains(activity)) {
+            activity.finish();
+            mActivities.remove(activity);
+        }
+    }
+
+    public void popAllActivity() {
+        try {
+            for (Activity activity : mActivities) {
+                if (activity != null) {
+                    activity.finish();
+                }
+            }
+            mActivities.clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

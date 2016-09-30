@@ -1,11 +1,17 @@
 package cn.rongcloud.im.ui.activity;
 
 
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -29,72 +35,51 @@ import cn.rongcloud.im.R;
 import cn.rongcloud.im.SealConst;
 import cn.rongcloud.im.server.broadcast.BroadcastManager;
 import cn.rongcloud.im.server.network.http.HttpException;
-import cn.rongcloud.im.server.response.ChangePasswordResponse;
 import cn.rongcloud.im.server.response.QiNiuTokenResponse;
-import cn.rongcloud.im.server.response.SetNameResponse;
 import cn.rongcloud.im.server.response.SetPortraitResponse;
-import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.utils.NToast;
+import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.utils.photo.PhotoUtils;
 import cn.rongcloud.im.server.widget.BottomMenuDialog;
-import cn.rongcloud.im.server.widget.DialogWithYesOrNoUtils;
 import cn.rongcloud.im.server.widget.LoadDialog;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
 import io.rong.imkit.RongIM;
 import io.rong.imlib.model.UserInfo;
 
-/**
- * Created by Administrator on 2015/3/2.
- */
-public class MyAccountActivity extends BaseActionBarActivity implements View.OnClickListener {
 
-    private static final int UPLOADPORTRAIT = 8;
+public class MyAccountActivity extends BaseActivity implements View.OnClickListener {
 
-    private RelativeLayout portraitItem, nameItem, passwordItem;
-
+    private static final int UP_LOAD_PORTRAIT = 8;
+    private static final int GET_QI_NIU_TOKEN = 128;
     private SharedPreferences sp;
-
     private SharedPreferences.Editor editor;
-
     private SelectableRoundedImageView mImageView;
-
-    private TextView mName , mPhone;
-
+    private TextView mName;
     private PhotoUtils photoUtils;
     private BottomMenuDialog dialog;
-
     private UploadManager uploadManager;
-
     private String imageUrl;
-
     private Uri selectUri;
-
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_myaccount);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
-        getSupportActionBar().setTitle(R.string.de_actionbar_myacc);
+        setTitle(R.string.de_actionbar_myacc);
         sp = getSharedPreferences("config", MODE_PRIVATE);
         editor = sp.edit();
-
         initView();
-
-
     }
 
     private void initView() {
-        mPhone = (TextView) findViewById(R.id.tv_my_phone);
-        portraitItem = (RelativeLayout) findViewById(R.id.rl_my_portrait);
-        nameItem = (RelativeLayout) findViewById(R.id.rl_my_username);
+        TextView mPhone = (TextView) findViewById(R.id.tv_my_phone);
+        RelativeLayout portraitItem = (RelativeLayout) findViewById(R.id.rl_my_portrait);
+        RelativeLayout nameItem = (RelativeLayout) findViewById(R.id.rl_my_username);
         mImageView = (SelectableRoundedImageView) findViewById(R.id.img_my_portrait);
         mName = (TextView) findViewById(R.id.tv_my_username);
         portraitItem.setOnClickListener(this);
         nameItem.setOnClickListener(this);
-//        passwordItem.setOnClickListener(this);
         String cacheName = sp.getString("loginnickname", "");
         String cachePortrait = sp.getString("loginPortrait", "");
         String cachePhone = sp.getString("loginphone", "");
@@ -125,7 +110,7 @@ public class MyAccountActivity extends BaseActionBarActivity implements View.OnC
                 if (uri != null && !TextUtils.isEmpty(uri.getPath())) {
                     selectUri = uri;
                     LoadDialog.show(mContext);
-                    request(128);
+                    request(GET_QI_NIU_TOKEN);
                 }
             }
 
@@ -158,9 +143,9 @@ public class MyAccountActivity extends BaseActionBarActivity implements View.OnC
     @Override
     public Object doInBackground(int requestCode, String id) throws HttpException {
         switch (requestCode) {
-            case UPLOADPORTRAIT:
+            case UP_LOAD_PORTRAIT:
                 return action.setPortrait(imageUrl);
-            case 128:
+            case GET_QI_NIU_TOKEN:
                 return action.getQiNiuToken();
         }
         return super.doInBackground(requestCode, id);
@@ -170,7 +155,7 @@ public class MyAccountActivity extends BaseActionBarActivity implements View.OnC
     public void onSuccess(int requestCode, Object result) {
         if (result != null) {
             switch (requestCode) {
-                case UPLOADPORTRAIT:
+                case UP_LOAD_PORTRAIT:
                     SetPortraitResponse spRes = (SetPortraitResponse) result;
                     if (spRes.getCode() == 200) {
                         editor.putString("loginPortrait", imageUrl);
@@ -185,7 +170,7 @@ public class MyAccountActivity extends BaseActionBarActivity implements View.OnC
                         LoadDialog.dismiss(mContext);
                     }
                     break;
-                case 128:
+                case GET_QI_NIU_TOKEN:
                     QiNiuTokenResponse response = (QiNiuTokenResponse) result;
                     if (response.getCode() == 200) {
                         uploadImage(response.getResult().getDomain(), response.getResult().getToken(), selectUri);
@@ -199,17 +184,19 @@ public class MyAccountActivity extends BaseActionBarActivity implements View.OnC
     @Override
     public void onFailure(int requestCode, int state, Object result) {
         switch (requestCode) {
-            case UPLOADPORTRAIT:
+            case UP_LOAD_PORTRAIT:
                 NToast.shortToast(mContext, "设置头像请求失败");
                 LoadDialog.dismiss(mContext);
                 break;
         }
     }
 
+    static public final int REQUEST_CODE_ASK_PERMISSIONS = 101;
 
     /**
      * 弹出底部框
      */
+    @TargetApi(23)
     private void showPhotoDialog() {
         if (dialog != null && dialog.isShowing()) {
             dialog.dismiss();
@@ -221,6 +208,26 @@ public class MyAccountActivity extends BaseActionBarActivity implements View.OnC
             public void onClick(View arg0) {
                 if (dialog != null && dialog.isShowing()) {
                     dialog.dismiss();
+                }
+                if (Build.VERSION.SDK_INT >= 23) {
+                    int checkPermission = checkSelfPermission(Manifest.permission.CAMERA);
+                    if (checkPermission != PackageManager.PERMISSION_GRANTED) {
+                        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+                            requestPermissions(new String[] {Manifest.permission.CAMERA}, REQUEST_CODE_ASK_PERMISSIONS);
+                        } else {
+                            new AlertDialog.Builder(mContext)
+                            .setMessage("您需要在设置里打开相机权限。")
+                            .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    requestPermissions(new String[] {Manifest.permission.CAMERA}, REQUEST_CODE_ASK_PERMISSIONS);
+                                }
+                            })
+                            .setNegativeButton("取消", null)
+                            .create().show();
+                        }
+                        return;
+                    }
                 }
                 photoUtils.takePicture(MyAccountActivity.this);
             }
@@ -269,7 +276,7 @@ public class MyAccountActivity extends BaseActionBarActivity implements View.OnC
                         imageUrl = "http://" + domain + "/" + key;
                         Log.e("uploadImage", imageUrl);
                         if (!TextUtils.isEmpty(imageUrl)) {
-                            request(UPLOADPORTRAIT);
+                            request(UP_LOAD_PORTRAIT);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

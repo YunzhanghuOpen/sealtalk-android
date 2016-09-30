@@ -31,18 +31,16 @@ import cn.rongcloud.im.SealConst;
 import cn.rongcloud.im.db.DBManager;
 import cn.rongcloud.im.server.broadcast.BroadcastManager;
 import cn.rongcloud.im.server.pinyin.CharacterParser;
-import cn.rongcloud.im.server.pinyin.Friend;
+import cn.rongcloud.im.server.pinyin.FriendInfo;
 import cn.rongcloud.im.server.pinyin.PinyinComparator;
 import cn.rongcloud.im.server.pinyin.SideBar;
-import cn.rongcloud.im.server.utils.CommonUtils;
-import cn.rongcloud.im.server.utils.NToast;
 import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
-import cn.rongcloud.im.ui.activity.FriendDetailActivity;
 import cn.rongcloud.im.ui.activity.GroupListActivity;
 import cn.rongcloud.im.ui.activity.NewFriendListActivity;
 import cn.rongcloud.im.ui.activity.PublicServiceActivity;
-import cn.rongcloud.im.ui.adapter.FriendAdapter;
+import cn.rongcloud.im.ui.activity.SingleContactActivity;
+import cn.rongcloud.im.ui.adapter.FriendListAdapter;
 import io.rong.imkit.RongIM;
 
 /**
@@ -51,137 +49,104 @@ import io.rong.imkit.RongIM;
  */
 public class ContactsFragment extends Fragment implements View.OnClickListener {
 
-
-    public static ContactsFragment instance = null;
-
-    public static ContactsFragment getInstance() {
-        if (instance == null) {
-            instance = new ContactsFragment();
-        }
-        return instance;
-    }
-
-    private static final int DELETEFRIEND = 40;
-
-    private EditText mSearch;
-
+    private SelectableRoundedImageView mSelectableRoundedImageView;
+    private TextView mNameTextView;
+    private TextView mNoFriends;
+    private TextView mUnreadTextView;
+    private View mHeadView;
+    private EditText mSearchEditText;
     private ListView mListView;
-
-    private List<Friend> dataLsit = new ArrayList<>();
-
-    private List<Friend> sourceDataList = new ArrayList<>();
-
-    private List<Friend> tempList = new ArrayList<>();
-
-    /**
-     * 好友列表的 adapter
-     */
-    private FriendAdapter adapter;
-    /**
-     * 右侧好友指示 Bar
-     */
-    private SideBar mSidBar;
+    private PinyinComparator mPinyinComparator;
     /**
      * 中部展示的字母提示
      */
-    public TextView dialog;
+    public TextView mDialogTextView;
 
+    private List<FriendInfo> mSourceFriendList;
+    private List<FriendInfo> mFriendInfoList;
+    private List<FriendInfo> mFilteredFriendList;
+    /**
+     * 好友列表的 mFriendListAdapter
+     */
+    private FriendListAdapter mFriendListAdapter;
     /**
      * 汉字转换成拼音的类
      */
-    private CharacterParser characterParser;
+    private CharacterParser mCharacterParser;
     /**
      * 根据拼音来排列ListView里面的数据类
      */
-    private PinyinComparator pinyinComparator;
 
-    private LayoutInflater infalter;
-
-    private SelectableRoundedImageView img;
-
-    private TextView name;
-
-    private TextView mNoFriends;
-    private TextView unread;
-
-    private String id;
-    private String cacheName;
-//    private String deleteId;
-//    private AsyncTaskManager atm = AsyncTaskManager.getInstance(getActivity());
+    private String mId;
+    private String mCacheName;
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_address, container, false);
         initView(view);
         initData();
-        if (dataLsit != null && dataLsit.size() > 0) {
-            sourceDataList = filledData(dataLsit); //过滤数据为有字母的字段  现在有字母 别的数据没有
+        if (mSourceFriendList != null && mSourceFriendList.size() > 0) {
+            mFriendInfoList = labelSourceFriendList(mSourceFriendList); //过滤数据为有字母的字段  现在有字母 别的数据没有
         } else {
             mNoFriends.setVisibility(View.VISIBLE);
         }
 
         //还原除了带字母字段的其他数据
-        for (int i = 0; i < dataLsit.size(); i++) {
-            sourceDataList.get(i).setName(dataLsit.get(i).getName());
-            sourceDataList.get(i).setUserId(dataLsit.get(i).getUserId());
-            sourceDataList.get(i).setPortraitUri(dataLsit.get(i).getPortraitUri());
-            sourceDataList.get(i).setDisplayName(dataLsit.get(i).getDisplayName());
+        for (int i = 0; i < mSourceFriendList.size(); i++) {
+            mFriendInfoList.get(i).setName(mSourceFriendList.get(i).getName());
+            mFriendInfoList.get(i).setUserId(mSourceFriendList.get(i).getUserId());
+            mFriendInfoList.get(i).setPortraitUri(mSourceFriendList.get(i).getPortraitUri());
+            mFriendInfoList.get(i).setDisplayName(mSourceFriendList.get(i).getDisplayName());
         }
 
         // 根据a-z进行排序源数据
-        Collections.sort(sourceDataList, pinyinComparator);
+        Collections.sort(mFriendInfoList, mPinyinComparator);
 
-        infalter = LayoutInflater.from(getActivity());
-        View headView = infalter.inflate(R.layout.item_contact_list_header,
-                                         null);
-        unread = (TextView) headView.findViewById(R.id.tv_unread);
-        RelativeLayout re_newfriends = (RelativeLayout) headView.findViewById(R.id.re_newfriends);
-        RelativeLayout re_group = (RelativeLayout) headView.findViewById(R.id.re_chatroom);
-        RelativeLayout re_public = (RelativeLayout) headView.findViewById(R.id.publicservice);
-        RelativeLayout seal_me = (RelativeLayout) headView.findViewById(R.id.contact_me_item);
-        img = (SelectableRoundedImageView) headView.findViewById(R.id.contact_me_img);
-        name = (TextView) headView.findViewById(R.id.contact_me_name);
+        LayoutInflater mLayoutInflater = LayoutInflater.from(getActivity());
+        mHeadView = mLayoutInflater.inflate(R.layout.item_contact_list_header,
+                                            null);
+        mUnreadTextView = (TextView) mHeadView.findViewById(R.id.tv_unread);
+        RelativeLayout newFriendsLayout = (RelativeLayout) mHeadView.findViewById(R.id.re_newfriends);
+        RelativeLayout groupLayout = (RelativeLayout) mHeadView.findViewById(R.id.re_chatroom);
+        RelativeLayout publicServiceLayout = (RelativeLayout) mHeadView.findViewById(R.id.publicservice);
+        RelativeLayout selfLayout = (RelativeLayout) mHeadView.findViewById(R.id.contact_me_item);
+        mSelectableRoundedImageView = (SelectableRoundedImageView) mHeadView.findViewById(R.id.contact_me_img);
+        mNameTextView = (TextView) mHeadView.findViewById(R.id.contact_me_name);
         SharedPreferences sp = getActivity().getSharedPreferences("config", Context.MODE_PRIVATE);
-        id = sp.getString("loginid", "");
-        cacheName = sp.getString("loginnickname", "");
-        String header = sp.getString("loginPortrait", "");
-        name.setText(cacheName);
-        ImageLoader.getInstance().displayImage(TextUtils.isEmpty(header) ? RongGenerate.generateDefaultAvatar(cacheName, id) : header, img, App.getOptions());
+        mId = sp.getString("loginid", "");
+        mCacheName = sp.getString("loginnickname", "");
+        final String header = sp.getString("loginPortrait", "");
+        mNameTextView.setText(mCacheName);
+        ImageLoader.getInstance().displayImage(TextUtils.isEmpty(header) ? RongGenerate.generateDefaultAvatar(mCacheName, mId) : header, mSelectableRoundedImageView, App.getOptions());
 
-        seal_me.setOnClickListener(this);
-        re_group.setOnClickListener(this);
-        re_newfriends.setOnClickListener(this);
-        re_public.setOnClickListener(this);
-        adapter = new FriendAdapter(getActivity(), sourceDataList);
-        mListView.addHeaderView(headView);
-        mListView.setAdapter(adapter);
+        selfLayout.setOnClickListener(this);
+        groupLayout.setOnClickListener(this);
+        newFriendsLayout.setOnClickListener(this);
+        publicServiceLayout.setOnClickListener(this);
+        mFriendListAdapter = new FriendListAdapter(getActivity(), mFriendInfoList);
+        mListView.addHeaderView(mHeadView);
+        mListView.setAdapter(mFriendListAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position != 0) {
-                    if (!CommonUtils.isNetworkConnected(getActivity())) {
-                        NToast.shortToast(getActivity(), "请检查网络");
-                        return;
-                    }
-                    if (isFilter) {
-                        Friend bean = tempList.get(position - 1);
-                        RongIM.getInstance().startPrivateChat(getActivity(), bean.getUserId(), bean.getName());
-                    } else {
-                        Friend bean = sourceDataList.get(position - 1);
-                        RongIM.getInstance().startPrivateChat(getActivity(), bean.getUserId(), bean.getName());
-                    }
+                if (mListView.getHeaderViewsCount() > 0) {
+                    startFriendDetailsPage(mFriendInfoList.get(position - 1));
+                } else {
+                    startFriendDetailsPage(mFilteredFriendList.get(position));
                 }
             }
         });
+
+
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                Friend bean = sourceDataList.get(position - 1);
+                FriendInfo bean = mFriendInfoList.get(position - 1);
                 startFriendDetailsPage(bean);
                 return true;
             }
         });
-        mSearch.addTextChangedListener(new TextWatcher() {
+        mSearchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -195,48 +160,42 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void afterTextChanged(Editable s) {
-
+                if (s.length() != 0) {
+                    if (mListView.getHeaderViewsCount() > 0) {
+                        mListView.removeHeaderView(mHeadView);
+                    }
+                } else {
+                    if (mListView.getHeaderViewsCount() == 0) {
+                        mListView.addHeaderView(mHeadView);
+                    }
+                }
             }
         });
         refreshUIListener();
         return view;
     }
 
-    private void startFriendDetailsPage(Friend friend) {
-        Intent intent = new Intent(getActivity(), FriendDetailActivity.class);
-        intent.putExtra("FriendDetails", friend);
+    private void startFriendDetailsPage(FriendInfo friendInfo) {
+        Intent intent = new Intent(getActivity(), SingleContactActivity.class);
+        intent.putExtra("FriendDetails", friendInfo);
         startActivity(intent);
     }
 
-
-    private void initData() {
-        List<cn.rongcloud.im.db.Friend> list = DBManager.getInstance(getActivity()).getDaoSession().getFriendDao().loadAll();
-        if (list != null && list.size() > 0) {
-            for (cn.rongcloud.im.db.Friend friend : list) {
-                dataLsit.add(new Friend(friend.getUserId(), friend.getName(), friend.getPortraitUri(), friend.getDisplayName(), null, null));
-            }
-
-        }
-    }
-
-
     private void initView(View view) {
-        //实例化汉字转拼音类
-        characterParser = CharacterParser.getInstance();
-        pinyinComparator = PinyinComparator.getInstance();
-        mSearch = (EditText) view.findViewById(R.id.search);
+
+        mSearchEditText = (EditText) view.findViewById(R.id.search);
         mListView = (ListView) view.findViewById(R.id.listview);
         mNoFriends = (TextView) view.findViewById(R.id.show_no_friend);
-        mSidBar = (SideBar) view.findViewById(R.id.sidrbar);
-        dialog = (TextView) view.findViewById(R.id.group_dialog);
-        mSidBar.setTextView(dialog);
+        SideBar mSidBar = (SideBar) view.findViewById(R.id.sidrbar);
+        mDialogTextView = (TextView) view.findViewById(R.id.group_dialog);
+        mSidBar.setTextView(mDialogTextView);
         //设置右侧触摸监听
         mSidBar.setOnTouchingLetterChangedListener(new SideBar.OnTouchingLetterChangedListener() {
 
             @Override
             public void onTouchingLetterChanged(String s) {
                 //该字母首次出现的位置
-                int position = adapter.getPositionForSection(s.charAt(0));
+                int position = mFriendListAdapter.getPositionForSection(s.charAt(0));
                 if (position != -1) {
                     mListView.setSelection(position);
                 }
@@ -245,79 +204,88 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
         });
     }
 
+    private void initData() {
+        mSourceFriendList = new ArrayList<>();
+        mFriendInfoList = new ArrayList<>();
+        mFilteredFriendList = new ArrayList<>();
+        List<cn.rongcloud.im.db.Friend> list = DBManager.getInstance(getActivity()).getDaoSession().getFriendDao().loadAll();
+        if (list != null && list.size() > 0) {
+            for (cn.rongcloud.im.db.Friend friend : list) {
+                mSourceFriendList.add(new FriendInfo(friend.getUserId(), friend.getName(), friend.getPortraitUri(), friend.getDisplayName(), null, null));
+            }
+        }
+        //实例化汉字转拼音类
+        mCharacterParser = CharacterParser.getInstance();
+        mPinyinComparator = PinyinComparator.getInstance();
+    }
+
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (dialog != null) {
-            dialog.setVisibility(View.INVISIBLE);
+        if (mDialogTextView != null) {
+            mDialogTextView.setVisibility(View.INVISIBLE);
         }
     }
-
-    public TextView getDialog() {
-        return dialog;
-    }
-
-    public void setDialog(TextView dialog) {
-        this.dialog = dialog;
-    }
-
-    boolean isFilter;
 
     /**
      * 根据输入框中的值来过滤数据并更新ListView
      *
-     * @param filterStr
+     * @param filterStr 需要过滤的 String
      */
     private void filterData(String filterStr) {
-        List<Friend> filterDateList = new ArrayList<Friend>();
+        List<FriendInfo> filterDateList = new ArrayList<>();
+
 
         if (TextUtils.isEmpty(filterStr)) {
-            filterDateList = sourceDataList;
+            filterDateList = mFriendInfoList;
         } else {
             filterDateList.clear();
-            for (Friend friendModel : sourceDataList) {
-                String name = friendModel.getName();
-                if (name.indexOf(filterStr.toString()) != -1 || characterParser.getSelling(name).startsWith(filterStr.toString())) {
-                    filterDateList.add(friendModel);
+            for (FriendInfo friendInfoModel : mFriendInfoList) {
+                String name = friendInfoModel.getName();
+                String displayName = friendInfoModel.getDisplayName();
+                if (!TextUtils.isEmpty(displayName)) {
+                    if (name.contains(filterStr) || mCharacterParser.getSpelling(name).startsWith(filterStr) || displayName.contains(filterStr) || mCharacterParser.getSpelling(displayName).startsWith(filterStr)) {
+                        filterDateList.add(friendInfoModel);
+                    }
+                } else {
+                    if (name.contains(filterStr) || mCharacterParser.getSpelling(name).startsWith(filterStr)) {
+                        filterDateList.add(friendInfoModel);
+                    }
                 }
             }
         }
 
         // 根据a-z进行排序
-        Collections.sort(filterDateList, pinyinComparator);
-        isFilter = true;
-        tempList = filterDateList;
-        adapter.updateListView(filterDateList);
+        Collections.sort(filterDateList, mPinyinComparator);
+        mFilteredFriendList = filterDateList;
+        mFriendListAdapter.updateListView(filterDateList);
     }
 
 
     /**
      * 为ListView填充数据
-     *
-     * @param
-     * @return
      */
-    private List<Friend> filledData(List<Friend> lsit) {
-        List<Friend> mFriendList = new ArrayList<Friend>();
+    private List<FriendInfo> labelSourceFriendList(List<FriendInfo> list) {
+        List<FriendInfo> mFriendInfoList = new ArrayList<>();
 
-        for (int i = 0; i < lsit.size(); i++) {
-            Friend friendModel = new Friend();
-            friendModel.setName(lsit.get(i).getName());
+        for (int i = 0; i < list.size(); i++) {
+            FriendInfo friendInfoModel = new FriendInfo();
+            friendInfoModel.setName(list.get(i).getName());
             //汉字转换成拼音
-            String pinyin = characterParser.getSelling(lsit.get(i).getName());
+            String pinyin = mCharacterParser.getSpelling(list.get(i).getName());
             String sortString = pinyin.substring(0, 1).toUpperCase();
 
             // 正则表达式，判断首字母是否是英文字母
             if (sortString.matches("[A-Z]")) {
-                friendModel.setLetters(sortString.toUpperCase());
+                friendInfoModel.setLetters(sortString.toUpperCase());
             } else {
-                friendModel.setLetters("#");
+                friendInfoModel.setLetters("#");
             }
 
-            mFriendList.add(friendModel);
+            mFriendInfoList.add(friendInfoModel);
         }
-        return mFriendList;
+        return mFriendInfoList;
 
     }
 
@@ -325,7 +293,7 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.re_newfriends:
-                unread.setVisibility(View.GONE);
+                mUnreadTextView.setVisibility(View.GONE);
                 Intent intent = new Intent(getActivity(), NewFriendListActivity.class);
                 startActivityForResult(intent, 20);
                 break;
@@ -337,30 +305,29 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
                 startActivity(intentPublic);
                 break;
             case R.id.contact_me_item:
-                RongIM.getInstance().startPrivateChat(getActivity(), id, cacheName);
+                RongIM.getInstance().startPrivateChat(getActivity(), mId, mCacheName);
                 break;
         }
     }
 
 
     private void refreshUIListener() {
-        BroadcastManager.getInstance(getActivity()).addAction(SealAppContext.UPDATEFRIEND, new BroadcastReceiver() {
+        BroadcastManager.getInstance(getActivity()).addAction(SealAppContext.UPDATE_FRIEND, new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String command = intent.getAction();
                 if (!TextUtils.isEmpty(command)) {
                     updateUI();
-
                 }
             }
         });
 
-        BroadcastManager.getInstance(getActivity()).addAction(SealAppContext.UPDATEREDDOT, new BroadcastReceiver() {
+        BroadcastManager.getInstance(getActivity()).addAction(SealAppContext.UPDATE_RED_DOT, new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String command = intent.getAction();
                 if (!TextUtils.isEmpty(command)) {
-                    unread.setVisibility(View.INVISIBLE);
+                    mUnreadTextView.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -368,11 +335,11 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onReceive(Context context, Intent intent) {
                 SharedPreferences sp = getActivity().getSharedPreferences("config", Context.MODE_PRIVATE);
-                id = sp.getString("loginid", "");
-                cacheName = sp.getString("loginnickname", "");
+                mId = sp.getString("loginid", "");
+                mCacheName = sp.getString("loginnickname", "");
                 String header = sp.getString("loginPortrait", "");
-                name.setText(cacheName);
-                ImageLoader.getInstance().displayImage(TextUtils.isEmpty(header) ? RongGenerate.generateDefaultAvatar(cacheName, id) : header, img, App.getOptions());
+                mNameTextView.setText(mCacheName);
+                ImageLoader.getInstance().displayImage(TextUtils.isEmpty(header) ? RongGenerate.generateDefaultAvatar(mCacheName, mId) : header, mSelectableRoundedImageView, App.getOptions());
             }
         });
 
@@ -382,42 +349,42 @@ public class ContactsFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        BroadcastManager.getInstance(getActivity()).destroy(SealAppContext.UPDATEFRIEND);
-        BroadcastManager.getInstance(getActivity()).destroy(SealAppContext.UPDATEREDDOT);
+        BroadcastManager.getInstance(getActivity()).destroy(SealAppContext.UPDATE_FRIEND);
+        BroadcastManager.getInstance(getActivity()).destroy(SealAppContext.UPDATE_RED_DOT);
         BroadcastManager.getInstance(getActivity()).destroy(SealConst.CHANGEINFO);
     }
 
     private void updateUI() {
         List<cn.rongcloud.im.db.Friend> list = DBManager.getInstance(getActivity()).getDaoSession().getFriendDao().loadAll();
         if (list != null) {
-            if (dataLsit != null) {
-                dataLsit.clear();
+            if (mSourceFriendList != null) {
+                mSourceFriendList.clear();
             }
-            if (sourceDataList != null) {
-                sourceDataList.clear();
+            if (mFriendInfoList != null) {
+                mFriendInfoList.clear();
             }
             for (cn.rongcloud.im.db.Friend friend : list) {
-                dataLsit.add(new Friend(friend.getUserId(), friend.getName(), friend.getPortraitUri()));
+                mSourceFriendList.add(new FriendInfo(friend.getUserId(), friend.getName(), friend.getPortraitUri(), friend.getDisplayName()));
             }
 
         }
-        if (dataLsit != null) {
-            sourceDataList = filledData(dataLsit); //过滤数据为有字母的字段  现在有字母 别的数据没有
+        if (mSourceFriendList != null) {
+            mFriendInfoList = labelSourceFriendList(mSourceFriendList); //过滤数据为有字母的字段  现在有字母 别的数据没有
         } else {
             mNoFriends.setVisibility(View.VISIBLE);
         }
 
         //还原除了带字母字段的其他数据
-        for (int i = 0; i < dataLsit.size(); i++) {
-            sourceDataList.get(i).setName(dataLsit.get(i).getName());
-            sourceDataList.get(i).setUserId(dataLsit.get(i).getUserId());
-            sourceDataList.get(i).setPortraitUri(dataLsit.get(i).getPortraitUri());
-            sourceDataList.get(i).setDisplayName(dataLsit.get(i).getDisplayName());
+        for (int i = 0; i < mSourceFriendList.size(); i++) {
+            mFriendInfoList.get(i).setName(mSourceFriendList.get(i).getName());
+            mFriendInfoList.get(i).setUserId(mSourceFriendList.get(i).getUserId());
+            mFriendInfoList.get(i).setPortraitUri(mSourceFriendList.get(i).getPortraitUri());
+            mFriendInfoList.get(i).setDisplayName(mSourceFriendList.get(i).getDisplayName());
         }
 
         // 根据a-z进行排序源数据
-        Collections.sort(sourceDataList, pinyinComparator);
-        adapter.updateListView(sourceDataList);
+        Collections.sort(mFriendInfoList, mPinyinComparator);
+        mFriendListAdapter.updateListView(mFriendInfoList);
     }
 
 }

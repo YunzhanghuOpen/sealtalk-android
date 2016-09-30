@@ -15,6 +15,7 @@ import java.util.List;
 
 import cn.rongcloud.im.App;
 import cn.rongcloud.im.R;
+import cn.rongcloud.im.SealConst;
 import cn.rongcloud.im.server.pinyin.Friend;
 import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
@@ -68,6 +69,7 @@ public class FriendAdapter extends BaseAdapter implements SectionIndexer {
             viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.friendname);
             viewHolder.tvLetter = (TextView) convertView.findViewById(R.id.catalog);
             viewHolder.mImageView = (SelectableRoundedImageView) convertView.findViewById(R.id.frienduri);
+            viewHolder.tvUserId = (TextView) convertView.findViewById(R.id.friend_id);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -82,12 +84,20 @@ public class FriendAdapter extends BaseAdapter implements SectionIndexer {
         } else {
             viewHolder.tvLetter.setVisibility(View.GONE);
         }
-        viewHolder.tvTitle.setText(this.list.get(position).getName());
+        if (mContent.isExitsDisplayName()) {
+            viewHolder.tvTitle.setText(this.list.get(position).getDisplayName());
+        } else {
+            viewHolder.tvTitle.setText(this.list.get(position).getName());
+        }
         if (TextUtils.isEmpty(list.get(position).getPortraitUri())) {
             String s = RongGenerate.generateDefaultAvatar(list.get(position).getName(), list.get(position).getUserId());
             ImageLoader.getInstance().displayImage(s, viewHolder.mImageView, App.getOptions());
         } else {
             ImageLoader.getInstance().displayImage(list.get(position).getPortraitUri(), viewHolder.mImageView, App.getOptions());
+        }
+        if (context.getSharedPreferences("config", Context.MODE_PRIVATE).getBoolean("isDebug", false)) {
+            viewHolder.tvUserId.setVisibility(View.VISIBLE);
+            viewHolder.tvUserId.setText(list.get(position).getUserId());
         }
         return convertView;
     }
@@ -132,6 +142,6 @@ public class FriendAdapter extends BaseAdapter implements SectionIndexer {
         /**
          * userid
          */
-//        TextView tvUserId;
+        TextView tvUserId;
     }
 }

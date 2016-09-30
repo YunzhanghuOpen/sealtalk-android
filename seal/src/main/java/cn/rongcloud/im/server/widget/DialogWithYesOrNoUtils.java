@@ -38,7 +38,7 @@ public class DialogWithYesOrNoUtils {
         alterDialog.setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                callBack.exectEvent();
+                callBack.executeEvent();
             }
         });
         alterDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -51,9 +51,9 @@ public class DialogWithYesOrNoUtils {
     }
 
     public interface DialogCallBack {
-        void exectEvent();
+        void executeEvent();
 
-        void exectEditEvent(String editText);
+        void executeEditEvent(String editText);
 
         void updatePassword(String oldPassword, String newPassword);
     }
@@ -70,7 +70,7 @@ public class DialogWithYesOrNoUtils {
         dialog.setPositiveButton(OKText, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 String s = et_search.getText().toString().trim();
-                callBack.exectEditEvent(s);
+                callBack.executeEditEvent(s);
             }
         });
 

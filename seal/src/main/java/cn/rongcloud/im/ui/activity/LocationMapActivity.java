@@ -24,9 +24,6 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.UserInfo;
 
-/**
- * Created by zhjchen on 8/12/15.
- */
 public abstract class LocationMapActivity extends BasicMapActivity implements AMap.OnMarkerClickListener, AMapLocationListener {
     private LocationManagerProxy mLocationManagerProxy;
 
@@ -108,8 +105,6 @@ public abstract class LocationMapActivity extends BasicMapActivity implements AM
 
     /**
      * 定位
-     *
-     * @param location
      */
     @Override
     public void onLocationChanged(Location location) {
@@ -128,8 +123,6 @@ public abstract class LocationMapActivity extends BasicMapActivity implements AM
 
     /**
      * 定位
-     *
-     * @param provider
      */
     @Override
     public void onProviderDisabled(String provider) {

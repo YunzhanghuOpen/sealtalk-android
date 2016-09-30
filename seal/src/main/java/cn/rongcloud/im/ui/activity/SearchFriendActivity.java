@@ -1,10 +1,13 @@
 package cn.rongcloud.im.ui.activity;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,57 +26,54 @@ import cn.rongcloud.im.server.widget.DialogWithYesOrNoUtils;
 import cn.rongcloud.im.server.widget.LoadDialog;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
 
-/**
- * Created by Bob on 2015/3/26.
- */
 public class SearchFriendActivity extends BaseActivity {
 
-    private static final int SEARCHPHONE = 10;
-    private static final int ADDFRIEND = 11;
+    private static final int SEARCH_PHONE = 10;
+    private static final int ADD_FRIEND = 11;
     private EditText mEtSearch;
-
-    private Button mBtSearch;
-
     private LinearLayout searchItem;
-
     private TextView searchName;
-
     private SelectableRoundedImageView searchImage;
-
-    private String mPhone, addFriendMessage, mFriendId;
+    private String mPhone;
+    private String addFriendMessage;
+    private String mFriendId;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        getSupportActionBar().setTitle(R.string.Search);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
+        setTitle((R.string.search_friend));
 
-        mEtSearch = (EditText) findViewById(R.id.de_ui_search);
-        mBtSearch = (Button) findViewById(R.id.de_search);
+        mEtSearch = (EditText) findViewById(R.id.search_edit);
         searchItem = (LinearLayout) findViewById(R.id.search_result);
         searchName = (TextView) findViewById(R.id.search_name);
         searchImage = (SelectableRoundedImageView) findViewById(R.id.search_header);
-
-
-        mBtSearch.setOnClickListener(new View.OnClickListener() {
+        mEtSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View v) {
-                mPhone = mEtSearch.getText().toString().trim();
-                if (TextUtils.isEmpty(mPhone)) {
-                    NToast.shortToast(mContext, R.string.phone_number_is_null);
-                    return;
-                }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                if (!AMUtils.isMobile(mPhone)) {
-                    NToast.shortToast(mContext, "手机号正则验证失败");
-                    return;
-                }
+            }
 
-                LoadDialog.show(mContext);
-                request(SEARCHPHONE, true);
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 11) {
+                    mPhone = s.toString().trim();
+                    if (!AMUtils.isMobile(mPhone)) {
+                        NToast.shortToast(mContext, "非法手机号");
+                        return;
+                    }
+                    hintKbTwo();
+                    LoadDialog.show(mContext);
+                    request(SEARCH_PHONE, true);
+                } else {
+                    searchItem.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
 
@@ -82,9 +82,9 @@ public class SearchFriendActivity extends BaseActivity {
     @Override
     public Object doInBackground(int requestCode, String id) throws HttpException {
         switch (requestCode) {
-            case SEARCHPHONE:
+            case SEARCH_PHONE:
                 return action.getUserInfoFromPhone("86", mPhone);
-            case ADDFRIEND:
+            case ADD_FRIEND:
                 return action.sendFriendInvitation(mFriendId, addFriendMessage);
         }
         return super.doInBackground(requestCode, id);
@@ -94,7 +94,7 @@ public class SearchFriendActivity extends BaseActivity {
     public void onSuccess(int requestCode, Object result) {
         if (result != null) {
             switch (requestCode) {
-                case SEARCHPHONE:
+                case SEARCH_PHONE:
                     final GetUserInfoByPhoneResponse guifres = (GetUserInfoByPhoneResponse) result;
                     if (guifres.getCode() == 200) {
                         LoadDialog.dismiss(mContext);
@@ -102,7 +102,7 @@ public class SearchFriendActivity extends BaseActivity {
                         mFriendId = guifres.getResult().getId();
                         searchItem.setVisibility(View.VISIBLE);
                         if (TextUtils.isEmpty(guifres.getResult().getPortraitUri())) {
-                            ImageLoader.getInstance().displayImage(RongGenerate.generateDefaultAvatar(guifres.getResult().getNickname(), guifres.getResult().getId()) , searchImage, App.getOptions());
+                            ImageLoader.getInstance().displayImage(RongGenerate.generateDefaultAvatar(guifres.getResult().getNickname(), guifres.getResult().getId()), searchImage, App.getOptions());
                         } else {
                             ImageLoader.getInstance().displayImage(guifres.getResult().getPortraitUri(), searchImage, App.getOptions());
                         }
@@ -117,7 +117,7 @@ public class SearchFriendActivity extends BaseActivity {
 
                                 DialogWithYesOrNoUtils.getInstance().showEditDialog(mContext, getString(R.string.add_text), getString(R.string.add_friend), new DialogWithYesOrNoUtils.DialogCallBack() {
                                     @Override
-                                    public void exectEvent() {
+                                    public void executeEvent() {
 
                                     }
 
@@ -127,14 +127,14 @@ public class SearchFriendActivity extends BaseActivity {
                                     }
 
                                     @Override
-                                    public void exectEditEvent(String editText) {
+                                    public void executeEditEvent(String editText) {
                                         addFriendMessage = editText;
                                         if (TextUtils.isEmpty(editText)) {
                                             addFriendMessage = "我是" + getSharedPreferences("config", MODE_PRIVATE).getString("loginnickname", "");
                                         }
                                         if (!TextUtils.isEmpty(mFriendId)) {
                                             LoadDialog.show(mContext);
-                                            request(ADDFRIEND);
+                                            request(ADD_FRIEND);
                                         } else {
                                             NToast.shortToast(mContext, "id is null");
                                         }
@@ -145,7 +145,7 @@ public class SearchFriendActivity extends BaseActivity {
 
                     }
                     break;
-                case ADDFRIEND:
+                case ADD_FRIEND:
                     FriendInvitationResponse fres = (FriendInvitationResponse) result;
                     if (fres.getCode() == 200) {
                         NToast.shortToast(mContext, getString(R.string.request_success));
@@ -162,11 +162,11 @@ public class SearchFriendActivity extends BaseActivity {
     @Override
     public void onFailure(int requestCode, int state, Object result) {
         switch (requestCode) {
-            case ADDFRIEND:
+            case ADD_FRIEND:
                 NToast.shortToast(mContext, "你们已经是好友");
                 LoadDialog.dismiss(mContext);
                 break;
-            case SEARCHPHONE:
+            case SEARCH_PHONE:
                 NToast.shortToast(mContext, "用户不存在");
                 LoadDialog.dismiss(mContext);
                 break;
@@ -175,7 +175,17 @@ public class SearchFriendActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        hintKbTwo();
         finish();
         return super.onOptionsItemSelected(item);
+    }
+
+    private void hintKbTwo() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm.isActive() && getCurrentFocus() != null) {
+            if (getCurrentFocus().getWindowToken() != null) {
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        }
     }
 }

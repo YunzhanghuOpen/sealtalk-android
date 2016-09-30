@@ -16,67 +16,28 @@
             android:orientation="vertical"
             android:paddingBottom="30dp">
 
-            <LinearLayout
-                android:id="@+id/group_info"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:background="#ffffff"
-                android:orientation="horizontal">
-
-                <cn.rongcloud.im.server.widget.SelectableRoundedImageView
-                    android:id="@+id/group_header"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="16dp"
-                    android:scaleType="centerCrop"
-                    app:sriv_left_bottom_corner_radius="3dip"
-                    app:sriv_left_top_corner_radius="3dip"
-                    app:sriv_right_bottom_corner_radius="3dip"
-                    app:sriv_right_top_corner_radius="3dip" />
-
-                <TextView
-                    android:id="@+id/group_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="14dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_weight="1"
-                    android:singleLine="true"
-                    android:textColor="#353535"
-                    android:textSize="16dp" />
-
-                <ImageView
-                    android:id="@+id/show_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginRight="14dp"
-                    android:background="@drawable/rp_arrow"
-                    android:visibility="invisible" />
-
-
-            </LinearLayout>
-
-
             <cn.rongcloud.im.ui.widget.DemoGridView
                 android:id="@+id/gridview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
                 android:background="#ffffff"
                 android:columnWidth="56dp"
                 android:gravity="start"
                 android:listSelector="@android:color/transparent"
                 android:numColumns="4"></cn.rongcloud.im.ui.widget.DemoGridView>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.25dp"
-                android:layout_marginLeft="14dp"
-                android:layout_marginRight="14dp"
-                android:background="#dfdfdd" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.25dp"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:background="#dfdfdd" />
+            </LinearLayout>
 
             <RelativeLayout
                 android:id="@+id/group_member_size_item"
@@ -103,13 +64,113 @@
                 android:layout_width="match_parent"
                 android:layout_height="0.25dp"
                 android:layout_marginLeft="14dp"
-                android:visibility="gone"
                 android:layout_marginRight="14dp"
                 android:layout_marginTop="20dp"
                 android:background="#dfdfdd" />
 
             <LinearLayout
-                android:visibility="gone"
+                android:id="@+id/ll_group_port"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/btn_list_item_bg"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="1"
+                    android:text="@string/group_portrait"
+                    android:textColor="@color/text_color"
+                    android:textSize="16dp" />
+
+                <cn.rongcloud.im.server.widget.SelectableRoundedImageView
+                    android:id="@+id/group_header"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="14dp"
+                    android:scaleType="centerCrop"
+                    app:sriv_left_bottom_corner_radius="3dip"
+                    app:sriv_left_top_corner_radius="3dip"
+                    app:sriv_right_bottom_corner_radius="3dip"
+                    app:sriv_right_top_corner_radius="3dip" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.25dp"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:background="#dfdfdd" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_group_name"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/btn_list_item_bg"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="@string/group_name"
+                    android:textColor="@color/text_color"
+                    android:textSize="16dp" />
+
+                <TextView
+                    android:id="@+id/group_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="14dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:gravity="right"
+                    android:singleLine="true"
+                    android:textColor="#999"
+                    android:textSize="14dp" />
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff"
+                android:visibility="gone">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.25dp"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:background="#dfdfdd" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/group_announcement"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
@@ -127,6 +188,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:text="@string/group_announcement"
+                    android:textColor="@color/text_color"
                     android:textSize="16dp" />
 
 
@@ -140,13 +202,13 @@
                 android:background="#dfdfdd" />
 
             <LinearLayout
-                android:visibility="gone"
                 android:id="@+id/group_code"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:background="@drawable/btn_list_item_bg"
                 android:clickable="true"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
 
                 <TextView
@@ -186,6 +248,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:text="@string/messsage_notice"
+                    android:textColor="@color/text_color"
                     android:textSize="16dp" />
 
                 <cn.rongcloud.im.ui.widget.switchbutton.SwitchButton
@@ -204,12 +267,18 @@
                     app:kswThumbMarginTop="-2.5dp" />
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.25dp"
-                android:layout_marginLeft="14dp"
-                android:layout_marginRight="14dp"
-                android:background="#dfdfdd" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.25dp"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:background="#dfdfdd" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -227,6 +296,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:text="@string/set_top"
+                    android:textColor="@color/text_color"
                     android:textSize="16dp" />
 
                 <cn.rongcloud.im.ui.widget.switchbutton.SwitchButton
@@ -245,12 +315,18 @@
                     app:kswThumbMarginTop="-2.5dp" />
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.25dp"
-                android:layout_marginLeft="14dp"
-                android:layout_marginRight="14dp"
-                android:background="#dfdfdd" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.25dp"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:background="#dfdfdd" />
+            </LinearLayout>
 
 
             <LinearLayout
@@ -270,6 +346,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:text="@string/clean_message"
+                    android:textColor="@color/text_color"
                     android:textSize="16dp" />
 
 

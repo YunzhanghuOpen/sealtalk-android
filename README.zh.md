@@ -1,4 +1,8 @@
 # sealtalk-android
+[![Platform](https://img.shields.io/badge/platform-android-green.svg)](http://developer.android.com/index.html)
+[![API](https://img.shields.io/badge/API-9%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=9)<br/>
+
+
 [The English Version](https://github.com/sealtalk/sealtalk-android/blob/master/README.md)  <br/>
 Android 应用 SealTalk 由 融云 RongCloud 出品
 
@@ -16,9 +20,16 @@ Android 应用 SealTalk 由 融云 RongCloud 出品
 
 
 ## 截屏
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image1.png)<br/>
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image2.png)<br/>
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image3.png)<br/>
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image1.jpg)<br/>
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image2.jpg)<br/>
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image3.jpg)<br/>
+
+## APK
+[下载 Apk](http://rongcloud.cn/sealtalk)<br/>
+
+## UML
+ 登录类图
+ ![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/LoginClassDiagram.png)<br/>
 
 ## 使用
 #### Step 1:
@@ -30,10 +41,21 @@ Android 应用 SealTalk 由 融云 RongCloud 出品
 #### Step 4:
 [下载融云 Demo](https://github.com/sealtalk/sealtalk-android) , 在初步集成和依赖好 IMKit 包后, 阅读 demo 源码 Get 你需要的功能模块
 
+## Eclipse
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/eclipse_icon.png)<br/>
+[eclipse link](https://github.com/AnOneTable/sealtalk-eclipse)
+
 ## 支持
+ - [App 解析文档](https://github.com/sealtalk/sealtalk-android/blob/master/sealtalk_parser.md)
  - [知识库](http://support.rongcloud.cn/)
  - [工单](https://developer.rongcloud.cn/signin?returnUrl=%2Fticket),需要登录融云开发者账号
  - [Android 视频教程](http://www.rongcloud.cn/docs/android_video_tutorials.html)
+ 
+## 鸣谢
+- [androidone](https://github.com/devinhu/androidone)
+- [android-async-http](https://github.com/loopj/android-async-http)
+- [greendao](https://github.com/greenrobot/greenDAO)
+- [fastjson](https://github.com/alibaba/fastjson)
 
 
 #### 比你想象的更强大, 敬请期待更多精彩! <br/>

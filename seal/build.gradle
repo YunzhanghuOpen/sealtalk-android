@@ -8,8 +8,10 @@ android {
         applicationId "cn.rongcloud.im"
         minSdkVersion 11
         targetSdkVersion 23
-        versionCode 2016061311
-        versionName "2.6.5 stable"
+        versionCode 2016081820
+        versionName "2.7.2 Dev"
+
+        multiDexEnabled true
     }
 
     signingConfigs {
@@ -49,15 +51,21 @@ android {
     }
 }
 
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:19.1.0'
+    compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:support-v4:21.0.3'
     // libs 中 happy dns.jar - okhttp.jar - okio.jar 为 qiniu存储所需依赖jar 融云 sdk 和你的 app 中都无需依赖
     compile files('libs/Android_Location_V1.3.3.jar')
     compile files('libs/universal-image-loader-1.9.5.jar')
     // org.apache.http.legacy.jar 为适配 Android tagetId 22 以上 jar
     compile files('libs/org.apache.http.legacy.jar')
-    compile project(':Rong_Cloud_Android_IMKit_SDK_v2_6_5_stable_with_CallKit')
+    compile files('libs/jsoup-1.8.3.jar')
+    //    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
+    //    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
+    //    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
+    //    compile 'com.android.support:multidex:1.0.1'
+    compile project(':Rong_Cloud_Android_IMKit_SDK_v2_7_3_stable_with_CallKit')
 }
 apply plugin: 'com.google.gms.google-services'

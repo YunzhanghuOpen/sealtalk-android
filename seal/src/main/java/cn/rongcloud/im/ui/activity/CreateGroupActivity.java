@@ -28,7 +28,7 @@ import cn.rongcloud.im.db.DBManager;
 import cn.rongcloud.im.db.Groups;
 import cn.rongcloud.im.server.broadcast.BroadcastManager;
 import cn.rongcloud.im.server.network.http.HttpException;
-import cn.rongcloud.im.server.pinyin.Friend;
+import cn.rongcloud.im.server.pinyin.FriendInfo;
 import cn.rongcloud.im.server.response.CreateGroupResponse;
 import cn.rongcloud.im.server.response.QiNiuTokenResponse;
 import cn.rongcloud.im.server.response.SetGroupPortraitResponse;
@@ -45,44 +45,34 @@ import io.rong.imkit.widget.AsyncImageView;
  */
 public class CreateGroupActivity extends BaseActivity implements View.OnClickListener {
 
-
-    private static final int CREATEGROUP = 16;
-    private static final int SETGROUPPORTRAITURI = 17;
-    public static final String REFRESHGROUPUI = "REFRESHGROUPUI";
-    private List<Friend> memberList;
-
+    private static final int GET_QI_NIU_TOKEN = 131;
+    private static final int CREATE_GROUP = 16;
+    private static final int SET_GROUP_PORTRAIT_URI = 17;
+    public static final String REFRESH_GROUP_UI = "REFRESH_GROUP_UI";
     private AsyncImageView asyncImageView;
-
     private PhotoUtils photoUtils;
-
     private BottomMenuDialog dialog;
-
     private String mGroupName, mGroupId;
-
-    private Button mButton;
-
     private ClearWriteEditText mGroupNameEdit;
-
     private List<String> groupIds = new ArrayList<>();
-
     private Uri selectUri;
+    private UploadManager uploadManager;
+    private String imageUrl;
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_group);
-        getSupportActionBar().setTitle(R.string.create_group);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
-        memberList = (List<Friend>) getIntent().getSerializableExtra("GroupMember");
+        setTitle(R.string.create_group);
+        List<FriendInfo> memberList = (List<FriendInfo>) getIntent().getSerializableExtra("GroupMember");
         initView();
         setPortraitChangeListener();
         if (memberList != null && memberList.size() > 0) {
             groupIds.add(getSharedPreferences("config", MODE_PRIVATE).getString("loginid", ""));
-            for (Friend f : memberList) {
+            for (FriendInfo f : memberList) {
                 groupIds.add(f.getUserId());
             }
-
         }
     }
 
@@ -93,7 +83,7 @@ public class CreateGroupActivity extends BaseActivity implements View.OnClickLis
                 if (uri != null && !TextUtils.isEmpty(uri.getPath())) {
                     selectUri = uri;
                     LoadDialog.show(mContext);
-                    request(131);
+                    request(GET_QI_NIU_TOKEN);
                 }
             }
 
@@ -107,7 +97,7 @@ public class CreateGroupActivity extends BaseActivity implements View.OnClickLis
     private void initView() {
         asyncImageView = (AsyncImageView) findViewById(R.id.img_Group_portrait);
         asyncImageView.setOnClickListener(this);
-        mButton = (Button) findViewById(R.id.create_ok);
+        Button mButton = (Button) findViewById(R.id.create_ok);
         mButton.setOnClickListener(this);
         mGroupNameEdit = (ClearWriteEditText) findViewById(R.id.create_groupname);
     }
@@ -126,7 +116,7 @@ public class CreateGroupActivity extends BaseActivity implements View.OnClickLis
                 }
                 if (groupIds.size() > 1) {
                     LoadDialog.show(mContext);
-                    request(CREATEGROUP, true);
+                    request(CREATE_GROUP, true);
                 }
 
                 break;
@@ -137,11 +127,11 @@ public class CreateGroupActivity extends BaseActivity implements View.OnClickLis
     @Override
     public Object doInBackground(int requestCode, String id) throws HttpException {
         switch (requestCode) {
-            case CREATEGROUP:
+            case CREATE_GROUP:
                 return action.createGroup(mGroupName, groupIds);
-            case SETGROUPPORTRAITURI:
+            case SET_GROUP_PORTRAIT_URI:
                 return action.setGroupPortrait(mGroupId, imageUrl);
-            case 131:
+            case GET_QI_NIU_TOKEN:
                 return action.getQiNiuToken();
         }
         return null;
@@ -151,33 +141,33 @@ public class CreateGroupActivity extends BaseActivity implements View.OnClickLis
     public void onSuccess(int requestCode, Object result) {
         if (result != null) {
             switch (requestCode) {
-                case CREATEGROUP:
-                    CreateGroupResponse cgRes = (CreateGroupResponse) result;
-                    if (cgRes.getCode() == 200) {
-                        mGroupId = cgRes.getResult().getId(); //id == null
+                case CREATE_GROUP:
+                    CreateGroupResponse createGroupResponse = (CreateGroupResponse) result;
+                    if (createGroupResponse.getCode() == 200) {
+                        mGroupId = createGroupResponse.getResult().getId(); //id == null
                         if (TextUtils.isEmpty(imageUrl)) {
                             DBManager.getInstance(mContext).getDaoSession().getGroupsDao().insertOrReplace(new Groups(mGroupId, mGroupName, imageUrl, String.valueOf(0)));
-                            BroadcastManager.getInstance(mContext).sendBroadcast(REFRESHGROUPUI);
+                            BroadcastManager.getInstance(mContext).sendBroadcast(REFRESH_GROUP_UI);
                             LoadDialog.dismiss(mContext);
                             NToast.shortToast(mContext, getString(R.string.create_group_success));
                             finish();
                         } else {
                             if (!TextUtils.isEmpty(mGroupId)) {
-                                request(SETGROUPPORTRAITURI);
+                                request(SET_GROUP_PORTRAIT_URI);
                             }
                         }
                     }
                     break;
-                case SETGROUPPORTRAITURI:
-                    SetGroupPortraitResponse spRes = (SetGroupPortraitResponse) result;
-                    if (spRes.getCode() == 200) {
+                case SET_GROUP_PORTRAIT_URI:
+                    SetGroupPortraitResponse groupPortraitResponse = (SetGroupPortraitResponse) result;
+                    if (groupPortraitResponse.getCode() == 200) {
                         DBManager.getInstance(mContext).getDaoSession().getGroupsDao().insertOrReplace(new Groups(mGroupId, mGroupName, imageUrl, String.valueOf(0)));
-                        BroadcastManager.getInstance(mContext).sendBroadcast(REFRESHGROUPUI);
+                        BroadcastManager.getInstance(mContext).sendBroadcast(REFRESH_GROUP_UI);
                         LoadDialog.dismiss(mContext);
                         NToast.shortToast(mContext, getString(R.string.create_group_success));
                         finish();
                     }
-                case 131:
+                case GET_QI_NIU_TOKEN:
                     QiNiuTokenResponse response = (QiNiuTokenResponse) result;
                     if (response.getCode() == 200) {
                         uploadImage(response.getResult().getDomain(), response.getResult().getToken(), selectUri);
@@ -190,11 +180,11 @@ public class CreateGroupActivity extends BaseActivity implements View.OnClickLis
     @Override
     public void onFailure(int requestCode, int state, Object result) {
         switch (requestCode) {
-            case CREATEGROUP:
+            case CREATE_GROUP:
                 LoadDialog.dismiss(mContext);
                 NToast.shortToast(mContext, getString(R.string.group_create_api_fail));
                 break;
-            case SETGROUPPORTRAITURI:
+            case SET_GROUP_PORTRAIT_URI:
                 LoadDialog.dismiss(mContext);
                 NToast.shortToast(mContext, getString(R.string.group_header_api_fail));
                 break;
@@ -251,9 +241,6 @@ public class CreateGroupActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
-    private UploadManager uploadManager;
-
-    private String imageUrl;
 
     public void uploadImage(final String domain, String imageToken, Uri imagePath) {
         if (TextUtils.isEmpty(domain) && TextUtils.isEmpty(imageToken) && TextUtils.isEmpty(imagePath.toString())) {

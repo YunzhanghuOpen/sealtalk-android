@@ -4,17 +4,15 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import cn.rongcloud.im.R;
 
 
-/**
- * Created by Administrator on 2015/3/20.
- */
 @SuppressLint("SetJavaScriptEnabled")
-public class RongWebActivity extends BaseActionBarActivity {
+public class RongWebActivity extends BaseActivity {
 
     private WebView mWebView = null;
 
@@ -22,8 +20,7 @@ public class RongWebActivity extends BaseActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rong_web);
-
-        getSupportActionBar().setTitle(R.string.rongcloud_web);
+        setTitle(R.string.rongcloud_web);
 
         mWebView = (WebView) findViewById(R.id.rongweb_webview);
         mWebView.getSettings().setJavaScriptEnabled(true);
@@ -31,6 +28,9 @@ public class RongWebActivity extends BaseActionBarActivity {
         mWebView.getSettings().setLoadWithOverviewMode(true);
         mWebView.getSettings().setBuiltInZoomControls(true);
         mWebView.getSettings().setSupportZoom(true);
+        //自适应屏幕
+        mWebView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
+        mWebView.getSettings().setLoadWithOverviewMode(true);
 
 
         MyWebViewClient mMyWebViewClient = new MyWebViewClient();

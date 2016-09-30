@@ -1,41 +1,37 @@
 package cn.rongcloud.im.ui.activity;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cn.rongcloud.im.App;
 import cn.rongcloud.im.R;
-import cn.rongcloud.im.SealAppContext;
 import cn.rongcloud.im.db.DBManager;
 import cn.rongcloud.im.db.Groups;
 import cn.rongcloud.im.server.SealAction;
-import cn.rongcloud.im.server.broadcast.BroadcastManager;
 import cn.rongcloud.im.server.network.async.AsyncTaskManager;
 import cn.rongcloud.im.server.network.async.OnDataListener;
 import cn.rongcloud.im.server.network.http.HttpException;
 import cn.rongcloud.im.server.response.GetGroupResponse;
-import cn.rongcloud.im.server.utils.RongGenerate;
-import cn.rongcloud.im.server.utils.NLog;
 import cn.rongcloud.im.server.utils.NToast;
+import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
 import io.rong.imkit.RongIM;
-import io.rong.imlib.model.Conversation;
 
 /**
  * Created by AMing on 16/3/8.
@@ -43,91 +39,91 @@ import io.rong.imlib.model.Conversation;
  */
 public class GroupListActivity extends BaseActivity {
 
-    private static final int REFRESHGROUPUI = 22;
-
+    private static final int REFRESH_GROUP_UI = 22;
     private ListView mGroupListView;
-
     private GroupAdapter adapter;
-
     private TextView mNoGroups;
+    private EditText mSearch;
+    private List<Groups> mList;
+    private TextView mTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.de_fr_group_list);
-        getSupportActionBar().setTitle(R.string.my_groups);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
-
+        setContentView(R.layout.fr_group_list);
+        setTitle(R.string.my_groups);
         mGroupListView = (ListView) findViewById(R.id.group_listview);
         mNoGroups = (TextView) findViewById(R.id.show_no_group);
+        mSearch = (EditText) findViewById(R.id.group_search);
+        LayoutInflater mLayoutInflater = LayoutInflater.from(mContext);
+        View mFootView = mLayoutInflater.inflate(R.layout.item_group_list_foot,
+                         null);
+        mTextView = (TextView) mFootView.findViewById(R.id.foot_group_size);
+        mGroupListView.addFooterView(mFootView);
         initData();
-        refreshUIListener();
         initNetUpdateUI();
     }
 
 
     private void initNetUpdateUI() {
-        BroadcastManager.getInstance(this).addAction(SealAppContext.NETUPDATEGROUP, new BroadcastReceiver() {
+        AsyncTaskManager.getInstance(mContext).request(REFRESH_GROUP_UI, new OnDataListener() {
             @Override
-            public void onReceive(Context context, Intent intent) {
-                String command = intent.getAction();
-                if (!TextUtils.isEmpty(command)) {
-                    AsyncTaskManager.getInstance(mContext).request(REFRESHGROUPUI, new OnDataListener() {
-                        @Override
-                        public Object doInBackground(int requsetCode, String id) throws HttpException {
-                            return new SealAction(mContext).getGroups();
-                        }
+            public Object doInBackground(int requestCode, String id) throws HttpException {
+                return new SealAction(mContext).getGroups();
+            }
 
 
-                        @Override
-                        public void onSuccess(int requestCode, Object result) {
-                            if (result != null) {
-                                GetGroupResponse response = (GetGroupResponse) result;
-                                if (response.getCode() == 200) {
-                                    DBManager.getInstance(mContext).getDaoSession().getGroupsDao().deleteAll();
-                                    List<GetGroupResponse.ResultEntity> list = response.getResult();
-                                    if (list.size() > 0 && list != null) { //服务端上也没有群组数据
-                                        for (GetGroupResponse.ResultEntity g : list) {
-                                            DBManager.getInstance(mContext).getDaoSession().getGroupsDao().insertOrReplace(
-                                                new Groups(g.getGroup().getId(), g.getGroup().getName(), g.getGroup().getPortraitUri(), String.valueOf(g.getRole()))
-                                            );
-                                        }
-                                    }
-                                    new android.os.Handler().postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            List<Groups> list = DBManager.getInstance(mContext).getDaoSession().getGroupsDao().loadAll();
-                                            if (adapter != null) {
-                                                adapter.updateListView(list);
-                                            } else {
-                                                GroupAdapter gAdapter = new GroupAdapter(mContext, list);
-                                                mGroupListView.setAdapter(gAdapter);
-                                            }
-                                            NLog.e(SealAppContext.NETUPDATEGROUP, "数据刷新成功");
-                                        }
-                                    }, 500);
+            @Override
+            public void onSuccess(int requestCode, Object result) {
+                if (result != null) {
+                    GetGroupResponse response = (GetGroupResponse) result;
+                    if (response.getCode() == 200) {
+                        if (response.getResult().size() != DBManager.getInstance(mContext).getDaoSession().getGroupsDao().loadAll().size()) {
+                            DBManager.getInstance(mContext).getDaoSession().getGroupsDao().deleteAll();
+                            List<GetGroupResponse.ResultEntity> list = response.getResult();
+                            if (list.size() > 0) { //服务端上也没有群组数据
+                                for (GetGroupResponse.ResultEntity g : list) {
+                                    DBManager.getInstance(mContext).getDaoSession().getGroupsDao().insertOrReplace(
+                                        new Groups(g.getGroup().getId(), g.getGroup().getName(), g.getGroup().getPortraitUri(), String.valueOf(g.getRole()))
+                                    );
                                 }
                             }
+                            mTextView.setVisibility(View.VISIBLE);
+                            mTextView.setText(list.size() + " 个群组");
+                            new android.os.Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    List<Groups> list = DBManager.getInstance(mContext).getDaoSession().getGroupsDao().loadAll();
+                                    if (adapter != null) {
+                                        adapter.updateListView(list);
+                                    } else {
+                                        GroupAdapter gAdapter = new GroupAdapter(mContext, list);
+                                        mGroupListView.setAdapter(gAdapter);
+                                    }
+                                }
+                            }, 500);
                         }
-
-                        @Override
-                        public void onFailure(int requestCode, int state, Object result) {
-                            NToast.shortToast(mContext, "刷新群组数据请求失败");
-                        }
-                    });
+                    }
                 }
             }
+
+            @Override
+            public void onFailure(int requestCode, int state, Object result) {
+                NToast.shortToast(mContext, "刷新群组数据请求失败");
+            }
         });
+
     }
 
 
     private void initData() {
-        List<Groups> list = DBManager.getInstance(mContext).getDaoSession().getGroupsDao().loadAll();
-        if (list != null && list.size() > 0) {
-            adapter = new GroupAdapter(mContext, list);
+        mList = DBManager.getInstance(mContext).getDaoSession().getGroupsDao().loadAll();
+        if (mList != null && mList.size() > 0) {
+            adapter = new GroupAdapter(mContext, mList);
             mGroupListView.setAdapter(adapter);
             mNoGroups.setVisibility(View.GONE);
+            mTextView.setVisibility(View.VISIBLE);
+            mTextView.setText(mList.size() + " 个群组");
             mGroupListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -138,22 +134,39 @@ public class GroupListActivity extends BaseActivity {
                     RongIM.getInstance().startGroupChat(GroupListActivity.this, bean.getQunId(), bean.getName());
                 }
             });
+            mSearch.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    filterData(s.toString());
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                }
+            });
         } else {
             mNoGroups.setVisibility(View.VISIBLE);
         }
 
     }
 
-    private void refreshUIListener() {
-        BroadcastManager.getInstance(mContext).addAction(CreateGroupActivity.REFRESHGROUPUI, new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String command = intent.getAction();
-                if (!TextUtils.isEmpty(command)) {
-                    initData();
+    private void filterData(String s) {
+        List<Groups> filterDataList = new ArrayList<>();
+        if (TextUtils.isEmpty(s)) {
+            filterDataList = mList;
+        } else {
+            for (Groups groups : mList) {
+                if (groups.getName().contains(s)) {
+                    filterDataList.add(groups);
                 }
             }
-        });
+        }
+        adapter.updateListView(filterDataList);
     }
 
 
@@ -193,14 +206,14 @@ public class GroupListActivity extends BaseActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder viewHolder = null;
+            ViewHolder viewHolder;
             final Groups mContent = list.get(position);
             if (convertView == null) {
                 viewHolder = new ViewHolder();
                 convertView = LayoutInflater.from(context).inflate(R.layout.group_item_new, null);
                 viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.groupname);
                 viewHolder.mImageView = (SelectableRoundedImageView) convertView.findViewById(R.id.groupuri);
-                viewHolder.groupChat = (Button) convertView.findViewById(R.id.group_chat);
+                viewHolder.groupId = (TextView) convertView.findViewById(R.id.group_id);
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
@@ -211,12 +224,10 @@ public class GroupListActivity extends BaseActivity {
             } else {
                 ImageLoader.getInstance().displayImage(mContent.getPortraitUri(), viewHolder.mImageView, App.getOptions());
             }
-            viewHolder.groupChat.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    RongIM.getInstance().startConversation(mContext, Conversation.ConversationType.GROUP, mContent.getQunId(), mContent.getName());
-                }
-            });
+            if (context.getSharedPreferences("config", MODE_PRIVATE).getBoolean("isDebug", false)) {
+                viewHolder.groupId.setVisibility(View.VISIBLE);
+                viewHolder.groupId.setText(mContent.getQunId());
+            }
             return convertView;
         }
 
@@ -231,23 +242,16 @@ public class GroupListActivity extends BaseActivity {
              */
             SelectableRoundedImageView mImageView;
             /**
-             * userid
+             * userId
              */
-            Button groupChat;
+            TextView groupId;
         }
     }
 
 
     @Override
     protected void onDestroy() {
-        BroadcastManager.getInstance(this).destroy(CreateGroupActivity.REFRESHGROUPUI);
-        BroadcastManager.getInstance(this).destroy(SealAppContext.NETUPDATEGROUP);
         super.onDestroy();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
-        return super.onOptionsItemSelected(item);
-    }
 }

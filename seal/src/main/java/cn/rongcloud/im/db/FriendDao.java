@@ -19,7 +19,7 @@ public class FriendDao extends AbstractDao<Friend, String> {
     public static final String TABLENAME = "FRIEND";
 
     /**
-     * Properties of entity Friend.<br/>
+     * Properties of entity FriendInfo.<br/>
      * Can be used for QueryBuilder and for referencing column names.
     */
     public static class Properties {

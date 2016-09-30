@@ -24,9 +24,7 @@ import com.amap.api.maps2d.model.MarkerOptions;
 import cn.rongcloud.im.R;
 import io.rong.imkit.widget.AsyncImageView;
 
-/**
- * Created by zhjchen on 8/11/15.
- */
+
 public class ShareLocationActivity extends Activity implements LocationSource, AMapLocationListener, AMap.OnMarkerClickListener,
     AMap.OnInfoWindowClickListener, AMap.OnMarkerDragListener, AMap.OnMapLoadedListener,
     AMap.InfoWindowAdapter {

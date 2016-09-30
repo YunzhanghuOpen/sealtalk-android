@@ -50,36 +50,23 @@ import io.rong.imlib.model.UserInfo;
  */
 public class DiscussionDetailActivity extends BaseActivity implements CompoundButton.OnCheckedChangeListener, View.OnClickListener {
 
-    private static final int FINDUSERINFO = 010;
-    private String targetId, createId, discussionName;
-
+    private static final int FIND_USER_INFO = 10;
+    private String targetId;
+    private String createId;
     private Discussion mDiscussion;
-
     private TextView memberSize;
-
-    private List<UserInfo> memberList = new ArrayList<>();;
-
-    private DemoGridView gridview;
-
+    private List<UserInfo> memberList = new ArrayList<>();
+    private DemoGridView mGridView;
     private GridAdapter adapter;
-
     private boolean isCreated;
-
-    private SwitchButton discuTop, discuNof;
-
-    private LinearLayout discuClean;
-
-    private Button deleteDiscussion;
-
+    private SwitchButton discussionTop, discussionNof;
     private List<String> ids;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_discussion);
-        getSupportActionBar().setTitle("讨论组详情");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
+        setTitle("讨论组详情");
         targetId = getIntent().getStringExtra("TargetId");
         if (TextUtils.isEmpty(targetId)) {
             return;
@@ -106,14 +93,14 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
 
     private void initView() {
         memberSize = (TextView) findViewById(R.id.discu_member_size);
-        gridview = (DemoGridView) findViewById(R.id.discu_gridview);
-        discuTop = (SwitchButton) findViewById(R.id.sw_discu_top);
-        discuNof = (SwitchButton) findViewById(R.id.sw_discu_notfaction);
-        discuClean = (LinearLayout) findViewById(R.id.discu_clean);
-        deleteDiscussion = (Button) findViewById(R.id.discu_quit);
-        discuTop.setOnCheckedChangeListener(this);
-        discuNof.setOnCheckedChangeListener(this);
-        discuClean.setOnClickListener(this);
+        mGridView = (DemoGridView) findViewById(R.id.discu_gridview);
+        discussionTop = (SwitchButton) findViewById(R.id.sw_discu_top);
+        discussionNof = (SwitchButton) findViewById(R.id.sw_discu_notfaction);
+        LinearLayout discussionClean = (LinearLayout) findViewById(R.id.discu_clean);
+        Button deleteDiscussion = (Button) findViewById(R.id.discu_quit);
+        discussionTop.setOnCheckedChangeListener(this);
+        discussionNof.setOnCheckedChangeListener(this);
+        discussionClean.setOnClickListener(this);
         deleteDiscussion.setOnClickListener(this);
         RongIM.getInstance().getConversation(Conversation.ConversationType.DISCUSSION, targetId, new RongIMClient.ResultCallback<Conversation>() {
             @Override
@@ -122,9 +109,9 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
                     return;
                 }
                 if (conversation.isTop()) {
-                    discuTop.setChecked(true);
+                    discussionTop.setChecked(true);
                 } else {
-                    discuTop.setChecked(false);
+                    discussionTop.setChecked(false);
                 }
 
             }
@@ -139,10 +126,10 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
             @Override
             public void onSuccess(Conversation.ConversationNotificationStatus conversationNotificationStatus) {
 
-                if (conversationNotificationStatus == Conversation.ConversationNotificationStatus.DO_NOT_DISTURB ? true : false) {
-                    discuNof.setChecked(true);
+                if (conversationNotificationStatus == Conversation.ConversationNotificationStatus.DO_NOT_DISTURB) {
+                    discussionNof.setChecked(true);
                 } else {
-                    discuNof.setChecked(false);
+                    discussionNof.setChecked(false);
                 }
             }
 
@@ -157,10 +144,9 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
     private void initData(Discussion mDiscussion) {
         memberSize.setText("讨论组成员(" + mDiscussion.getMemberIdList().size() + ")");
         createId = mDiscussion.getCreatorId();
-        discussionName = mDiscussion.getName();
         ids = mDiscussion.getMemberIdList();
         if (ids != null) {
-            request(FINDUSERINFO);
+            request(FIND_USER_INFO);
         }
     }
 
@@ -186,12 +172,13 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.discu_clean:
                 DialogWithYesOrNoUtils.getInstance().showDialog(mContext, "是否清除会话聊天记录？", new DialogWithYesOrNoUtils.DialogCallBack() {
                     @Override
-                    public void exectEvent() {
+                    public void executeEvent() {
                         if (RongIM.getInstance() != null) {
                             RongIM.getInstance().clearMessages(Conversation.ConversationType.DISCUSSION, targetId, new RongIMClient.ResultCallback<Boolean>() {
                                 @Override
@@ -208,7 +195,7 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
                     }
 
                     @Override
-                    public void exectEditEvent(String editText) {
+                    public void executeEditEvent(String editText) {
 
                     }
 
@@ -221,7 +208,7 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
             case R.id.discu_quit:
                 DialogWithYesOrNoUtils.getInstance().showDialog(mContext, "是否退出并删除当前讨论组?", new DialogWithYesOrNoUtils.DialogCallBack() {
                     @Override
-                    public void exectEvent() {
+                    public void executeEvent() {
                         RongIM.getInstance().quitDiscussion(targetId, new RongIMClient.OperationCallback() {
                             @Override
                             public void onSuccess() {
@@ -240,7 +227,7 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
                     }
 
                     @Override
-                    public void exectEditEvent(String editText) {
+                    public void executeEditEvent(String editText) {
 
                     }
 
@@ -363,6 +350,7 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
 
     // 拿到新增的成员刷新adapter
     @Override
+    @SuppressWarnings("unchecked")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -390,9 +378,9 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
                     });
                     break;
                 case SealConst.DISCUSSION_REMOVE_MEMBER_REQUEST_CODE:
-                    List<String> deleMember = (List<String>) data.getSerializableExtra("deleteDiscuMember");
+                    List<String> deleteMember = (List<String>) data.getSerializableExtra("deleteDiscuMember");
                     List<UserInfo> filtered = new ArrayList<>();
-                    for (String id : deleMember) {
+                    for (String id : deleteMember) {
                         int count = memberList.size();
                         for (int i = 0; i < count; i++) {
                             if (memberList.get(i).getUserId().equals(id))
@@ -410,18 +398,18 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
     }
 
     @Override
-    public Object doInBackground(int requsetCode, String id) throws HttpException {
-        switch (requsetCode) {
-            case FINDUSERINFO:
+    public Object doInBackground(int requestCode, String id) throws HttpException {
+        switch (requestCode) {
+            case FIND_USER_INFO:
                 return action.getUserInfos(ids);
         }
-        return super.doInBackground(requsetCode, id);
+        return super.doInBackground(requestCode, id);
     }
 
     @Override
     public void onSuccess(int requestCode, Object result) {
         switch (requestCode) {
-            case FINDUSERINFO:
+            case FIND_USER_INFO:
                 GetUserInfosResponse response = (GetUserInfosResponse) result;
                 if (response.getCode() == 200) {
                     List<GetUserInfosResponse.ResultEntity> infos = response.getResult();
@@ -436,7 +424,7 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
                     if (memberList != null && memberList.size() > 1) {
                         if (adapter == null) {
                             adapter = new GridAdapter(mContext, memberList);
-                            gridview.setAdapter(adapter);
+                            mGridView.setAdapter(adapter);
                         } else {
                             adapter.updateListView(memberList);
                         }
@@ -452,9 +440,4 @@ public class DiscussionDetailActivity extends BaseActivity implements CompoundBu
         LoadDialog.dismiss(mContext);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
-        return super.onOptionsItemSelected(item);
-    }
 }

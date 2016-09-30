@@ -1,4 +1,8 @@
 # sealtalk-android
+[![Platform](https://img.shields.io/badge/platform-android-green.svg)](http://developer.android.com/index.html)
+[![API](https://img.shields.io/badge/API-9%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=9)<br/>
+
+
 [中文版](https://github.com/sealtalk/sealtalk-android/blob/master/README.zh.md)  <br/>
 Android App of SealTalk powered by RongCloud.  
 
@@ -13,9 +17,16 @@ Android App of SealTalk powered by RongCloud.
 - To be continued...
 
 ## ScreenShots
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image1.png)<br/>
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image2.png)<br/>
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image3.png)<br/>
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image1.jpg)<br/>
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image2.jpg)<br/>
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image3.jpg)<br/>
+
+## APK
+[Download Apk](http://rongcloud.cn/sealtalk)<br/>
+
+## UML
+  LoginClassDiagram
+ ![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/LoginClassDiagram.png)<br/>
 
 ## Uses
 #### Step 1:
@@ -27,10 +38,21 @@ Read Android [Android Dev Doc](http://www.rongcloud.cn/docs/android.html), Learn
 #### Step 4:
 [Download RongCloud Demo](https://github.com/sealtalk/sealtalk-android) , After finishing integrating IMKit and adding dependency, read demo source code,and get the functional section you want.
 
+## Eclipse
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/eclipse_icon.png)<br/>
+[eclipse link](https://github.com/AnOneTable/sealtalk-eclipse)
+
 ## Support
+ - [App Parser Doc](https://github.com/sealtalk/sealtalk-android/blob/master/sealtalk_parser.md)
  - [Knowledge Base](http://support.rongcloud.cn/)
  - [Dev Repair Order](https://developer.rongcloud.cn/signin?returnUrl=%2Fticket), Need to log in
  - [Android Video Tutorial](http://www.rongcloud.cn/docs/android_video_tutorials.html)
+ 
+## Thanks
+- [androidone](https://github.com/devinhu/androidone)
+- [android-async-http](https://github.com/loopj/android-async-http)
+- [greendao](https://github.com/greenrobot/greenDAO)
+- [fastjson](https://github.com/alibaba/fastjson)
 
 ### Stronger than what you can imagine, Upgrades on the way.
 

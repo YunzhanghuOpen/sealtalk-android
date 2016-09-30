@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -13,16 +12,15 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 import cn.rongcloud.im.App;
 import cn.rongcloud.im.R;
-import cn.rongcloud.im.SealAppContext;
+import cn.rongcloud.im.db.DBManager;
+import cn.rongcloud.im.db.Friend;
+import cn.rongcloud.im.db.FriendDao;
 import cn.rongcloud.im.server.network.http.HttpException;
-import cn.rongcloud.im.server.pinyin.Friend;
-import cn.rongcloud.im.server.response.AddToBlackListResponse;
-import cn.rongcloud.im.server.response.GetBlackListResponse;
+import cn.rongcloud.im.server.pinyin.FriendInfo;
 import cn.rongcloud.im.server.response.GetUserInfoByIdResponse;
-import cn.rongcloud.im.server.response.RemoveFromBlackListResponse;
-import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.utils.NToast;
 import cn.rongcloud.im.server.utils.OperationRong;
+import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.widget.DialogWithYesOrNoUtils;
 import cn.rongcloud.im.server.widget.LoadDialog;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
@@ -38,76 +36,62 @@ import io.rong.imlib.model.Conversation;
 public class FriendDetailActivity extends BaseActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
 
-    private static final int ADDBLACKLIST = 88;
-    private static final int REMOVEBLACKLIST = 89;
-    private static final int GETBLACKLIST = 90;
-    private static final int GETUSERINFO = 91;
-    private Friend friend;
-
-    private SwitchButton messageTop, messageNotif;
-
+    private static final int GET_USER_INFO = 91;
+    private FriendInfo friendInfo;
+    private SwitchButton messageTop, messageNotification;
     private SelectableRoundedImageView mImageView;
-
-    private Button startChat;
-
     private TextView friendName;
-
-    private SwitchButton blackState;
-
-    private boolean isBlackList, isFromConversation;
-
+    private boolean isFromConversation;
     private String fromConversationId;
-
-    private LinearLayout cleanMessage;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.de_fr_friend_detail);
-        getSupportActionBar().setTitle(R.string.user_details);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
+        setContentView(R.layout.fr_friend_detail);
+        setTitle(R.string.user_details);
         initView();
         fromConversationId = getIntent().getStringExtra("TargetId");
         if (!TextUtils.isEmpty(fromConversationId)) {
             isFromConversation = true;
             LoadDialog.show(mContext);
-            request(GETUSERINFO);
+            //TODO 后续需要将网络获取 更改为 去数据库获取 再 设置备注
+            request(GET_USER_INFO);
         } else {
             //好友界面进入详情界面
-            friend = (Friend) getIntent().getSerializableExtra("FriendDetails");
+            friendInfo = (FriendInfo) getIntent().getSerializableExtra("FriendDetails");
             initData();
-            request(GETBLACKLIST);
-            getState(friend);
+            getState(friendInfo);
         }
 
     }
 
 
     private void initData() {
-        if (friend != null) {
-            if (TextUtils.isEmpty(friend.getPortraitUri())) {
-                ImageLoader.getInstance().displayImage(RongGenerate.generateDefaultAvatar(friend.getName(), friend.getUserId()), mImageView, App.getOptions());
+        if (friendInfo != null) {
+            if (TextUtils.isEmpty(friendInfo.getPortraitUri())) {
+                ImageLoader.getInstance().displayImage(RongGenerate.generateDefaultAvatar(friendInfo.getName(), friendInfo.getUserId()), mImageView, App.getOptions());
             } else {
-                ImageLoader.getInstance().displayImage(friend.getPortraitUri(), mImageView, App.getOptions());
+                ImageLoader.getInstance().displayImage(friendInfo.getPortraitUri(), mImageView, App.getOptions());
             }
-            friendName.setText(friend.getName());
+
+            Friend friend = getUserInfoById(friendInfo.getUserId());
+            if (friend != null && !TextUtils.isEmpty(friend.getDisplayName())) {
+                friendName.setText(friend.getDisplayName());
+            } else {
+                friendName.setText(friendInfo.getName());
+            }
         }
     }
 
     private void initView() {
-        cleanMessage = (LinearLayout) findViewById(R.id.clean_friend);
+        LinearLayout cleanMessage = (LinearLayout) findViewById(R.id.clean_friend);
         mImageView = (SelectableRoundedImageView) findViewById(R.id.friend_header);
-        startChat = (Button) findViewById(R.id.start_friend_chat);
         messageTop = (SwitchButton) findViewById(R.id.sw_freind_top);
-        messageNotif = (SwitchButton) findViewById(R.id.sw_friend_notfaction);
+        messageNotification = (SwitchButton) findViewById(R.id.sw_friend_notfaction);
         friendName = (TextView) findViewById(R.id.friend_name);
-        blackState = (SwitchButton) findViewById(R.id.black_state);
-        startChat.setOnClickListener(this);
-        blackState.setOnCheckedChangeListener(this);
         cleanMessage.setOnClickListener(this);
-        messageNotif.setOnCheckedChangeListener(this);
+        messageNotification.setOnCheckedChangeListener(this);
         messageTop.setOnCheckedChangeListener(this);
     }
 
@@ -115,21 +99,7 @@ public class FriendDetailActivity extends BaseActivity implements View.OnClickLi
     @Override
     public Object doInBackground(int requestCode, String id) throws HttpException {
         switch (requestCode) {
-            case ADDBLACKLIST:
-                if (userInfo != null) {
-                    return action.addToBlackList(userInfo.getId());
-                } else {
-                    return action.addToBlackList(friend.getUserId());
-                }
-            case REMOVEBLACKLIST:
-                if (userInfo != null) {
-                    return action.removeFromBlackList(userInfo.getId());
-                } else {
-                    return action.removeFromBlackList(friend.getUserId());
-                }
-            case GETBLACKLIST:
-                return action.getBlackList();
-            case GETUSERINFO:
+            case GET_USER_INFO:
                 return action.getUserInfoById(fromConversationId);
         }
         return super.doInBackground(requestCode, id);
@@ -139,56 +109,25 @@ public class FriendDetailActivity extends BaseActivity implements View.OnClickLi
     public void onSuccess(int requestCode, Object result) {
         if (result != null) {
             switch (requestCode) {
-                case ADDBLACKLIST:
-                    AddToBlackListResponse response = (AddToBlackListResponse) result;
-                    if (response.getCode() == 200) {
-                        LoadDialog.dismiss(mContext);
-                    }
-                    break;
-                case REMOVEBLACKLIST:
-                    RemoveFromBlackListResponse response1 = (RemoveFromBlackListResponse) result;
-                    if (response1.getCode() == 200) {
-                        LoadDialog.dismiss(mContext);
-                    }
-                    break;
-                case GETBLACKLIST:
-                    GetBlackListResponse response2 = (GetBlackListResponse) result;
-                    if (response2.getCode() == 200) {
-                        if (response2.getResult().size() == 0) {
-                            isBlackList = false;
-                        } else {
-                            if (userInfo != null) {
-                                for (GetBlackListResponse.ResultEntity g : response2.getResult()) {
-                                    if (userInfo.getId().contains(g.getUser().getId())) {
-                                        isBlackList = true;
-                                    }
-                                }
-                            } else if (friend != null) {
-                                for (GetBlackListResponse.ResultEntity g : response2.getResult()) {
-                                    if (friend.getUserId().contains(g.getUser().getId())) {
-                                        isBlackList = true;
-                                    }
-                                }
-                            }
-
-                        }
-                        blackState.setChecked(isBlackList);
-                        LoadDialog.dismiss(mContext);
-                    }
-                    break;
-                case GETUSERINFO:
-                    GetUserInfoByIdResponse response3 = (GetUserInfoByIdResponse) result;
-                    if (response3.getCode() == 200) {
-                        userInfo = response3.getResult();
+                case GET_USER_INFO:
+                    GetUserInfoByIdResponse userInfoByIdResponse = (GetUserInfoByIdResponse) result;
+                    if (userInfoByIdResponse.getCode() == 200) {
+                        userInfo = userInfoByIdResponse.getResult();
 
                         if (TextUtils.isEmpty(userInfo.getPortraitUri())) {
                             ImageLoader.getInstance().displayImage(RongGenerate.generateDefaultAvatar(userInfo.getNickname(), userInfo.getId()), mImageView, App.getOptions());
                         } else {
                             ImageLoader.getInstance().displayImage(userInfo.getPortraitUri(), mImageView, App.getOptions());
                         }
-                        friendName.setText(userInfo.getNickname());
+
+                        Friend friend = getUserInfoById(userInfo.getId());
+                        if (friend != null && !TextUtils.isEmpty(friend.getDisplayName())) {
+                            friendName.setText(friend.getDisplayName());
+                        } else {
+                            friendName.setText(userInfo.getNickname());
+                        }
                         getState2(userInfo);
-                        request(GETBLACKLIST);
+                        LoadDialog.dismiss(mContext);
                     }
 
                     break;
@@ -198,19 +137,6 @@ public class FriendDetailActivity extends BaseActivity implements View.OnClickLi
 
     private GetUserInfoByIdResponse.ResultEntity userInfo;
 
-    @Override
-    public void onFailure(int requestCode, int state, Object result) {
-        switch (requestCode) {
-            case ADDBLACKLIST:
-                blackState.setChecked(false);
-                NToast.shortToast(mContext, "加入失败");
-                break;
-            case REMOVEBLACKLIST:
-                blackState.setChecked(true);
-                NToast.shortToast(mContext, "移除失败");
-                break;
-        }
-    }
 
     @Override
     protected void onDestroy() {
@@ -229,10 +155,10 @@ public class FriendDetailActivity extends BaseActivity implements View.OnClickLi
             case R.id.clean_friend:
                 DialogWithYesOrNoUtils.getInstance().showDialog(mContext, getString(R.string.clean_history), new DialogWithYesOrNoUtils.DialogCallBack() {
                     @Override
-                    public void exectEvent() {
+                    public void executeEvent() {
                         if (RongIM.getInstance() != null) {
-                            if (friend != null) {
-                                RongIM.getInstance().clearMessages(Conversation.ConversationType.PRIVATE, friend.getUserId(), new RongIMClient.ResultCallback<Boolean>() {
+                            if (friendInfo != null) {
+                                RongIM.getInstance().clearMessages(Conversation.ConversationType.PRIVATE, friendInfo.getUserId(), new RongIMClient.ResultCallback<Boolean>() {
                                     @Override
                                     public void onSuccess(Boolean aBoolean) {
                                         NToast.shortToast(mContext, getString(R.string.clear_success));
@@ -260,7 +186,7 @@ public class FriendDetailActivity extends BaseActivity implements View.OnClickLi
                     }
 
                     @Override
-                    public void exectEditEvent(String editText) {
+                    public void executeEditEvent(String editText) {
 
                     }
 
@@ -271,17 +197,6 @@ public class FriendDetailActivity extends BaseActivity implements View.OnClickLi
                 });
                 break;
 
-            case R.id.start_friend_chat:
-
-                String targetId = friend != null ? friend.getUserId() : (userInfo != null ? userInfo.getId() : null);
-                String name = friend != null ? friend.getName() : (userInfo != null ? userInfo.getNickname() : null);
-                if (SealAppContext.getInstance().containsInQue(Conversation.ConversationType.PRIVATE, targetId)) {
-                    finish();
-                } else {
-                    RongIM.getInstance().startPrivateChat(mContext, targetId, name);
-                    finish();
-                }
-                break;
         }
     }
 
@@ -292,14 +207,14 @@ public class FriendDetailActivity extends BaseActivity implements View.OnClickLi
                 if (isChecked) {
                     if (userInfo != null) {
                         OperationRong.setConverstionNotif(mContext, Conversation.ConversationType.PRIVATE, userInfo.getId(), true);
-                    } else if (friend != null) {
-                        OperationRong.setConverstionNotif(mContext, Conversation.ConversationType.PRIVATE, friend.getUserId(), true);
+                    } else if (friendInfo != null) {
+                        OperationRong.setConverstionNotif(mContext, Conversation.ConversationType.PRIVATE, friendInfo.getUserId(), true);
                     }
                 } else {
                     if (userInfo != null) {
                         OperationRong.setConverstionNotif(mContext, Conversation.ConversationType.PRIVATE, userInfo.getId(), false);
-                    } else if (friend != null) {
-                        OperationRong.setConverstionNotif(mContext, Conversation.ConversationType.PRIVATE, friend.getUserId(), false);
+                    } else if (friendInfo != null) {
+                        OperationRong.setConverstionNotif(mContext, Conversation.ConversationType.PRIVATE, friendInfo.getUserId(), false);
                     }
                 }
                 break;
@@ -307,35 +222,24 @@ public class FriendDetailActivity extends BaseActivity implements View.OnClickLi
                 if (isChecked) {
                     if (userInfo != null) {
                         OperationRong.setConversationTop(mContext, Conversation.ConversationType.PRIVATE, userInfo.getId(), true);
-                    } else if (friend != null) {
-                        OperationRong.setConversationTop(mContext, Conversation.ConversationType.PRIVATE, friend.getUserId(), true);
+                    } else if (friendInfo != null) {
+                        OperationRong.setConversationTop(mContext, Conversation.ConversationType.PRIVATE, friendInfo.getUserId(), true);
                     }
                 } else {
                     if (userInfo != null) {
                         OperationRong.setConversationTop(mContext, Conversation.ConversationType.PRIVATE, userInfo.getId(), false);
-                    } else if (friend != null) {
-                        OperationRong.setConversationTop(mContext, Conversation.ConversationType.PRIVATE, friend.getUserId(), false);
+                    } else if (friendInfo != null) {
+                        OperationRong.setConversationTop(mContext, Conversation.ConversationType.PRIVATE, friendInfo.getUserId(), false);
                     }
                 }
                 break;
-            case R.id.black_state:
-                if (isChecked) {
-                    LoadDialog.show(mContext);
-                    request(ADDBLACKLIST);
-                } else {
-                    LoadDialog.show(mContext);
-                    request(REMOVEBLACKLIST);
-                }
-                break;
-
-
         }
     }
 
-    private void getState(Friend friend) {
-        if (friend != null) {//群组列表 page 进入
+    private void getState(FriendInfo friendInfo) {
+        if (friendInfo != null) {//群组列表 page 进入
             if (RongIM.getInstance() != null) {
-                RongIM.getInstance().getConversation(Conversation.ConversationType.PRIVATE, friend.getUserId(), new RongIMClient.ResultCallback<Conversation>() {
+                RongIM.getInstance().getConversation(Conversation.ConversationType.PRIVATE, friendInfo.getUserId(), new RongIMClient.ResultCallback<Conversation>() {
                     @Override
                     public void onSuccess(Conversation conversation) {
                         if (conversation == null) {
@@ -356,14 +260,14 @@ public class FriendDetailActivity extends BaseActivity implements View.OnClickLi
                     }
                 });
 
-                RongIM.getInstance().getConversationNotificationStatus(Conversation.ConversationType.PRIVATE, friend.getUserId(), new RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>() {
+                RongIM.getInstance().getConversationNotificationStatus(Conversation.ConversationType.PRIVATE, friendInfo.getUserId(), new RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>() {
                     @Override
                     public void onSuccess(Conversation.ConversationNotificationStatus conversationNotificationStatus) {
 
-                        if (conversationNotificationStatus == Conversation.ConversationNotificationStatus.DO_NOT_DISTURB ? true : false) {
-                            messageNotif.setChecked(true);
+                        if (conversationNotificationStatus == Conversation.ConversationNotificationStatus.DO_NOT_DISTURB) {
+                            messageNotification.setChecked(true);
                         } else {
-                            messageNotif.setChecked(false);
+                            messageNotification.setChecked(false);
                         }
                     }
 
@@ -404,10 +308,10 @@ public class FriendDetailActivity extends BaseActivity implements View.OnClickLi
                     @Override
                     public void onSuccess(Conversation.ConversationNotificationStatus conversationNotificationStatus) {
 
-                        if (conversationNotificationStatus == Conversation.ConversationNotificationStatus.DO_NOT_DISTURB ? true : false) {
-                            messageNotif.setChecked(true);
+                        if (conversationNotificationStatus == Conversation.ConversationNotificationStatus.DO_NOT_DISTURB) {
+                            messageNotification.setChecked(true);
                         } else {
-                            messageNotif.setChecked(false);
+                            messageNotification.setChecked(false);
                         }
                     }
 
@@ -418,5 +322,13 @@ public class FriendDetailActivity extends BaseActivity implements View.OnClickLi
                 });
             }
         }
+    }
+
+
+    private Friend getUserInfoById(String userId) {
+        if (!TextUtils.isEmpty(userId)) {
+            return DBManager.getInstance(mContext).getDaoSession().getFriendDao().queryBuilder().where(FriendDao.Properties.UserId.eq(userId)).unique();
+        }
+        return null;
     }
 }

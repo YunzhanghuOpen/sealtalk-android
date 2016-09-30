@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import cn.rongcloud.im.R;
-import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.model.ProviderTag;
 import io.rong.imkit.model.UIMessage;
@@ -37,7 +36,7 @@ public class RealTimeLocationMessageProvider extends IContainerItemProvider.Mess
 
     @Override
     public View newView(Context context, ViewGroup group) {
-        View view = LayoutInflater.from(context).inflate(R.layout.de_share_location_message, null);
+        View view = LayoutInflater.from(context).inflate(R.layout.share_location_message, null);
 
         ViewHolder holder = new ViewHolder();
         holder.message = (TextView) view.findViewById(android.R.id.text1);

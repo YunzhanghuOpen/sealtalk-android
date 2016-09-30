@@ -34,7 +34,7 @@ import io.rong.message.ContactNotificationMessage;
  * Created by Bob on 2015/4/17.
  * 如何自定义消息模板
  */
-@ProviderTag(messageContent = ContactNotificationMessage.class, showPortrait = false, centerInHorizontal = true, showProgress = false)
+@ProviderTag(messageContent = ContactNotificationMessage.class, showPortrait = false, centerInHorizontal = true, showProgress = false, showSummaryWithName = false)
 public class ContactNotificationMessageProvider extends IContainerItemProvider.MessageProvider<ContactNotificationMessage> {
     @Override
     public void bindView(View v, int position, ContactNotificationMessage content, UIMessage message) {

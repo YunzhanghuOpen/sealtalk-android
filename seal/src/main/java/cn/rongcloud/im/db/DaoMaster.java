@@ -14,22 +14,28 @@ import de.greenrobot.dao.identityscope.IdentityScopeType;
 
 /**
  * Master of DAO (schema version 3): knows all DAOs.
-*/
+ */
 public class DaoMaster extends AbstractDaoMaster {
     public static final int SCHEMA_VERSION = 4;
 
-    /** Creates underlying database table using DAOs. */
+    /**
+     * Creates underlying database table using DAOs.
+     */
     public static void createAllTables(SQLiteDatabase db, boolean ifNotExists) {
         FriendDao.createTable(db, ifNotExists);
         GroupsDao.createTable(db, ifNotExists);
         BlackListDao.createTable(db, ifNotExists);
+        GroupMemberDao.createTable(db, ifNotExists);
     }
 
-    /** Drops underlying database table using DAOs. */
+    /**
+     * Drops underlying database table using DAOs.
+     */
     public static void dropAllTables(SQLiteDatabase db, boolean ifExists) {
         FriendDao.dropTable(db, ifExists);
         GroupsDao.dropTable(db, ifExists);
         BlackListDao.dropTable(db, ifExists);
+        GroupMemberDao.dropTable(db, ifExists);
     }
 
     public static abstract class OpenHelper extends SQLiteOpenHelper {
@@ -45,7 +51,9 @@ public class DaoMaster extends AbstractDaoMaster {
         }
     }
 
-    /** WARNING: Drops all table on Upgrade! Use only during development. */
+    /**
+     * WARNING: Drops all table on Upgrade! Use only during development.
+     */
     public static class DevOpenHelper extends OpenHelper {
         public DevOpenHelper(Context context, String name, CursorFactory factory) {
             super(context, name, factory);
@@ -64,6 +72,7 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(FriendDao.class);
         registerDaoClass(GroupsDao.class);
         registerDaoClass(BlackListDao.class);
+        registerDaoClass(GroupMemberDao.class);
     }
 
     public DaoSession newSession() {

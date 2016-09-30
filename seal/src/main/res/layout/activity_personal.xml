@@ -7,31 +7,29 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_height="80dp"
         android:background="#ffffff"
         android:orientation="horizontal">
 
         <cn.rongcloud.im.server.widget.SelectableRoundedImageView
             android:id="@+id/per_friend_header"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginTop="10dp"
+            android:scaleType="centerCrop"
             app:sriv_left_bottom_corner_radius="3dip"
             app:sriv_left_top_corner_radius="3dip"
             app:sriv_right_bottom_corner_radius="3dip"
-            app:sriv_right_top_corner_radius="3dip"
-            android:scaleType="centerCrop"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="10dp"
-            />
+            app:sriv_right_top_corner_radius="3dip" />
 
         <TextView
             android:id="@+id/per_friend_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="14dp"
             android:layout_marginRight="20dp"
             android:layout_weight="1"
             android:singleLine="true"
@@ -41,18 +39,52 @@
 
     </LinearLayout>
 
-    <Button
+    <LinearLayout
         android:visibility="gone"
-        android:id="@+id/per_start_friend_chat"
+        android:id="@+id/chat_groupbtn"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginLeft="14dp"
-        android:layout_marginRight="14dp"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/rs_select_btn_green"
-        android:text="@string/send_message"
-        android:textColor="#FFF"
-        android:textSize="16sp" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginRight="14dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/contact_start_chat"
+            android:onClick="startChat"
+            android:text="@string/start_chat"
+            android:textColor="#FFF"
+            android:textSize="16sp" />
+
+        <!--VoIP start-->
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginRight="14dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/contact_start_video"
+            android:onClick="startVoice"
+            android:text="@string/start_voice"
+            android:textColor="#363636"
+            android:textSize="16sp" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginRight="14dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/contact_start_video"
+            android:onClick="startVideo"
+            android:text="@string/start_video"
+            android:textColor="#363636"
+            android:textSize="16sp" />
+
+
+    </LinearLayout>
 
     <Button
         android:visibility="gone"
@@ -62,10 +94,9 @@
         android:layout_marginLeft="14dp"
         android:layout_marginRight="14dp"
         android:layout_marginTop="20dp"
-        android:background="@drawable/rs_select_btn_green"
+        android:background="@drawable/contact_start_chat"
         android:text="@string/add_friend"
         android:textColor="#FFF"
-        android:textSize="16sp"
-         />
+        android:textSize="16sp" />
 
 </LinearLayout>

@@ -10,11 +10,8 @@ import android.webkit.WebViewClient;
 import cn.rongcloud.im.R;
 
 
-/**
- * Created by Administrator on 2015/3/20.
- */
 @SuppressLint("SetJavaScriptEnabled")
-public class FunctionIntroducedActivity extends BaseActionBarActivity {
+public class FunctionIntroducedActivity extends BaseActivity {
 
     private WebView mWebView = null;
 
@@ -22,8 +19,7 @@ public class FunctionIntroducedActivity extends BaseActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_function_introduced);
-
-        getSupportActionBar().setTitle(R.string.function_introduce);
+        setTitle(R.string.update_log);
 
         mWebView = (WebView) findViewById(R.id.function_introdiced_webview);
         mWebView.getSettings().setJavaScriptEnabled(true);

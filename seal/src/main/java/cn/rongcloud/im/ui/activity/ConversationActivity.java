@@ -13,19 +13,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.FragmentTransaction;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,23 +33,18 @@ import cn.rongcloud.im.R;
 import cn.rongcloud.im.SealAppContext;
 import cn.rongcloud.im.model.RongEvent;
 import cn.rongcloud.im.server.network.http.HttpException;
+import cn.rongcloud.im.server.response.GetGroupMemberResponse;
 import cn.rongcloud.im.server.response.GetUserInfoByIdResponse;
 import cn.rongcloud.im.server.utils.NLog;
+import cn.rongcloud.im.server.utils.NToast;
 import cn.rongcloud.im.ui.widget.LoadingDialog;
-import cn.rongcloud.im.ui.widget.WinToast;
-import cn.rongcloud.im.utils.Constants;
 import io.rong.eventbus.EventBus;
-//CallKit start 1
 import io.rong.imkit.RongCallKit;
-//CallKit end 1
-import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.fragment.ConversationFragment;
 import io.rong.imkit.fragment.UriFragment;
 import io.rong.imkit.widget.AlterDialogFragment;
 import io.rong.imkit.widget.InputView;
-import io.rong.imkit.widget.provider.InputProvider;
-import io.rong.imkit.widget.provider.TextInputProvider;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.TypingMessage.TypingStatus;
@@ -62,20 +52,24 @@ import io.rong.imlib.location.RealTimeLocationConstant;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Discussion;
 import io.rong.imlib.model.PublicServiceProfile;
+import io.rong.imlib.model.UserInfo;
 import io.rong.message.InformationNotificationMessage;
 import io.rong.message.TextMessage;
 import io.rong.message.VoiceMessage;
 
+//CallKit start 1
+//CallKit end 1
+
 /**
- * Created by Bob on 15/11/3.
  * 会话页面
  * 1，设置 ActionBar title
  * 2，加载会话页面
  * 3，push 和 通知 判断
  */
-public class ConversationActivity extends BaseActivity implements RongIMClient.RealTimeLocationListener {
+public class ConversationActivity extends BaseActivity implements RongIMClient.RealTimeLocationListener, View.OnClickListener {
 
-    private static final int GETUSERINFO = 111;
+    private static final int GET_USER_INFO = 111;
+    private static final int GET_GROUP_MEMBER = 100;
     private String TAG = ConversationActivity.class.getSimpleName();
     /**
      * 对方id
@@ -92,8 +86,6 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
     /**
      * 是否在讨论组内，如果不在讨论组内，则进入不到讨论组设置页面
      */
-    private boolean isDiscussion = false;
-
     private boolean isFromPush = false;
 
     private RelativeLayout mRealTimeBar;//real-time bar
@@ -106,10 +98,13 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
     private final String VoiceTypingTitle = "对方正在讲话...";
 
     private Handler mHandler;
+    private RongIM.IGroupMemberCallback mMentionMemberCallback;
 
     public static final int SET_TEXT_TYPING_TITLE = 1;
     public static final int SET_VOICE_TYPING_TITLE = 2;
-    public static final int SET_TARGETID_TITLE = 0;
+    public static final int SET_TARGET_ID_TITLE = 0;
+
+    private Button mRinghtButton;
 
     @Override
     @TargetApi(23)
@@ -118,8 +113,9 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
         setContentView(R.layout.conversation);
         sp = getSharedPreferences("config", MODE_PRIVATE);
         mDialog = new LoadingDialog(this);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
+
+//        setRightVisibility(View.INVISIBLE);
+        mRinghtButton = getBtn_right();
 
         Intent intent = getIntent();
 
@@ -141,8 +137,16 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
 
         setActionBarTitle(mConversationType, mTargetId);
 
-        //讨论组 @ 消息
-        checkTextInputEditTextChanged();
+
+        if (mConversationType.equals(Conversation.ConversationType.GROUP)) {
+            mRinghtButton.setBackground(getResources().getDrawable(R.drawable.icon2_menu));
+        } else if (mConversationType.equals(Conversation.ConversationType.PRIVATE) | mConversationType.equals(Conversation.ConversationType.PUBLIC_SERVICE) | mConversationType.equals(Conversation.ConversationType.DISCUSSION)) {
+            mRinghtButton.setBackground(getResources().getDrawable(R.drawable.icon1_menu));
+        } else {
+            mRinghtButton.setVisibility(View.GONE);
+            mRinghtButton.setClickable(false);
+        }
+        mRinghtButton.setOnClickListener(this);
 
         isPushMessage(intent);
 
@@ -187,12 +191,12 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
             public boolean handleMessage(Message msg) {
                 switch (msg.what) {
                     case SET_TEXT_TYPING_TITLE:
-                        getSupportActionBar().setTitle(TextTypingTitle);
+                        setTitle(TextTypingTitle);
                         break;
                     case SET_VOICE_TYPING_TITLE:
-                        getSupportActionBar().setTitle(VoiceTypingTitle);
+                        setTitle(VoiceTypingTitle);
                         break;
-                    case SET_TARGETID_TITLE:
+                    case SET_TARGET_ID_TITLE:
                         setActionBarTitle(mConversationType, mTargetId);
                         break;
                     default:
@@ -223,13 +227,21 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
                             mHandler.sendEmptyMessage(SET_VOICE_TYPING_TITLE);
                         }
                     } else {//当前会话没有用户正在输入，标题栏仍显示原来标题
-                        mHandler.sendEmptyMessage(SET_TARGETID_TITLE);
+                        mHandler.sendEmptyMessage(SET_TARGET_ID_TITLE);
                     }
                 }
             }
         });
 
-        SealAppContext.getInstance().pushActivity(mConversationType, mTargetId, this);
+        SealAppContext.getInstance().pushActivity(this);
+
+        RongIM.getInstance().setGroupMembersProvider(new RongIM.IGroupMembersProvider() {
+            @Override
+            public void getGroupMembers(String groupId, RongIM.IGroupMemberCallback callback) {
+                request(GET_GROUP_MEMBER);
+                mMentionMemberCallback = callback;
+            }
+        });
 
         //CallKit start 2
         RongCallKit.setGroupMemberProvider(new RongCallKit.GroupMembersProvider() {
@@ -247,69 +259,8 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
         //CallKit end 2
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        if (intent == null || intent.getData() == null)
-            return;
-        enterFragment(Conversation.ConversationType.valueOf(intent.getData().getLastPathSegment().toUpperCase(Locale.getDefault())), intent.getData().getQueryParameter("targetId"));
-        setActionBarTitle(mConversationType, mTargetId);
-    }
-
-
-    private String mEditText;
-
-    private void checkTextInputEditTextChanged() {
-
-        InputProvider.MainInputProvider provider = RongContext.getInstance().getPrimaryInputProvider();
-        if (provider instanceof TextInputProvider) {
-            TextInputProvider textInputProvider = (TextInputProvider) provider;
-            textInputProvider.setEditTextChangedListener(new TextWatcher() {
-
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                    if (mConversationType.equals(Conversation.ConversationType.DISCUSSION)) {
-
-                        if (s.length() > 0) {
-                            String str = s.toString().substring(s.toString().length() - 1, s.toString().length());
-
-                            if (str.equals("@")) {
-
-                                Intent intent = new Intent(ConversationActivity.this, NewTextMessageActivity.class);
-                                intent.putExtra("DEMO_REPLY_CONVERSATIONTYPE", mConversationType.toString());
-
-//                                if (mTargetIds != null) {
-//                                    UriFragment fragment = (UriFragment) getSupportFragmentManager().getFragments().get(0);
-//                                    //得到讨论组的 targetId
-//                                    mTargetId = fragment.getUri().getQueryParameter("targetId");
-//                                }
-                                intent.putExtra("DEMO_REPLY_TARGETID", mTargetId);
-                                startActivityForResult(intent, 29);
-
-                                mEditText = s.toString();
-                            }
-                        }
-                    }
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                }
-            });
-        }
-    }
-
     /**
      * 判断是否是 Push 消息，判断是否需要做 connect 操作
-     *
-     * @param intent
      */
     private void isPushMessage(Intent intent) {
 
@@ -322,7 +273,6 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
             //通过intent.getData().getQueryParameter("push") 为true，判断是否是push消息
             if (intent.getData().getQueryParameter("isFromPush").equals("true")) {
                 //只有收到系统消息和不落地 push 消息的时候，pushId 不为 null。而且这两种消息只能通过 server 来发送，客户端发送不了。
-                String id = intent.getData().getQueryParameter("pushId");
 //                RongIM.getInstance().getRongIMClient().recordNotificationEvent(id);
                 if (mDialog != null && !mDialog.isShowing()) {
                     mDialog.show();
@@ -333,8 +283,22 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
                 if (mDialog != null && !mDialog.isShowing()) {
                     mDialog.show();
                 }
+                if (intent.getData().getPath().contains("conversation/system")) {
+                    Intent intent1 = new Intent(mContext, MainActivity.class);
+                    intent1.putExtra("systemconversation", true);
+                    startActivity(intent1);
+                    finish();
+                    return;
+                }
                 enterActivity();
             } else {
+                if (intent.getData().getPath().contains("conversation/system")) {
+                    Intent intent1 = new Intent(mContext, MainActivity.class);
+                    intent1.putExtra("systemconversation", true);
+                    startActivity(intent1);
+                    finish();
+                    return;
+                }
                 enterFragment(mConversationType, mTargetId);
             }
 
@@ -343,7 +307,12 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
                 if (mDialog != null && !mDialog.isShowing()) {
                     mDialog.show();
                 }
-                enterActivity();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        enterActivity();
+                    }
+                }, 300);
             } else {
                 enterFragment(mConversationType, mTargetId);
             }
@@ -421,8 +390,8 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
     /**
      * 加载会话页面 ConversationFragment
      *
-     * @param mConversationType
-     * @param mTargetId
+     * @param mConversationType 会话类型
+     * @param mTargetId         会话 Id
      */
     private void enterFragment(Conversation.ConversationType mConversationType, String mTargetId) {
 
@@ -470,17 +439,17 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
         } else if (conversationType.equals(Conversation.ConversationType.DISCUSSION)) {
             setDiscussionActionBar(targetId);
         } else if (conversationType.equals(Conversation.ConversationType.CHATROOM)) {
-            getSupportActionBar().setTitle(title);
+            setTitle(title);
         } else if (conversationType.equals(Conversation.ConversationType.SYSTEM)) {
-            getSupportActionBar().setTitle(R.string.de_actionbar_system);
+            setTitle(R.string.de_actionbar_system);
         } else if (conversationType.equals(Conversation.ConversationType.APP_PUBLIC_SERVICE)) {
             setAppPublicServiceActionBar(targetId);
         } else if (conversationType.equals(Conversation.ConversationType.PUBLIC_SERVICE)) {
             setPublicServiceActionBar(targetId);
         } else if (conversationType.equals(Conversation.ConversationType.CUSTOMER_SERVICE)) {
-            getSupportActionBar().setTitle(R.string.main_customer);
+            setTitle(R.string.main_customer);
         } else {
-            getSupportActionBar().setTitle(R.string.de_actionbar_sub_defult);
+            setTitle(R.string.de_actionbar_sub_defult);
         }
 
     }
@@ -488,13 +457,13 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
     /**
      * 设置群聊界面 ActionBar
      *
-     * @param targetId
+     * @param targetId 会话 Id
      */
     private void setGroupActionBar(String targetId) {
         if (!TextUtils.isEmpty(title)) {
-            getSupportActionBar().setTitle(title);
+            setTitle(title);
         } else {
-            getSupportActionBar().setTitle(targetId);
+            setTitle(targetId);
         }
     }
 
@@ -509,7 +478,7 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
         , targetId, new RongIMClient.ResultCallback<PublicServiceProfile>() {
             @Override
             public void onSuccess(PublicServiceProfile publicServiceProfile) {
-                getSupportActionBar().setTitle(publicServiceProfile.getName());
+                setTitle(publicServiceProfile.getName());
             }
 
             @Override
@@ -532,7 +501,7 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
         , targetId, new RongIMClient.ResultCallback<PublicServiceProfile>() {
             @Override
             public void onSuccess(PublicServiceProfile publicServiceProfile) {
-                getSupportActionBar().setTitle(publicServiceProfile.getName().toString());
+                setTitle(publicServiceProfile.getName());
             }
 
             @Override
@@ -553,24 +522,21 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
             , new RongIMClient.ResultCallback<Discussion>() {
                 @Override
                 public void onSuccess(Discussion discussion) {
-                    getSupportActionBar().setTitle(discussion.getName());
+                    setTitle(discussion.getName());
                 }
 
                 @Override
                 public void onError(RongIMClient.ErrorCode e) {
                     if (e.equals(RongIMClient.ErrorCode.NOT_IN_DISCUSSION)) {
-                        getSupportActionBar().setTitle("不在讨论组中");
-                        isDiscussion = true;
+                        setTitle("不在讨论组中");
                         supportInvalidateOptionsMenu();
                     }
                 }
             });
         } else {
-            getSupportActionBar().setTitle("讨论组");
+            setTitle("讨论组");
         }
     }
-
-
 
 
     /**
@@ -579,55 +545,9 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
     private void setPrivateActionBar(String targetId) {
         if (!TextUtils.isEmpty(title)) {
             setTitle(title);
-            getSupportActionBar().setTitle(title);
         } else {
-            getSupportActionBar().setTitle(targetId);
+            setTitle(targetId);
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.de_conversation_menu, menu);
-
-        if (mConversationType == null)
-            return true;
-
-        if (mConversationType.equals(Conversation.ConversationType.CHATROOM)) {
-            menu.getItem(0).setVisible(false);
-        } else if (mConversationType.equals(Conversation.ConversationType.CUSTOMER_SERVICE)) {
-            menu.getItem(0).setVisible(false);
-        }
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.icon:
-
-                if (mConversationType == null)
-                    return true;
-
-                enterSettingActivity();
-                break;
-            case android.R.id.home:
-                if (!closeRealTimeLocation()) {
-                    hintKbTwo();
-                    if (isFromPush) {
-                        NLog.e("back", isFromPush);
-                        isFromPush = false;
-                        startActivity(new Intent(this, MainActivity.class));
-                        finish();
-                    }
-                    finish();
-                }
-                break;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -645,13 +565,13 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
             mTargetId = fragment.getUri().getQueryParameter("targetId");
 
             if (TextUtils.isEmpty(mTargetId)) {
-                WinToast.toast(ConversationActivity.this, "讨论组尚未创建成功");
+                NToast.shortToast(mContext, "讨论组尚未创建成功");
             }
 
 
             Intent intent = null;
             if (mConversationType == Conversation.ConversationType.GROUP) {
-                intent = new Intent(this, NewGroupDetailActivity.class);
+                intent = new Intent(this, GroupDetailActivity.class);
             } else if (mConversationType == Conversation.ConversationType.PRIVATE) {
                 intent = new Intent(this, FriendDetailActivity.class);
             } else if (mConversationType == Conversation.ConversationType.DISCUSSION) {
@@ -662,7 +582,7 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
             }
             intent.putExtra("TargetId", mTargetId);
             if (intent != null) {
-                startActivity(intent);
+                startActivityForResult(intent, 500);
             }
 
         }
@@ -676,17 +596,8 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
 //        if (data!=null && data.getStringExtra("disFinish").equals("disFinish")) {
 //            finish();
 //        }
-
-        if (requestCode == 29 && resultCode == Constants.MESSAGE_REPLY) {
-            if (data != null && data.hasExtra("REPLY_NAME") && data.hasExtra("REPLY_ID")) {
-                String id = data.getStringExtra("REPLY_ID");
-                String name = data.getStringExtra("REPLY_NAME");
-                TextInputProvider textInputProvider = (TextInputProvider) RongContext.getInstance().getPrimaryInputProvider();
-                textInputProvider.setEditTextContent(mEditText + name + " ");
-
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
-            }
+        if (resultCode == 501) {
+            finish();
         }
     }
 
@@ -786,7 +697,6 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
             closeRealTimeLocation();
         }
         if (isFromPush) {
-            NLog.e("back onBackPressed", isFromPush);
             isFromPush = false;
             startActivity(new Intent(this, MainActivity.class));
             finish();
@@ -818,7 +728,7 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
             @Override
             public void onDialogPositiveClick(AlterDialogFragment dialog) {
                 RongIMClient.getInstance().quitRealTimeLocation(mConversationType, mTargetId);
-                finish();
+                SealAppContext.getInstance().popAllActivity();
             }
 
             @Override
@@ -845,7 +755,7 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
 
             if (userIds != null && userIds.get(0) != null && userIds.size() == 1) {
                 locationid = userIds.get(0);
-                request(GETUSERINFO);
+                request(GET_USER_INFO);
             } else {
                 if (userIds != null && userIds.size() > 0) {
                     if (mRealTimeBar != null) {
@@ -908,10 +818,13 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
         if ("ConversationActivity".equals(this.getClass().getSimpleName()))
             EventBus.getDefault().unregister(this);
 
-        SealAppContext.getInstance().popActivity(mConversationType, mTargetId);
         //CallKit start 3
         RongCallKit.setGroupMemberProvider(null);
         //CallKit end 3
+
+        RongIM.getInstance().setGroupMembersProvider(null);
+        RongIM.getInstance().setRequestPermissionListener(null);
+        RongIMClient.setTypingStatusListener(null);
         super.onDestroy();
     }
 
@@ -975,11 +888,10 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
             if (!closeRealTimeLocation()) {
                 if (fragment != null && !fragment.onBackPressed()) {
                     if (isFromPush) {
-                        NLog.e("back onKeyDown", isFromPush);
                         isFromPush = false;
                         startActivity(new Intent(this, MainActivity.class));
                     }
-                    finish();
+                    SealAppContext.getInstance().popAllActivity();
                 }
             }
         }
@@ -997,28 +909,56 @@ public class ConversationActivity extends BaseActivity implements RongIMClient.R
     }
 
     @Override
-    public Object doInBackground(int requsetCode, String id) throws HttpException {
-        switch (requsetCode) {
-            case GETUSERINFO:
+    public Object doInBackground(int requestCode, String id) throws HttpException {
+        switch (requestCode) {
+            case GET_USER_INFO:
                 return action.getUserInfoById(locationid);
+            case GET_GROUP_MEMBER:
+                return action.getGroupMember(mTargetId);
         }
-        return super.doInBackground(requsetCode, id);
+        return super.doInBackground(requestCode, id);
     }
 
     @Override
     public void onSuccess(int requestCode, Object result) {
         if (result != null) {
             switch (requestCode) {
-                case GETUSERINFO:
+                case GET_USER_INFO:
                     GetUserInfoByIdResponse res = (GetUserInfoByIdResponse) result;
                     if (res.getCode() == 200) {
                         TextView textView = (TextView) mRealTimeBar.findViewById(android.R.id.text1);
                         textView.setText(res.getResult().getNickname() + " 正在共享位置");
                     }
                     break;
+                case GET_GROUP_MEMBER:
+                    GetGroupMemberResponse response = (GetGroupMemberResponse) result;
+                    if (response.getCode() == 200) {
+                        List<GetGroupMemberResponse.ResultEntity> list = response.getResult();
+                        List<UserInfo> userInfos = new ArrayList<>();
+                        for (GetGroupMemberResponse.ResultEntity entity : list) {
+                            GetGroupMemberResponse.ResultEntity.UserEntity user = entity.getUser();
+                            if (!TextUtils.isEmpty(entity.getDisplayName())) {
+                                userInfos.add(new UserInfo(user.getId(), entity.getDisplayName(), Uri.parse(user.getPortraitUri())));
+                            } else {
+                                userInfos.add(new UserInfo(user.getId(), user.getNickname(), Uri.parse(user.getPortraitUri())));
+                            }
+                        }
+                        mMentionMemberCallback.onGetGroupMembersResult(userInfos);
+                    }
             }
 
         }
     }
 
+    @Override
+    public void onClick(View v) {
+        enterSettingActivity();
+    }
+
+    @Override
+    public void onLeftClick(View v) {
+        hintKbTwo();
+        SealAppContext.getInstance().popAllActivity();
+//        super.onLeftClick(v);
+    }
 }
