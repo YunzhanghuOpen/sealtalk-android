@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f0f0f6"
+    android:background="#ebebeb"
     android:orientation="vertical">
 
     <LinearLayout
@@ -34,8 +34,8 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="14dp"
             android:ellipsize="end"
-            android:singleLine="true"
-            android:text="用户头像"
+            android:maxLines="1"
+            android:text="@string/seal_mine_fragment_user_portrait"
             android:textColor="@color/text_color"
             android:textSize="16sp" />
 
@@ -64,6 +64,27 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/my_wallet"
+        android:layout_width="match_parent"
+        android:layout_height="45.5dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/btn_list_item_bg"
+        android:clickable="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="14dp"
+            android:drawableLeft="@drawable/_wallet"
+            android:drawablePadding="14sp"
+            android:text="@string/my_wallet"
+            android:textColor="@color/text_color"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/mine_service"
         android:layout_width="match_parent"
         android:layout_height="45.5dp"
@@ -83,6 +104,46 @@
             android:textSize="16sp" />
 
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/mine_xiaoneng"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#fff">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.25dp"
+                android:layout_marginLeft="14dp"
+                android:layout_marginRight="14dp"
+                android:background="#dfdfdd" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="45.5dp"
+            android:background="@drawable/btn_list_item_bg">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="14dp"
+                android:drawableLeft="@drawable/mine_service"
+                android:drawablePadding="14sp"
+                android:text="@string/main_customer_xn"
+                android:textColor="@color/text_color"
+                android:textSize="16sp" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

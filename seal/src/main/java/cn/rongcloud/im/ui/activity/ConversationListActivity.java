@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
+import cn.rongcloud.im.SealUserInfoManager;
 import cn.rongcloud.im.ui.widget.LoadingDialog;
 import io.rong.imkit.RongIM;
 import io.rong.imlib.RongIMClient;

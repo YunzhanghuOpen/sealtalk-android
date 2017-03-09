@@ -5,45 +5,6 @@
     android:background="@android:color/white"
     android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="#0195ff" >
-
-        <TextView
-            android:id="@+id/cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/cancel"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="14dp"
-            android:clickable="true"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/group_announcement"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:textColor="@android:color/white"
-            android:textSize="20sp"/>
-
-        <TextView
-            android:id="@+id/done"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/Done"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="14dp"
-            android:clickable="false"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="18sp"/>
-    </RelativeLayout>
-
     <EditText
         android:id="@+id/edit_area"
         android:layout_width="match_parent"

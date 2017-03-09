@@ -57,7 +57,7 @@ public class NewTextReplyAdapter extends android.widget.BaseAdapter {
         }
         if (viewHolder != null) {
 
-            viewHolder.mUserName.setText(mNumberList.get(i).getName().toString());
+            viewHolder.mUserName.setText(mNumberList.get(i).getName());
             viewHolder.mImageView.setResource(mNumberList.get(i).getPortraitUri().toString(), R.drawable.de_default_portrait);
 
         }

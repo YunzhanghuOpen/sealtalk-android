@@ -1,1 +1,1 @@
-include ':seal', ':Rong_Cloud_Android_IMKit_SDK_v2_7_3_stable_with_CallKit'
+include ':seal', ':Recognizer', ':contactcard', ':sticker', ':IMLib', ':IMKit', ':CallLib', ':CallKit', ':RedPacket'

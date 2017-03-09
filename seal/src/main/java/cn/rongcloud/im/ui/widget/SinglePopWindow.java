@@ -12,14 +12,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import cn.rongcloud.im.R;
+import cn.rongcloud.im.SealUserInfoManager;
+import cn.rongcloud.im.db.BlackList;
+import cn.rongcloud.im.db.Friend;
 import cn.rongcloud.im.server.SealAction;
 import cn.rongcloud.im.server.network.async.AsyncTaskManager;
 import cn.rongcloud.im.server.network.async.OnDataListener;
 import cn.rongcloud.im.server.network.http.HttpException;
-import cn.rongcloud.im.server.pinyin.FriendInfo;
 import cn.rongcloud.im.server.utils.NToast;
-import cn.rongcloud.im.server.widget.DialogWithYesOrNoUtils;
 import io.rong.imkit.RongIM;
+import io.rong.imkit.utilities.PromptPopupDialog;
 import io.rong.imlib.RongIMClient;
 
 /**
@@ -34,7 +36,7 @@ public class SinglePopWindow extends PopupWindow {
 
 
     @SuppressLint("InflateParams")
-    public SinglePopWindow(final Activity context, final FriendInfo friendInfo, final RongIMClient.BlacklistStatus blacklistStatus) {
+    public SinglePopWindow(final Activity context, final Friend friend, final RongIMClient.BlacklistStatus blacklistStatus) {
         LayoutInflater inflater = (LayoutInflater) context
                                   .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         conentView = inflater.inflate(R.layout.popupwindow_more, null);
@@ -72,17 +74,18 @@ public class SinglePopWindow extends PopupWindow {
             @Override
             public void onClick(View v) {
                 if (blacklistStatus == RongIMClient.BlacklistStatus.IN_BLACK_LIST) {
-                    RongIM.getInstance().removeFromBlacklist(friendInfo.getUserId(), new RongIMClient.OperationCallback() {
+                    RongIM.getInstance().removeFromBlacklist(friend.getUserId(), new RongIMClient.OperationCallback() {
                         @Override
                         public void onSuccess() {
                             asyncTaskManager.request(ADDBLACKLIST, new OnDataListener() {
                                 @Override
                                 public Object doInBackground(int requestCode, String parameter) throws HttpException {
-                                    return new SealAction(context).removeFromBlackList(friendInfo.getUserId());
+                                    return new SealAction(context).removeFromBlackList(friend.getUserId());
                                 }
 
                                 @Override
                                 public void onSuccess(int requestCode, Object result) {
+                                    SealUserInfoManager.getInstance().deleteBlackList(friend.getUserId());
                                     NToast.shortToast(context, "移除成功");
                                 }
 
@@ -99,21 +102,27 @@ public class SinglePopWindow extends PopupWindow {
                         }
                     });
                 } else {
-                    DialogWithYesOrNoUtils.getInstance().showDialog(context, "加入黑名单,你将不再受到对方的消息。", new DialogWithYesOrNoUtils.DialogCallBack() {
+                    PromptPopupDialog.newInstance(context, context.getString(R.string.join_the_blacklist),
+                    context.getString(R.string.des_add_friend_to_black_list)).setPromptButtonClickedListener(new PromptPopupDialog.OnPromptButtonClickedListener() {
                         @Override
-                        public void executeEvent() {
-                            RongIM.getInstance().addToBlacklist(friendInfo.getUserId(), new RongIMClient.OperationCallback() {
+                        public void onPositiveButtonClicked() {
+                            RongIM.getInstance().addToBlacklist(friend.getUserId(), new RongIMClient.OperationCallback() {
                                 @Override
                                 public void onSuccess() {
 
                                     asyncTaskManager.request(REMOVEBLACKLIST, new OnDataListener() {
                                         @Override
                                         public Object doInBackground(int requestCode, String parameter) throws HttpException {
-                                            return new SealAction(context).addToBlackList(friendInfo.getUserId());
+                                            return new SealAction(context).addToBlackList(friend.getUserId());
                                         }
 
                                         @Override
                                         public void onSuccess(int requestCode, Object result) {
+                                            SealUserInfoManager.getInstance().addBlackList(new BlackList(
+                                                        friend.getUserId(),
+                                                        null,
+                                                        null
+                                                    ));
                                             NToast.shortToast(context, "加入成功");
                                         }
 
@@ -130,18 +139,7 @@ public class SinglePopWindow extends PopupWindow {
                                 }
                             });
                         }
-
-                        @Override
-                        public void executeEditEvent(String editText) {
-
-                        }
-
-                        @Override
-                        public void updatePassword(String oldPassword, String newPassword) {
-
-                        }
-                    });
-
+                    }).show();
                 }
                 SinglePopWindow.this.dismiss();
             }

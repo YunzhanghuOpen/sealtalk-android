@@ -20,11 +20,12 @@
                 android:id="@+id/gridview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingLeft="1dp"
+                android:paddingRight="1dp"
                 android:background="#ffffff"
-                android:columnWidth="56dp"
                 android:gravity="start"
                 android:listSelector="@android:color/transparent"
-                android:numColumns="4"></cn.rongcloud.im.ui.widget.DemoGridView>
+                android:numColumns="4"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -36,6 +37,7 @@
                     android:layout_height="0.25dp"
                     android:layout_marginLeft="14dp"
                     android:layout_marginRight="14dp"
+                    android:layout_marginTop="14dp"
                     android:background="#dfdfdd" />
             </LinearLayout>
 
@@ -56,9 +58,47 @@
                     android:textColor="@color/text_color"
                     android:textSize="16sp" />
 
-
             </RelativeLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.25dp"
+                android:layout_marginLeft="14dp"
+                android:layout_marginRight="14dp"
+                android:layout_marginTop="20dp"
+                android:background="#dfdfdd" />
+
+            <LinearLayout
+                android:id="@+id/ac_ll_search_chatting_records"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/btn_list_item_bg"
+                android:clickable="true"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="1"
+                    android:text="@string/search_message"
+                    android:textColor="@color/text_color"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.25dp"
+                android:layout_marginLeft="14dp"
+                android:layout_marginRight="14dp"
+                android:background="#dfdfdd" />
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
@@ -85,7 +125,7 @@
                     android:layout_weight="1"
                     android:text="@string/group_portrait"
                     android:textColor="@color/text_color"
-                    android:textSize="16dp" />
+                    android:textSize="16sp" />
 
                 <cn.rongcloud.im.server.widget.SelectableRoundedImageView
                     android:id="@+id/group_header"
@@ -128,13 +168,14 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginBottom="10dp"
                     android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:ellipsize="end"
-                    android:singleLine="true"
+                    android:maxLines="1"
                     android:text="@string/group_name"
                     android:textColor="@color/text_color"
-                    android:textSize="16dp" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/group_name"
@@ -148,15 +189,16 @@
                     android:layout_weight="1"
                     android:ellipsize="end"
                     android:gravity="right"
-                    android:singleLine="true"
+                    android:maxLines="1"
                     android:textColor="#999"
-                    android:textSize="14dp" />
+                    android:textSize="14sp" />
 
 
             </LinearLayout>
 
 
             <LinearLayout
+                android:id="@+id/ac_ll_group_announcement_divider"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="#fff"
@@ -178,19 +220,18 @@
                 android:clickable="true"
                 android:orientation="horizontal">
 
-
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginBottom="10dp"
                     android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:text="@string/group_announcement"
                     android:textColor="@color/text_color"
-                    android:textSize="16dp" />
-
+                    android:textSize="16sp" />
 
             </LinearLayout>
 
@@ -220,22 +261,42 @@
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:text="@string/group_code"
-                    android:textSize="16dp" />
+                    android:textSize="16sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="14dp"
+                    android:layout_marginEnd="14dp"
                     android:src="@drawable/a_5" />
 
 
             </LinearLayout>
 
             <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.25dp"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:background="#dfdfdd" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.25dp"
+                android:layout_marginLeft="14dp"
+                android:layout_marginRight="14dp"
+                android:layout_marginTop="20dp"
+                android:background="#dfdfdd" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="20dp"
                 android:background="#ffffff"
                 android:orientation="horizontal">
 
@@ -244,12 +305,13 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginBottom="10dp"
-                    android:layout_marginLeft="16dp"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginStart="14dp"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
-                    android:text="@string/messsage_notice"
+                    android:text="@string/message_notice"
                     android:textColor="@color/text_color"
-                    android:textSize="16dp" />
+                    android:textSize="16sp" />
 
                 <cn.rongcloud.im.ui.widget.switchbutton.SwitchButton
                     android:id="@+id/sw_group_notfaction"
@@ -274,7 +336,7 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="0.25dp"
+                    android:layout_height="0.5dp"
                     android:layout_marginLeft="14dp"
                     android:layout_marginRight="14dp"
                     android:background="#dfdfdd" />
@@ -293,11 +355,12 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginBottom="10dp"
                     android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:text="@string/set_top"
                     android:textColor="@color/text_color"
-                    android:textSize="16dp" />
+                    android:textSize="16sp" />
 
                 <cn.rongcloud.im.ui.widget.switchbutton.SwitchButton
                     android:id="@+id/sw_group_top"
@@ -343,11 +406,12 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginBottom="10dp"
                     android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:text="@string/clean_message"
                     android:textColor="@color/text_color"
-                    android:textSize="16dp" />
+                    android:textSize="16sp" />
 
 
             </LinearLayout>
@@ -368,7 +432,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:text="开启群组会话"
-                    android:textSize="16dp" />
+                    android:textSize="16sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -395,7 +459,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
                     android:text="群组昵称"
-                    android:textSize="16dp" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/group_displayname_text"
@@ -409,7 +473,7 @@
                     android:paddingRight="10dp"
                     android:text="无"
                     android:textColor="@color/group_list_gray"
-                    android:textSize="16dp" />
+                    android:textSize="16sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"

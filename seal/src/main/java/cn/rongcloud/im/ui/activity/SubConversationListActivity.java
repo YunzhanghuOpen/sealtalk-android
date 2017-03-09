@@ -48,10 +48,4 @@ public class SubConversationListActivity extends BaseActivity {
             setTitle(R.string.de_actionbar_sub_defult);
         }
     }
-
-    @Override
-    protected void onStop() {
-        finish();
-        super.onStop();
-    }
 }

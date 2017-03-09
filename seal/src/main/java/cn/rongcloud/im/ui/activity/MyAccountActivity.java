@@ -20,7 +20,6 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.storage.UpCompletionHandler;
 import com.qiniu.android.storage.UploadManager;
@@ -33,16 +32,17 @@ import java.io.File;
 import cn.rongcloud.im.App;
 import cn.rongcloud.im.R;
 import cn.rongcloud.im.SealConst;
+import cn.rongcloud.im.SealUserInfoManager;
 import cn.rongcloud.im.server.broadcast.BroadcastManager;
 import cn.rongcloud.im.server.network.http.HttpException;
 import cn.rongcloud.im.server.response.QiNiuTokenResponse;
 import cn.rongcloud.im.server.response.SetPortraitResponse;
 import cn.rongcloud.im.server.utils.NToast;
-import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.utils.photo.PhotoUtils;
 import cn.rongcloud.im.server.widget.BottomMenuDialog;
 import cn.rongcloud.im.server.widget.LoadDialog;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
+import io.rong.imageloader.core.ImageLoader;
 import io.rong.imkit.RongIM;
 import io.rong.imlib.model.UserInfo;
 
@@ -80,25 +80,24 @@ public class MyAccountActivity extends BaseActivity implements View.OnClickListe
         mName = (TextView) findViewById(R.id.tv_my_username);
         portraitItem.setOnClickListener(this);
         nameItem.setOnClickListener(this);
-        String cacheName = sp.getString("loginnickname", "");
-        String cachePortrait = sp.getString("loginPortrait", "");
-        String cachePhone = sp.getString("loginphone", "");
+        String cacheName = sp.getString(SealConst.SEALTALK_LOGIN_NAME, "");
+        String cachePortrait = sp.getString(SealConst.SEALTALK_LOGING_PORTRAIT, "");
+        String cachePhone = sp.getString(SealConst.SEALTALK_LOGING_PHONE, "");
         if (!TextUtils.isEmpty(cachePhone)) {
             mPhone.setText("+86 " + cachePhone);
         }
         if (!TextUtils.isEmpty(cacheName)) {
             mName.setText(cacheName);
-            if (TextUtils.isEmpty(cachePortrait)) {
-                ImageLoader.getInstance().displayImage(RongGenerate.generateDefaultAvatar(cacheName, sp.getString("loginid", "a")), mImageView, App.getOptions());
-            } else {
-                ImageLoader.getInstance().displayImage(cachePortrait, mImageView, App.getOptions());
-            }
+            String cacheId = sp.getString(SealConst.SEALTALK_LOGIN_ID, "a");
+            String portraitUri = SealUserInfoManager.getInstance().getPortraitUri(new UserInfo(
+                    cacheId, cacheName, Uri.parse(cachePortrait)));
+            ImageLoader.getInstance().displayImage(portraitUri, mImageView, App.getOptions());
         }
         setPortraitChangeListener();
         BroadcastManager.getInstance(mContext).addAction(SealConst.CHANGEINFO, new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                mName.setText(sp.getString("loginnickname", ""));
+                mName.setText(sp.getString(SealConst.SEALTALK_LOGIN_NAME, ""));
             }
         });
     }
@@ -158,17 +157,16 @@ public class MyAccountActivity extends BaseActivity implements View.OnClickListe
                 case UP_LOAD_PORTRAIT:
                     SetPortraitResponse spRes = (SetPortraitResponse) result;
                     if (spRes.getCode() == 200) {
-                        editor.putString("loginPortrait", imageUrl);
+                        editor.putString(SealConst.SEALTALK_LOGING_PORTRAIT, imageUrl);
                         editor.commit();
                         ImageLoader.getInstance().displayImage(imageUrl, mImageView, App.getOptions());
                         if (RongIM.getInstance() != null) {
-                            RongIM.getInstance().refreshUserInfoCache(new UserInfo(sp.getString("loginid", ""), sp.getString("loginnickname", ""), Uri.parse(imageUrl)));
-                            RongIM.getInstance().setCurrentUserInfo(new UserInfo(sp.getString("loginid", ""), sp.getString("loginnickname", ""), Uri.parse(imageUrl)));
+                            RongIM.getInstance().setCurrentUserInfo(new UserInfo(sp.getString(SealConst.SEALTALK_LOGIN_ID, ""), sp.getString(SealConst.SEALTALK_LOGIN_NAME, ""), Uri.parse(imageUrl)));
                         }
                         BroadcastManager.getInstance(mContext).sendBroadcast(SealConst.CHANGEINFO);
                         NToast.shortToast(mContext, getString(R.string.portrait_update_success));
-                        LoadDialog.dismiss(mContext);
                     }
+                    LoadDialog.dismiss(mContext);
                     break;
                 case GET_QI_NIU_TOKEN:
                     QiNiuTokenResponse response = (QiNiuTokenResponse) result;
@@ -184,6 +182,7 @@ public class MyAccountActivity extends BaseActivity implements View.OnClickListe
     @Override
     public void onFailure(int requestCode, int state, Object result) {
         switch (requestCode) {
+            case GET_QI_NIU_TOKEN:
             case UP_LOAD_PORTRAIT:
                 NToast.shortToast(mContext, "设置头像请求失败");
                 LoadDialog.dismiss(mContext);
@@ -213,18 +212,18 @@ public class MyAccountActivity extends BaseActivity implements View.OnClickListe
                     int checkPermission = checkSelfPermission(Manifest.permission.CAMERA);
                     if (checkPermission != PackageManager.PERMISSION_GRANTED) {
                         if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-                            requestPermissions(new String[] {Manifest.permission.CAMERA}, REQUEST_CODE_ASK_PERMISSIONS);
+                            requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CODE_ASK_PERMISSIONS);
                         } else {
                             new AlertDialog.Builder(mContext)
-                            .setMessage("您需要在设置里打开相机权限。")
-                            .setPositiveButton("确认", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    requestPermissions(new String[] {Manifest.permission.CAMERA}, REQUEST_CODE_ASK_PERMISSIONS);
-                                }
-                            })
-                            .setNegativeButton("取消", null)
-                            .create().show();
+                                    .setMessage("您需要在设置里打开相机权限。")
+                                    .setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CODE_ASK_PERMISSIONS);
+                                        }
+                                    })
+                                    .setNegativeButton("取消", null)
+                                    .create().show();
                         }
                         return;
                     }
@@ -281,6 +280,9 @@ public class MyAccountActivity extends BaseActivity implements View.OnClickListe
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                } else {
+                    NToast.shortToast(mContext, getString(R.string.upload_portrait_failed));
+                    LoadDialog.dismiss(mContext);
                 }
             }
         }, null);

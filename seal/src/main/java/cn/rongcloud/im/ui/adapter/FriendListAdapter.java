@@ -9,15 +9,14 @@ import android.widget.BaseAdapter;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-
 import java.util.List;
 
 import cn.rongcloud.im.App;
 import cn.rongcloud.im.R;
-import cn.rongcloud.im.server.pinyin.FriendInfo;
-import cn.rongcloud.im.server.utils.RongGenerate;
+import cn.rongcloud.im.SealUserInfoManager;
+import cn.rongcloud.im.db.Friend;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
+import io.rong.imageloader.core.ImageLoader;
 
 /**
  * Created by AMing on 16/1/14.
@@ -27,9 +26,9 @@ public class FriendListAdapter extends BaseAdapter implements SectionIndexer {
 
     private Context context;
 
-    private List<FriendInfo> list;
+    private List<Friend> list;
 
-    public FriendListAdapter(Context context, List<FriendInfo> list) {
+    public FriendListAdapter(Context context, List<Friend> list) {
         this.context = context;
         this.list = list;
     }
@@ -38,18 +37,25 @@ public class FriendListAdapter extends BaseAdapter implements SectionIndexer {
     /**
      * 传入新的数据 刷新UI的方法
      */
-    public void updateListView(List<FriendInfo> list) {
+    public void updateListView(List<Friend> list) {
         this.list = list;
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return list.size();
+        if (list != null) return list.size();
+        return 0;
     }
 
     @Override
     public Object getItem(int position) {
+        if (list == null)
+            return null;
+
+        if (position >= list.size())
+            return null;
+
         return list.get(position);
     }
 
@@ -60,11 +66,11 @@ public class FriendListAdapter extends BaseAdapter implements SectionIndexer {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder viewHolder = null;
-        final FriendInfo mContent = list.get(position);
+        ViewHolder viewHolder;
+        final Friend mContent = list.get(position);
         if (convertView == null) {
             viewHolder = new ViewHolder();
-            convertView = LayoutInflater.from(context).inflate(R.layout.friend_item, null);
+            convertView = LayoutInflater.from(context).inflate(R.layout.friend_item, parent, false);
             viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.friendname);
             viewHolder.tvLetter = (TextView) convertView.findViewById(R.id.catalog);
             viewHolder.mImageView = (SelectableRoundedImageView) convertView.findViewById(R.id.frienduri);
@@ -79,7 +85,11 @@ public class FriendListAdapter extends BaseAdapter implements SectionIndexer {
         //如果当前位置等于该分类首字母的Char的位置 ，则认为是第一次出现
         if (position == getPositionForSection(section)) {
             viewHolder.tvLetter.setVisibility(View.VISIBLE);
-            viewHolder.tvLetter.setText(mContent.getLetters());
+            String letterFirst = mContent.getLetters();
+            if(!TextUtils.isEmpty(letterFirst)){
+                letterFirst = String.valueOf(letterFirst.toUpperCase().charAt(0));
+            }
+            viewHolder.tvLetter.setText(letterFirst);
         } else {
             viewHolder.tvLetter.setVisibility(View.GONE);
         }
@@ -88,12 +98,8 @@ public class FriendListAdapter extends BaseAdapter implements SectionIndexer {
         } else {
             viewHolder.tvTitle.setText(this.list.get(position).getName());
         }
-        if (TextUtils.isEmpty(list.get(position).getPortraitUri())) {
-            String s = RongGenerate.generateDefaultAvatar(list.get(position).getName(), list.get(position).getUserId());
-            ImageLoader.getInstance().displayImage(s, viewHolder.mImageView, App.getOptions());
-        } else {
-            ImageLoader.getInstance().displayImage(list.get(position).getPortraitUri(), viewHolder.mImageView, App.getOptions());
-        }
+        String portraitUri = SealUserInfoManager.getInstance().getPortraitUri(list.get(position));
+        ImageLoader.getInstance().displayImage(portraitUri, viewHolder.mImageView, App.getOptions());
         if (context.getSharedPreferences("config", Context.MODE_PRIVATE).getBoolean("isDebug", false)) {
             viewHolder.tvUserId.setVisibility(View.VISIBLE);
             viewHolder.tvUserId.setText(list.get(position).getUserId());
@@ -110,7 +116,7 @@ public class FriendListAdapter extends BaseAdapter implements SectionIndexer {
     public int getPositionForSection(int sectionIndex) {
         for (int i = 0; i < getCount(); i++) {
             String sortStr = list.get(i).getLetters();
-            char firstChar = sortStr.toUpperCase().charAt(0);
+            char firstChar = sortStr.charAt(0);
             if (firstChar == sectionIndex) {
                 return i;
             }

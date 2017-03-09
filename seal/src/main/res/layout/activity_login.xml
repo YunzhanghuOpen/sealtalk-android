@@ -14,7 +14,7 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="-50dp"
             android:layout_marginRight="-300dp"
-            android:scaleType="center"
+            android:scaleType="centerCrop"
             android:src="@drawable/de_bg" />
 
     </FrameLayout>
@@ -57,8 +57,8 @@
                     android:focusable="true"
                     android:focusableInTouchMode="true"
                     android:hint="@string/phone_number"
-                    android:phoneNumber="true"
-                    android:singleLine="true"
+                    android:inputType="phone"
+                    android:maxLines="1"
                     android:maxLength="11"
                     android:textColor="#FFFFFF"
                     android:textColorHint="#FFFFFF" />
@@ -94,7 +94,7 @@
                     android:focusableInTouchMode="true"
                     android:hint="@string/password"
                     android:inputType="textPassword"
-                    android:singleLine="true"
+                    android:maxLines="1"
                     android:textColor="#FFFFFF"
                     android:textColorHint="#FFFFFF" />
 

@@ -11,9 +11,8 @@ import android.text.TextUtils;
 import android.view.Window;
 
 import cn.rongcloud.im.R;
-import cn.rongcloud.im.server.utils.NToast;
+import cn.rongcloud.im.SealAppContext;
 import io.rong.imkit.RongIM;
-import io.rong.imlib.RongIMClient;
 
 /**
  * Created by AMing on 16/8/5.
@@ -32,57 +31,15 @@ public class SplashActivity extends Activity {
         setContentView(R.layout.activity_splash);
         context = this;
         SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
-
-        if (!isNetworkConnected(context)) {
-            NToast.shortToast(context, getString(R.string.network_not_available));
-            goToLogin();
-            return;
-        }
-
         String cacheToken = sp.getString("loginToken", "");
         if (!TextUtils.isEmpty(cacheToken)) {
-            if (RongIM.getInstance().getCurrentConnectionStatus() == RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        goToMain();
-                    }
-                }, 800);
-            } else {
-                RongIM.connect(cacheToken, new RongIMClient.ConnectCallback() {
-                    @Override
-                    public void onTokenIncorrect() {
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                goToLogin();
-                            }
-                        }, 300);
-                    }
-
-                    @Override
-                    public void onSuccess(String s) {
-                        getSharedPreferences("config", MODE_PRIVATE).edit().putString("loginid", s).apply();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                goToMain();
-                            }
-                        }, 300);
-                    }
-
-                    @Override
-                    public void onError(final RongIMClient.ErrorCode e) {
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                NToast.shortToast(context, "connect error value:" + e.getValue());
-                                goToLogin();
-                            }
-                        }, 300);
-                    }
-                });
-            }
+            RongIM.connect(cacheToken, SealAppContext.getInstance().getConnectCallback());
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    goToMain();
+                }
+            }, 800);
         } else {
             handler.postDelayed(new Runnable() {
                 @Override

@@ -33,3 +33,4 @@ captures/
 .idea
 sealtalk-android.iml
 /seal/seal.iml
+*.iml

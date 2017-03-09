@@ -4,36 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="#0195ff">
-
-        <TextView
-            android:id="@+id/select_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:clickable="true"
-            android:drawableLeft="@drawable/de_actionbar_back"
-            android:onClick="selectFinish"
-            android:text="选择联系人"
-            android:textColor="#fff"
-            android:textSize="18sp" />
-
-
-        <TextView
-            android:id="@+id/select_ok"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="14dp"
-            android:clickable="true"
-            android:text="确定"
-            android:textColor="#fff"
-            android:textSize="14dp" />
-    </RelativeLayout>
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

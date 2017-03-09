@@ -1,6 +1,9 @@
 package cn.rongcloud.im.ui.activity;
 
 import android.content.Context;
+import android.net.Uri;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -12,22 +15,28 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-
 import cn.rongcloud.im.App;
 import cn.rongcloud.im.R;
+import cn.rongcloud.im.SealUserInfoManager;
+import cn.rongcloud.im.SealAppContext;
+import cn.rongcloud.im.SealConst;
+import cn.rongcloud.im.db.Friend;
+import cn.rongcloud.im.server.network.async.AsyncTaskManager;
 import cn.rongcloud.im.server.network.http.HttpException;
 import cn.rongcloud.im.server.response.FriendInvitationResponse;
 import cn.rongcloud.im.server.response.GetUserInfoByPhoneResponse;
-import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.utils.AMUtils;
+import cn.rongcloud.im.server.utils.CommonUtils;
 import cn.rongcloud.im.server.utils.NToast;
 import cn.rongcloud.im.server.widget.DialogWithYesOrNoUtils;
 import cn.rongcloud.im.server.widget.LoadDialog;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
+import io.rong.imageloader.core.ImageLoader;
+import io.rong.imlib.model.UserInfo;
 
 public class SearchFriendActivity extends BaseActivity {
 
+    private static final int CLICK_CONVERSATION_USER_PORTRAIT = 1;
     private static final int SEARCH_PHONE = 10;
     private static final int ADD_FRIEND = 11;
     private EditText mEtSearch;
@@ -38,6 +47,7 @@ public class SearchFriendActivity extends BaseActivity {
     private String addFriendMessage;
     private String mFriendId;
 
+    private Friend mFriend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,26 +105,33 @@ public class SearchFriendActivity extends BaseActivity {
         if (result != null) {
             switch (requestCode) {
                 case SEARCH_PHONE:
-                    final GetUserInfoByPhoneResponse guifres = (GetUserInfoByPhoneResponse) result;
-                    if (guifres.getCode() == 200) {
+                    final GetUserInfoByPhoneResponse userInfoByPhoneResponse = (GetUserInfoByPhoneResponse) result;
+                    if (userInfoByPhoneResponse.getCode() == 200) {
                         LoadDialog.dismiss(mContext);
                         NToast.shortToast(mContext, "success");
-                        mFriendId = guifres.getResult().getId();
+                        mFriendId = userInfoByPhoneResponse.getResult().getId();
                         searchItem.setVisibility(View.VISIBLE);
-                        if (TextUtils.isEmpty(guifres.getResult().getPortraitUri())) {
-                            ImageLoader.getInstance().displayImage(RongGenerate.generateDefaultAvatar(guifres.getResult().getNickname(), guifres.getResult().getId()), searchImage, App.getOptions());
-                        } else {
-                            ImageLoader.getInstance().displayImage(guifres.getResult().getPortraitUri(), searchImage, App.getOptions());
+                        String portraitUri = null;
+                        if (userInfoByPhoneResponse.getResult() != null) {
+                            GetUserInfoByPhoneResponse.ResultEntity userInfoByPhoneResponseResult = userInfoByPhoneResponse.getResult();
+                            UserInfo userInfo = new UserInfo(userInfoByPhoneResponseResult.getId(),
+                                    userInfoByPhoneResponseResult.getNickname(),
+                                    Uri.parse(userInfoByPhoneResponseResult.getPortraitUri()));
+                            portraitUri = SealUserInfoManager.getInstance().getPortraitUri(userInfo);
                         }
-                        searchName.setText(guifres.getResult().getNickname());
+                        ImageLoader.getInstance().displayImage(portraitUri, searchImage, App.getOptions());
+                        searchName.setText(userInfoByPhoneResponse.getResult().getNickname());
                         searchItem.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (getSharedPreferences("config", MODE_PRIVATE).getString("loginphone", "").equals(mEtSearch.getText().toString().trim())) {
-                                    NToast.shortToast(mContext, getString(R.string.can_not_add_yourself));
+                                if (isFriendOrSelf(mFriendId)) {
+                                    Intent intent = new Intent(SearchFriendActivity.this, UserDetailActivity.class);
+                                    intent.putExtra("friend", mFriend);
+                                    intent.putExtra("type", CLICK_CONVERSATION_USER_PORTRAIT);
+                                    startActivity(intent);
+                                    SealAppContext.getInstance().pushActivity(SearchFriendActivity.this);
                                     return;
                                 }
-
                                 DialogWithYesOrNoUtils.getInstance().showEditDialog(mContext, getString(R.string.add_text), getString(R.string.add_friend), new DialogWithYesOrNoUtils.DialogCallBack() {
                                     @Override
                                     public void executeEvent() {
@@ -128,9 +145,13 @@ public class SearchFriendActivity extends BaseActivity {
 
                                     @Override
                                     public void executeEditEvent(String editText) {
+                                        if (!CommonUtils.isNetworkConnected(mContext)) {
+                                            NToast.shortToast(mContext, R.string.network_not_available);
+                                            return;
+                                        }
                                         addFriendMessage = editText;
                                         if (TextUtils.isEmpty(editText)) {
-                                            addFriendMessage = "我是" + getSharedPreferences("config", MODE_PRIVATE).getString("loginnickname", "");
+                                            addFriendMessage = "我是" + getSharedPreferences("config", MODE_PRIVATE).getString(SealConst.SEALTALK_LOGIN_NAME, "");
                                         }
                                         if (!TextUtils.isEmpty(mFriendId)) {
                                             LoadDialog.show(mContext);
@@ -167,7 +188,11 @@ public class SearchFriendActivity extends BaseActivity {
                 LoadDialog.dismiss(mContext);
                 break;
             case SEARCH_PHONE:
-                NToast.shortToast(mContext, "用户不存在");
+                if (state == AsyncTaskManager.HTTP_ERROR_CODE || state == AsyncTaskManager.HTTP_NULL_CODE) {
+                    super.onFailure(requestCode, state, result);
+                } else {
+                    NToast.shortToast(mContext, "用户不存在");
+                }
                 LoadDialog.dismiss(mContext);
                 break;
         }
@@ -187,5 +212,25 @@ public class SearchFriendActivity extends BaseActivity {
                 imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             }
         }
+    }
+
+    private boolean isFriendOrSelf(String id) {
+        String inputPhoneNumber = mEtSearch.getText().toString().trim();
+        SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
+        String selfPhoneNumber = sp.getString(SealConst.SEALTALK_LOGING_PHONE, "");
+        if (inputPhoneNumber != null) {
+            if (inputPhoneNumber.equals(selfPhoneNumber)) {
+                mFriend = new Friend(sp.getString(SealConst.SEALTALK_LOGIN_ID, ""),
+                        sp.getString(SealConst.SEALTALK_LOGIN_NAME, ""),
+                        Uri.parse(sp.getString(SealConst.SEALTALK_LOGING_PORTRAIT, "")));
+                return true;
+            } else {
+                mFriend = SealUserInfoManager.getInstance().getFriendByID(id);
+                if (mFriend != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -19,7 +19,7 @@ public class FunctionIntroducedActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_function_introduced);
-        setTitle(R.string.update_log);
+        setTitle(R.string.function_introduce);
 
         mWebView = (WebView) findViewById(R.id.function_introdiced_webview);
         mWebView.getSettings().setJavaScriptEnabled(true);

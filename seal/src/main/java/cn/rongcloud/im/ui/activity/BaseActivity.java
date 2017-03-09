@@ -6,11 +6,12 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
@@ -29,11 +30,12 @@ public abstract class BaseActivity extends FragmentActivity implements OnDataLis
     protected SealAction action;
 
     private ViewFlipper mContentView;
-    protected RelativeLayout layout_head;
-    protected Button btn_left;
-    protected Button btn_right;
-    protected TextView tv_title;
-    private Drawable btn_back;
+    protected LinearLayout mHeadLayout;
+    protected Button mBtnLeft;
+    protected Button mBtnRight;
+    protected TextView mTitle;
+    protected TextView mHeadRightText;
+    private Drawable mBtnBackDrawable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +46,14 @@ public abstract class BaseActivity extends FragmentActivity implements OnDataLis
 
         // 初始化公共头部
         mContentView = (ViewFlipper) super.findViewById(R.id.layout_container);
-        layout_head = (RelativeLayout) super.findViewById(R.id.layout_head);
-        btn_left = (Button) super.findViewById(R.id.btn_left);
-        btn_right = (Button) super.findViewById(R.id.btn_right);
-        tv_title = (TextView) super.findViewById(R.id.tv_title);
-        btn_back = getResources().getDrawable(R.drawable.actionbar_back);
-        btn_back.setBounds(0, 0, btn_back.getMinimumWidth(),
-                           btn_back.getMinimumHeight());
+        mHeadLayout = (LinearLayout) super.findViewById(R.id.layout_head);
+        mHeadRightText = (TextView) findViewById(R.id.text_right);
+        mBtnLeft = (Button) super.findViewById(R.id.btn_left);
+        mBtnRight = (Button) super.findViewById(R.id.btn_right);
+        mTitle = (TextView) super.findViewById(R.id.tv_title);
+        mBtnBackDrawable = getResources().getDrawable(R.drawable.ac_back_icon);
+        mBtnBackDrawable.setBounds(0, 0, mBtnBackDrawable.getMinimumWidth(),
+                                   mBtnBackDrawable.getMinimumHeight());
 
 
         mAsyncTaskManager = AsyncTaskManager.getInstance(getApplicationContext());
@@ -80,7 +83,7 @@ public abstract class BaseActivity extends FragmentActivity implements OnDataLis
      * @param visibility
      */
     public void setHeadVisibility(int visibility) {
-        layout_head.setVisibility(visibility);
+        mHeadLayout.setVisibility(visibility);
     }
 
     /**
@@ -88,8 +91,8 @@ public abstract class BaseActivity extends FragmentActivity implements OnDataLis
      *
      * @param visibility
      */
-    public void setLeftVisibility(int visibility) {
-        btn_left.setVisibility(visibility);
+    public void setHeadLeftButtonVisibility(int visibility) {
+        mBtnLeft.setVisibility(visibility);
     }
 
     /**
@@ -97,8 +100,8 @@ public abstract class BaseActivity extends FragmentActivity implements OnDataLis
      *
      * @param visibility
      */
-    public void setRightVisibility(int visibility) {
-        btn_right.setVisibility(visibility);
+    public void setHeadRightButtonVisibility(int visibility) {
+        mBtnRight.setVisibility(visibility);
     }
 
     /**
@@ -128,60 +131,58 @@ public abstract class BaseActivity extends FragmentActivity implements OnDataLis
      * @param title
      */
     public void setTitle(String title, boolean flag) {
-        btn_left.setText(title);
+        mTitle.setText(title);
         if (flag) {
-            btn_left.setCompoundDrawables(null, null, null, null);
+            mBtnLeft.setCompoundDrawables(null, null, null, null);
         } else {
-            btn_left.setCompoundDrawables(btn_back, null, null, null);
+            mBtnLeft.setCompoundDrawables(mBtnBackDrawable, null, null, null);
         }
     }
 
     /**
      * 点击左按钮
      */
-    public void onLeftClick(View v) {
+    public void onHeadLeftButtonClick(View v) {
         finish();
     }
 
     /**
      * 点击右按钮
      */
-    public void onRightClick(View v) {
+    public void onHeadRightButtonClick(View v) {
 
     }
 
-    public Button getBtn_left() {
-        return btn_left;
+    public Button getHeadLeftButton() {
+        return mBtnLeft;
     }
 
-    public void setBtn_left(Button btn_left) {
-        this.btn_left = btn_left;
+    public void setHeadLeftButton(Button leftButton) {
+        this.mBtnLeft = leftButton;
     }
 
-    public Button getBtn_right() {
-        return btn_right;
+    public Button getHeadRightButton() {
+        return mBtnRight;
     }
 
-    public void setBtn_right(Button btn_right) {
-        this.btn_right = btn_right;
+    public void setHeadRightButton(Button rightButton) {
+        this.mBtnRight = rightButton;
     }
 
-    public Drawable getBtn_back() {
-        return btn_back;
+    public Drawable getHeadBackButtonDrawable() {
+        return mBtnBackDrawable;
     }
 
-    public void setBtn_back(Drawable btn_back) {
-        this.btn_back = btn_back;
+    public void setBackButtonDrawable(Drawable backButtonDrawable) {
+        this.mBtnBackDrawable = backButtonDrawable;
     }
 
     protected void onResume() {
         super.onResume();
-//        MobclickAgent.onResume(this);
     }
 
     protected void onPause() {
         super.onPause();
-//        MobclickAgent.onPause(this);
     }
 
 
@@ -193,6 +194,18 @@ public abstract class BaseActivity extends FragmentActivity implements OnDataLis
     public void request(int requestCode) {
         if (mAsyncTaskManager != null) {
             mAsyncTaskManager.request(requestCode, this);
+        }
+    }
+
+    /**
+     * 发送请求（需要检查网络）
+     *
+     * @param id 请求数据的用户ID或者groupID
+     * @param requestCode 请求码
+     */
+    public void request(String id , int requestCode) {
+        if (mAsyncTaskManager != null) {
+            mAsyncTaskManager.request(id, requestCode, this);
         }
     }
 
@@ -250,5 +263,14 @@ public abstract class BaseActivity extends FragmentActivity implements OnDataLis
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (null != this.getCurrentFocus()) {
+            InputMethodManager mInputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            return mInputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
+        }
+        return super.onTouchEvent(event);
     }
 }

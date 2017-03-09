@@ -14,7 +14,7 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="-50dp"
             android:layout_marginRight="-300dp"
-            android:scaleType="center"
+            android:scaleType="centerCrop"
             android:src="@drawable/de_bg" />
 
     </FrameLayout>
@@ -50,7 +50,7 @@
             android:paddingLeft="10dip"
             android:paddingRight="10dip"
             android:ellipsize="end"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textColor="#FFF"
             android:textColorHint="#FFFFFF" />
 
@@ -65,10 +65,10 @@
             android:drawablePadding="5dip"
             android:hint="@string/phone_number"
             android:maxLength="11"
-            android:phoneNumber="true"
+            android:inputType="phone"
             android:paddingLeft="10dip"
             android:paddingRight="10dip"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textColor="#FFF"
             android:textColorHint="#FFFFFF" />
 
@@ -92,7 +92,7 @@
                 android:hint="@string/code"
                 android:inputType="number"
                 android:maxLength="6"
-                android:singleLine="true"
+                android:maxLines="1"
                 android:textColor="#FFF"
                 android:textColorHint="#FFFFFF" />
 
@@ -112,7 +112,7 @@
                 android:paddingTop="10dp"
                 android:text="@string/send_code"
                 android:textColor="#FFF"
-                android:textSize="12dp" />
+                android:textSize="12sp" />
 
         </LinearLayout>
 
@@ -130,8 +130,7 @@
             android:maxLength="16"
             android:paddingLeft="10dip"
             android:paddingRight="10dip"
-            android:password="true"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textColor="#FFF"
             android:textColorHint="#FFFFFF" />
 

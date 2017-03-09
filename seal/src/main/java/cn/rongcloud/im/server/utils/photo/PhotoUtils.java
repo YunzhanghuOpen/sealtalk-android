@@ -231,9 +231,9 @@ public class PhotoUtils {
      * @date 2015-1-7
      **/
     public interface OnPhotoResultListener {
-        public void onPhotoResult(Uri uri);
+        void onPhotoResult(Uri uri);
 
-        public void onPhotoCancel();
+        void onPhotoCancel();
     }
 
     public OnPhotoResultListener getOnPhotoResultListener() {

@@ -28,7 +28,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:checked="true"
             android:padding="8dp"
             app:kswAnimationDuration="300"
             app:kswBackDrawable="@drawable/ios_back_drawable"
@@ -61,7 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="14dp"
-            android:text="@string/messsage_notice"
+            android:text="@string/message_notice"
             android:textColor="@color/text_color"
             android:textSize="16sp" />
 

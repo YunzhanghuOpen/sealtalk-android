@@ -23,10 +23,10 @@
             android:layout_marginRight="14dp"
             android:drawableLeft="@drawable/sealtalk_search"
             android:drawablePadding="6dp"
-            android:hint="手机号"
+            android:hint="@string/ac_search_phone_number"
             android:inputType="phone"
             android:maxLength="11"
-            android:singleLine="true" />
+            android:maxLines="1"/>
 
     </LinearLayout>
 
@@ -59,7 +59,7 @@
             android:layout_gravity="center_vertical"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textColor="@color/group_list_gray"
             android:textSize="18sp" />
 

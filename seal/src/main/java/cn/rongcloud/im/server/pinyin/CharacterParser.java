@@ -1,8 +1,24 @@
 package cn.rongcloud.im.server.pinyin;
 
+import android.graphics.Color;
+import android.net.Uri;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+
+import java.util.List;
+
+import cn.rongcloud.im.db.Friend;
+import cn.rongcloud.im.db.GroupMember;
+import io.rong.imlib.model.MessageContent;
+import io.rong.imlib.model.UserInfo;
+import io.rong.message.FileMessage;
+import io.rong.message.RichContentMessage;
+import io.rong.message.TextMessage;
+
 /**
  * Java汉字转换为拼音
- *
  */
 public class CharacterParser {
 
@@ -58,7 +74,7 @@ public class CharacterParser {
             -10519, -10331, -10329, -10328, -10322, -10315, -10309, -10307,
             -10296, -10281, -10274, -10270, -10262, -10260, -10256, -10254
                                              };
-    public static String[] pystr = new String[] { "a", "ai", "an", "ang", "ao",
+    public static String[] pystr = new String[] {"a", "ai", "an", "ang", "ao",
             "ba", "bai", "ban", "bang", "bao", "bei", "ben", "beng", "bi",
             "bian", "biao", "bie", "bin", "bing", "bo", "bu", "ca", "cai",
             "can", "cang", "cao", "ce", "ceng", "cha", "chai", "chan", "chang",
@@ -104,12 +120,19 @@ public class CharacterParser {
             "zhua", "zhuai", "zhuan", "zhuang", "zhui", "zhun", "zhuo", "zi",
             "zong", "zou", "zu", "zuan", "zui", "zun", "zuo"
                                                 };
-    private StringBuilder buffer;
+    private StringBuffer buffer;
     private String resource;
-    private static CharacterParser characterParser = new CharacterParser();
+    private static CharacterParser singleInstance;
 
     public static CharacterParser getInstance() {
-        return characterParser;
+        if (singleInstance == null) {
+            synchronized (CharacterParser.class) {
+                if (singleInstance == null) {
+                    singleInstance = new CharacterParser();
+                }
+            }
+        }
+        return singleInstance;
     }
 
     public String getResource() {
@@ -120,7 +143,9 @@ public class CharacterParser {
         this.resource = resource;
     }
 
-    /** * 汉字转成ASCII码 * * @param chs * @return */
+    /**
+     * 汉字转成ASCII码 * * @param chs * @return
+     */
     private int getChsAscii(String chs) {
         int asc = 0;
         try {
@@ -144,7 +169,9 @@ public class CharacterParser {
         return asc;
     }
 
-    /** * 单字解析 * * @param str * @return */
+    /**
+     * 单字解析 * * @param str * @return
+     */
     public String convert(String str) {
         String result = null;
         int ascii = getChsAscii(str);
@@ -161,14 +188,19 @@ public class CharacterParser {
         return result;
     }
 
-    /** * 词组解析 * * @param chs * @return */
+    /**
+     * 词组解析 * * @param chs * @return
+     */
     public String getSpelling(String chs) {
+        if (chs == null) {
+            return null;
+        }
         String key, value;
-        buffer = new StringBuilder();
+        buffer = new StringBuffer();
         for (int i = 0; i < chs.length(); i++) {
             key = chs.substring(i, i + 1);
             if (key.getBytes().length >= 2) {
-                value = (String) convert(key);
+                value = convert(key);
                 if (value == null) {
                     value = "unknown";
                 }
@@ -180,8 +212,184 @@ public class CharacterParser {
         return buffer.toString();
     }
 
-    public String getSpelling() {
-        return this.getSpelling(this.getResource());
+
+    public SpannableStringBuilder getColoredDisplayName(String filterStr, String displayName) {
+        return getColored(filterStr, displayName);
     }
 
+
+    public SpannableStringBuilder getColoredName(String filterStr, String name) {
+        return getColored(filterStr, name);
+    }
+
+    public SpannableStringBuilder getColored(String filterStr, String name) {
+        try {
+            String lowerCaseFilterStr = filterStr.toLowerCase();
+            String lowerCaseName = name.toLowerCase();
+            String lowerCaseNameSpelling = getSpelling(name).toLowerCase();
+            if (lowerCaseName.contains(lowerCaseFilterStr)) {
+                SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(name);
+                int index = lowerCaseName.indexOf(lowerCaseFilterStr);
+                spannableStringBuilder.setSpan(new ForegroundColorSpan(Color.parseColor("#0099ff")), index, index + filterStr.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                return spannableStringBuilder;
+            } else if (lowerCaseNameSpelling.startsWith(lowerCaseFilterStr)) {
+                SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(name);
+                int nameLength = name.length();
+                int showCount = 1;
+                for (int i = 0; i < nameLength; i++) {
+                    String subName = name.substring(0, i + 1);
+                    if (filterStr.length() > getSpelling(subName).length()) {
+                        showCount++;
+                        continue;
+                    } else {
+                        break;
+                    }
+                }
+                spannableStringBuilder.setSpan(new ForegroundColorSpan(Color.parseColor("#0099ff")), 0, showCount, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                return spannableStringBuilder;
+            } else {
+                SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(name);
+                return spannableStringBuilder;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new SpannableStringBuilder(name);
+    }
+
+    public SpannableStringBuilder getColoredGroupName(String filterStr, String groupName) {
+        return getColored(filterStr, groupName);
+    }
+
+    public SpannableStringBuilder getColoredNameList(String filterStr, List<GroupMember> filterGroupMemberList) {
+        SpannableStringBuilder nameList = new SpannableStringBuilder();
+        for (GroupMember groupMember : filterGroupMemberList) {
+            if (!TextUtils.isEmpty(groupMember.getDisplayName())) {
+                SpannableStringBuilder spannableStringBuilder = getColored(filterStr, groupMember.getDisplayName());
+                nameList.append(spannableStringBuilder)
+                .append(",");
+            } else {
+                SpannableStringBuilder spannableStringBuilder = getColored(filterStr, groupMember.getName());
+                nameList.append(spannableStringBuilder)
+                .append(",");
+            }
+        }
+        SpannableStringBuilder nameListDisplay;
+        int length = nameList.length();
+        if (length > 1) {
+            nameListDisplay = nameList.delete(length - 1, length);
+        } else {
+            nameListDisplay = SpannableStringBuilder.valueOf("");
+        }
+        return nameListDisplay;
+    }
+
+    public SpannableStringBuilder getColoredChattingRecord(String filterStr, MessageContent messageContent) {
+        SpannableStringBuilder messageText = new SpannableStringBuilder();
+        if (messageContent instanceof TextMessage) {
+            TextMessage textMessage = (TextMessage) messageContent;
+            String textMessageContent = textMessage.getContent();
+            messageText = getOmitColored(filterStr, textMessageContent, 0);
+        }
+        if (messageContent instanceof RichContentMessage) {
+            RichContentMessage richContentMessage = (RichContentMessage) messageContent;
+            String messageTitle = richContentMessage.getTitle();
+            messageText = getOmitColored(filterStr, messageTitle, 1);
+            if (messageText.length() == 0) {
+                SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder("[链接] ");
+                spannableStringBuilder.append(messageTitle);
+                messageText = spannableStringBuilder;
+            }
+        }
+        if (messageContent instanceof FileMessage) {
+            FileMessage fileMessage = (FileMessage) messageContent;
+            String fileName = fileMessage.getName();
+            messageText = getOmitColored(filterStr, fileName, 2);
+        }
+        return messageText;
+    }
+
+    private SpannableStringBuilder getOmitColored(String filterStr, String content, int type) {
+        SpannableStringBuilder messageText = new SpannableStringBuilder();
+        String lowerCaseFilterStr = filterStr.toLowerCase();
+        String lowerCaseText = content.toLowerCase();
+        if (lowerCaseText.contains(lowerCaseFilterStr)) {
+            SpannableStringBuilder finalBuilder = new SpannableStringBuilder();
+            if (type == 0) {
+            } else if (type == 1) {
+                finalBuilder.append("[链接] ");
+            } else if (type == 2) {
+                finalBuilder.append("[文件] ");
+            }
+            int length = content.length();
+            int firstIndex = lowerCaseText.indexOf(lowerCaseFilterStr);
+            String subString = content.substring(firstIndex);
+            int restLength;
+            if (subString != null) {
+                restLength = subString.length();
+            } else {
+                restLength = 0;
+            }
+            if (length <= 12) {
+                SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(content);
+                spannableStringBuilder.setSpan(new ForegroundColorSpan(Color.parseColor("#0099ff")), firstIndex, firstIndex + filterStr.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                return finalBuilder.append(spannableStringBuilder);
+
+            } else {
+                //首次出现搜索字符的index加上filter的length；
+                int totalLength = firstIndex + filterStr.length();
+                if (totalLength < 12) {
+                    String smallerString = content.substring(0, 12);
+                    SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(smallerString);
+                    spannableStringBuilder.setSpan(new ForegroundColorSpan(Color.parseColor("#0099ff")), firstIndex, firstIndex + filterStr.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                    spannableStringBuilder.append("...");
+                    return finalBuilder.append(spannableStringBuilder);
+                } else if (restLength < 12) {
+                    String smallerString = content.substring(length - 12, length);
+                    String smallerStringLowerCase = lowerCaseText.substring(length - 12, length);
+                    int index = smallerStringLowerCase.indexOf(lowerCaseFilterStr);
+                    SpannableStringBuilder builder = new SpannableStringBuilder("...");
+                    SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(smallerString);
+                    spannableStringBuilder.setSpan(new ForegroundColorSpan(Color.parseColor("#0099ff")), index, index + filterStr.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                    builder.append(spannableStringBuilder);
+                    return finalBuilder.append(builder);
+                } else {
+                    String smallerString = content.substring(firstIndex - 5, firstIndex + 7);
+                    String smallerStringLowerCase = lowerCaseText.substring(firstIndex - 5, firstIndex + 7);
+                    int index = smallerStringLowerCase.indexOf(lowerCaseFilterStr);
+                    SpannableStringBuilder builder = new SpannableStringBuilder("...");
+                    SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(smallerString);
+                    spannableStringBuilder.setSpan(new ForegroundColorSpan(Color.parseColor("#0099ff")), index, getSmallerLength(smallerString.length(), index + filterStr.length()), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                    builder.append(spannableStringBuilder);
+                    builder.append("...");
+                    return finalBuilder.append(builder);
+                }
+            }
+        }
+        return messageText;
+    }
+
+
+    public Friend generateFriendFromUserInfo(UserInfo userInfo) {
+
+        if (userInfo != null) {
+            return new Friend(userInfo.getUserId(), userInfo.getName(), userInfo.getPortraitUri());
+        }
+        return null;
+    }
+
+    public UserInfo generateUserInfoFromFriend(Friend friend) {
+        if (friend != null) {
+            UserInfo userInfo = new UserInfo(friend.getUserId(),
+                                             friend.getName(),
+                                             friend.getPortraitUri());
+            return userInfo;
+        }
+
+        return null;
+    }
+
+    private int getSmallerLength(int stringLength, int endIndex) {
+        return stringLength > endIndex + 1 ? endIndex : stringLength;
+    }
 }

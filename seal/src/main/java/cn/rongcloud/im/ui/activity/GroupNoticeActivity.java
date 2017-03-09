@@ -7,14 +7,15 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import cn.rongcloud.im.R;
 import cn.rongcloud.im.server.widget.DialogWithYesOrNoUtils;
+import io.rong.imkit.emoticon.AndroidEmoji;
 import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
-import io.rong.imkit.utils.AndroidEmoji;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
@@ -23,9 +24,7 @@ import io.rong.imlib.model.Message;
 import io.rong.message.TextMessage;
 
 @SuppressWarnings("deprecation")
-public class GroupNoticeActivity extends Activity implements View.OnClickListener, TextWatcher {
-    TextView mCancelButton;
-    TextView mDoneButton;
+public class GroupNoticeActivity extends BaseActivity implements View.OnClickListener, TextWatcher {
     EditText mEdit;
     Conversation.ConversationType mConversationType;
     String mTargetId;
@@ -33,42 +32,46 @@ public class GroupNoticeActivity extends Activity implements View.OnClickListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_group_notice);
-        mCancelButton = (TextView) findViewById(R.id.cancel);
-        mDoneButton = (TextView) findViewById(R.id.done);
         mEdit = (EditText) findViewById(R.id.edit_area);
         Intent intent = getIntent();
         mConversationType = Conversation.ConversationType.setValue(intent.getIntExtra("conversationType", 0));
         mTargetId = getIntent().getStringExtra("targetId");
-        mCancelButton.setOnClickListener(this);
-        mDoneButton.setOnClickListener(this);
-        mDoneButton.setClickable(false);
+        setTitle(R.string.group_announcement);
+        Button rightButton = getHeadRightButton();
+        rightButton.setVisibility(View.GONE);
+        mHeadRightText.setVisibility(View.VISIBLE);
+        mHeadRightText.setText(R.string.Done);
+        mHeadRightText.setTextColor(getResources().getColor(android.R.color.darker_gray));
+        mHeadRightText.setClickable(false);
+        mHeadRightText.setOnClickListener(this);
         mEdit.addTextChangedListener(this);
+    }
+
+    @Override
+    public void onHeadLeftButtonClick(View v) {
+        DialogWithYesOrNoUtils.getInstance().showDialog(this, getString(R.string.group_notice_exist_confirm), new DialogWithYesOrNoUtils.DialogCallBack() {
+            @Override
+            public void executeEvent() {
+                finish();
+            }
+
+            @Override
+            public void executeEditEvent(String editText) {
+
+            }
+
+            @Override
+            public void updatePassword(String oldPassword, String newPassword) {
+
+            }
+        });
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.cancel:
-                DialogWithYesOrNoUtils.getInstance().showDialog(this, getString(R.string.group_notice_exist_confirm), new DialogWithYesOrNoUtils.DialogCallBack() {
-                    @Override
-                    public void executeEvent() {
-                        finish();
-                    }
-
-                    @Override
-                    public void executeEditEvent(String editText) {
-
-                    }
-
-                    @Override
-                    public void updatePassword(String oldPassword, String newPassword) {
-
-                    }
-                });
-                break;
-            case R.id.done:
+            case R.id.text_right:
                 DialogWithYesOrNoUtils.getInstance().showDialog(this, getString(R.string.group_notice_post_confirm), new DialogWithYesOrNoUtils.DialogCallBack() {
                     @Override
                     public void executeEvent() {
@@ -118,11 +121,11 @@ public class GroupNoticeActivity extends Activity implements View.OnClickListene
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (s.toString().length() > 0) {
-            mDoneButton.setClickable(true);
-            mDoneButton.setTextColor(getResources().getColor(android.R.color.white));
+            mHeadRightText.setClickable(true);
+            mHeadRightText.setTextColor(getResources().getColor(android.R.color.white));
         } else {
-            mDoneButton.setClickable(false);
-            mDoneButton.setTextColor(getResources().getColor(android.R.color.darker_gray));
+            mHeadRightText.setClickable(false);
+            mHeadRightText.setTextColor(getResources().getColor(android.R.color.darker_gray));
         }
     }
 

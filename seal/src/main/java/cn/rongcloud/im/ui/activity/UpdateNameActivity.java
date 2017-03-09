@@ -4,9 +4,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -37,12 +34,16 @@ public class UpdateNameActivity extends BaseActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_name);
-        setTitle(R.string.nickname);
-        Button rightButton = getBtn_right();
-        rightButton.setText("确定");
-        rightButton.setOnClickListener(this);
+        setTitle(getString(R.string.update_name));
+        Button rightButton = getHeadRightButton();
+        rightButton.setVisibility(View.GONE);
+        mHeadRightText.setVisibility(View.VISIBLE);
+        mHeadRightText.setText(getString(R.string.confirm));
+        mHeadRightText.setOnClickListener(this);
         mNameEditText = (ClearWriteEditText) findViewById(R.id.update_name);
         sp = getSharedPreferences("config", MODE_PRIVATE);
+        mNameEditText.setText(sp.getString(SealConst.SEALTALK_LOGIN_NAME, ""));
+        mNameEditText.setSelection(sp.getString(SealConst.SEALTALK_LOGIN_NAME, "").length());
         editor = sp.edit();
 
     }
@@ -57,13 +58,13 @@ public class UpdateNameActivity extends BaseActivity implements View.OnClickList
     public void onSuccess(int requestCode, Object result) {
         SetNameResponse sRes = (SetNameResponse) result;
         if (sRes.getCode() == 200) {
-            editor.putString("loginnickname", newName);
+            editor.putString(SealConst.SEALTALK_LOGIN_NAME, newName);
             editor.commit();
 
             BroadcastManager.getInstance(mContext).sendBroadcast(SealConst.CHANGEINFO);
 
-            RongIM.getInstance().refreshUserInfoCache(new UserInfo(sp.getString("loginid", ""), newName, Uri.parse(sp.getString("loginPortrait", ""))));
-            RongIM.getInstance().setCurrentUserInfo(new UserInfo(sp.getString("loginid", ""), newName, Uri.parse(sp.getString("loginPortrait", ""))));
+            RongIM.getInstance().refreshUserInfoCache(new UserInfo(sp.getString(SealConst.SEALTALK_LOGIN_ID, ""), newName, Uri.parse(sp.getString(SealConst.SEALTALK_LOGING_PORTRAIT, ""))));
+            RongIM.getInstance().setCurrentUserInfo(new UserInfo(sp.getString(SealConst.SEALTALK_LOGIN_ID, ""), newName, Uri.parse(sp.getString(SealConst.SEALTALK_LOGING_PORTRAIT, ""))));
 
             LoadDialog.dismiss(mContext);
             NToast.shortToast(mContext, "昵称更改成功");

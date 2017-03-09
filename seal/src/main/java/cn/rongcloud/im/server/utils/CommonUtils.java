@@ -110,10 +110,7 @@ public class CommonUtils {
      */
     public static boolean checkSDCard() {
         String  flag = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(flag)) {
-            return true;
-        }
-        return false;
+        return Environment.MEDIA_MOUNTED.equals(flag);
     }
 
     /**
@@ -266,10 +263,7 @@ public class CommonUtils {
      * @return true为横屏，false为竖屏
      */
     public static boolean isLandscape(Context context) {
-        if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            return true;
-        }
-        return false;
+        return context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
 
     /**

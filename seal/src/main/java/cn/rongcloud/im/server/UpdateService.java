@@ -247,12 +247,21 @@ public class UpdateService extends Service {
     }
 
     private void buildNotification() {
+
+
+        boolean isLollipop = (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP);
+        int smallIcon = getResources().getIdentifier("notification_small_icon", "drawable", getPackageName());
+
+        if (smallIcon <= 0 || !isLollipop) {
+            smallIcon = getApplicationInfo().icon;
+        }
+
         manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         builder = new NotificationCompat.Builder(this);
-        builder.setContentTitle(getString(R.string.update_app_model_prepare, appName))
-        .setWhen(System.currentTimeMillis())
-        .setProgress(100, 1, false)
-        .setSmallIcon(icoSmallResId)
+        builder.setContentTitle(getString(R.string.update_app_model_prepare))
+                .setWhen(System.currentTimeMillis())
+                .setProgress(100, 1, false)
+        .setSmallIcon(smallIcon)
         .setLargeIcon(BitmapFactory.decodeResource(
                           getResources(), icoResId))
         .setDefaults(downloadNotificationFlag);
@@ -262,7 +271,7 @@ public class UpdateService extends Service {
 
     private void start() {
         builder.setContentTitle(appName);
-        builder.setContentText(getString(R.string.update_app_model_prepare, 1));
+        builder.setContentText(getString(R.string.update_app_model_prepare));
         manager.notify(notifyId, builder.build());
         sendLocalBroadcast(UPDATE_PROGRESS_STATUS, 1);
         if (updateProgressListener != null) {

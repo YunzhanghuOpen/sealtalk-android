@@ -47,6 +47,7 @@ import cn.rongcloud.im.server.response.DeleteGroupMemberResponse;
 import cn.rongcloud.im.server.response.DismissGroupResponse;
 import cn.rongcloud.im.server.response.FriendInvitationResponse;
 import cn.rongcloud.im.server.response.GetBlackListResponse;
+import cn.rongcloud.im.server.response.GetFriendInfoByIDResponse;
 import cn.rongcloud.im.server.response.GetGroupInfoResponse;
 import cn.rongcloud.im.server.response.GetGroupMemberResponse;
 import cn.rongcloud.im.server.response.GetGroupResponse;
@@ -428,6 +429,20 @@ public class SealAction extends BaseAction {
         return response;
     }
 
+    /**
+     * 根据userId去服务器查询好友信息
+     *
+     * @throws HttpException
+     */
+    public GetFriendInfoByIDResponse getFriendInfoByID(String userid) throws HttpException {
+        String url = getURL("friendship/" + userid + "/profile");
+        String result = httpManager.get(url);
+        GetFriendInfoByIDResponse response = null;
+        if (!TextUtils.isEmpty(result)) {
+            response = jsonToBean(result, GetFriendInfoByIDResponse.class);
+        }
+        return response;
+    }
 
     /**
      * 同意对方好友邀请
@@ -910,5 +925,25 @@ public class SealAction extends BaseAction {
         }
         return response;
     }
+
+//    /**
+//     * 根据userId去服务器查询好友信息
+//     *
+//     * @throws HttpException
+//     */
+//    public GetFriendInfoByIDResponse getFriendInfoByID(String userid) throws HttpException {
+//        String url = getURL("friendship/" + userid + "/profile");
+//        String result = httpManager.get(url);
+//        GetFriendInfoByIDResponse response = null;
+//        if (!TextUtils.isEmpty(result)) {
+//            response = jsonToBean(result, GetFriendInfoByIDResponse.class);
+//        }
+//        return response;
+//    }
+    /**
+     //     * 根据userId去服务器查询好友信息
+     //     *
+     //     * @throws HttpException
+     //     */
 
 }

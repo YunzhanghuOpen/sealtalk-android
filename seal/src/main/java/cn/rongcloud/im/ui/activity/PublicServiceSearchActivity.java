@@ -10,7 +10,6 @@ public class PublicServiceSearchActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pub_search);
-
+        setTitle(R.string.rc_search);
     }
-
 }

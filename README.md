@@ -16,31 +16,59 @@ Android App of SealTalk powered by RongCloud.
 - Different social situations such as single chat，group chat，chatroom satisfy your needs, what’s more, [live video](http://rongcloud.cn/live) can be simply implemented. [Customer service](http://rongcloud.cn/customservice)? Yes, it’s simpler than your imagination.
 - To be continued...
 
-## ScreenShots
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image1.jpg)<br/>
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image2.jpg)<br/>
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image3.jpg)<br/>
+## Gif
+
+### Add RedPacket
+ 
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/gif/redpacket.gif)<br/>
+ 
+### Powerful global searching
+ 
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/gif/search.gif)<br/>
+ 
+### Single and muliple audio and video
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/gif/audio_video.gif)<br/>
+### Customer service, service robot
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/gif/customer_service.gif)<br/>
+### Group
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/gif/group.gif)<br/>
 
 ## APK
 [Download Apk](http://rongcloud.cn/sealtalk)<br/>
 
+## Jcenter & Maven
+
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/maven.png)<br/>
+
+```Java
+
+dependencies {
+
+    compile 'cn.rongcloud.android:IMLib:2.8.6'
+    compile 'cn.rongcloud.android:IMKit:2.8.6'
+    compile 'cn.rongcloud.android:CallLib:2.8.6'
+    compile 'cn.rongcloud.android:CallKit:2.8.6'
+    compile 'cn.rongcloud.android:RedPacket:2.8.6'
+}
+
+```
+
+[Sample and Uses](https://github.com/13120241790/RongCloudJcenter)<br/>
+
 ## UML
-  LoginClassDiagram
- ![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/LoginClassDiagram.png)<br/>
+  SealTalk UML
+ ![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/SealTalk_UML.png)<br/>
 
 ## Uses
 #### Step 1:
 [Download RongCloud SDK](http://rongcloud.cn/downloads) Android IMKit SDK Package
 #### Step 2:
-Import IMKit SDK as module in Android Studio，then add dependency；(Temporary does not support Maven)
+Import IMKit SDK as module in Android Studio，then add dependency.
 #### Step 3:
 Read Android [Android Dev Doc](http://www.rongcloud.cn/docs/android.html), Learning knowledge
 #### Step 4:
 [Download RongCloud Demo](https://github.com/sealtalk/sealtalk-android) , After finishing integrating IMKit and adding dependency, read demo source code,and get the functional section you want.
 
-## Eclipse
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/eclipse_icon.png)<br/>
-[eclipse link](https://github.com/AnOneTable/sealtalk-eclipse)
 
 ## Support
  - [App Parser Doc](https://github.com/sealtalk/sealtalk-android/blob/master/sealtalk_parser.md)

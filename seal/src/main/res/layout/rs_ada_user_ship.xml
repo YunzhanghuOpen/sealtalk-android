@@ -34,7 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textColor="#353535"
             android:textSize="16sp" />
 
@@ -43,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textSize="12sp"
             android:visibility="gone" />
 
@@ -61,7 +61,7 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="5dp"
-        android:text="已添加"
+        android:text="@string/rs_ada_user_ship_add"
         android:textColor="#999999"
         android:textSize="14sp" />
 

@@ -12,7 +12,7 @@
         android:gravity="center"
         android:hint="@string/original_password_text"
         android:inputType="numberPassword"
-        android:singleLine="true" />
+        android:maxLines="1" />
 
     <EditText
         android:id="@+id/new_password"
@@ -22,7 +22,7 @@
         android:gravity="center"
         android:hint="@string/new_password"
         android:inputType="numberPassword"
-        android:singleLine="true" />
+        android:maxLines="1"/>
 
     <EditText
         android:id="@+id/new_password2"
@@ -32,6 +32,6 @@
         android:gravity="center"
         android:hint="@string/confirm_new_password"
         android:inputType="numberPassword"
-        android:singleLine="true" />
+        android:maxLines="1" />
 
 </LinearLayout>

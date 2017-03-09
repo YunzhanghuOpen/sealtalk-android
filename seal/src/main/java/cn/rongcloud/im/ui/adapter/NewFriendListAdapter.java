@@ -1,18 +1,18 @@
 package cn.rongcloud.im.ui.adapter;
 
 import android.content.Context;
-import android.text.TextUtils;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-
 import cn.rongcloud.im.App;
 import cn.rongcloud.im.R;
+import cn.rongcloud.im.SealUserInfoManager;
 import cn.rongcloud.im.server.response.UserRelationshipResponse;
-import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
+import io.rong.imageloader.core.ImageLoader;
+import io.rong.imlib.model.UserInfo;
 
 @SuppressWarnings("deprecation")
 public class NewFriendListAdapter extends BaseAdapters {
@@ -26,7 +26,7 @@ public class NewFriendListAdapter extends BaseAdapters {
         ViewHolder holder;
         if (convertView == null) {
             holder = new ViewHolder();
-            convertView = mInflater.inflate(R.layout.rs_ada_user_ship, null);
+            convertView = mInflater.inflate(R.layout.rs_ada_user_ship, parent, false);
             holder.mName = (TextView) convertView.findViewById(R.id.ship_name);
             holder.mMessage = (TextView) convertView.findViewById(R.id.ship_message);
             holder.mHead = (SelectableRoundedImageView) convertView.findViewById(R.id.new_header);
@@ -37,11 +37,13 @@ public class NewFriendListAdapter extends BaseAdapters {
         }
         final UserRelationshipResponse.ResultEntity bean = (UserRelationshipResponse.ResultEntity) dataSet.get(position);
         holder.mName.setText(bean.getUser().getNickname());
-        if (TextUtils.isEmpty(bean.getUser().getPortraitUri())) {
-            ImageLoader.getInstance().displayImage(RongGenerate.generateDefaultAvatar(bean.getUser().getNickname(), bean.getUser().getId()), holder.mHead, App.getOptions());
-        } else {
-            ImageLoader.getInstance().displayImage(bean.getUser().getPortraitUri(), holder.mHead, App.getOptions());
+        String portraitUri = null;
+        if (bean != null && bean.getUser() != null) {
+            UserRelationshipResponse.ResultEntity.UserEntity userEntity = bean.getUser();
+            portraitUri = SealUserInfoManager.getInstance().getPortraitUri(new UserInfo(
+                              userEntity.getId(), userEntity.getNickname(), Uri.parse(userEntity.getPortraitUri())));
         }
+        ImageLoader.getInstance().displayImage(portraitUri, holder.mHead, App.getOptions());
         holder.mMessage.setText(bean.getMessage());
         holder.mState.setOnClickListener(new View.OnClickListener() {
             @Override

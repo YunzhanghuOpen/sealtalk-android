@@ -19,31 +19,55 @@ Android 应用 SealTalk 由 融云 RongCloud 出品
 
 
 
-## 截屏
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image1.jpg)<br/>
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image2.jpg)<br/>
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/image3.jpg)<br/>
-
+## Gif
+### 新增红包
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/gif/redpacket.gif)<br/>
+### 强大的全局搜索
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/gif/search.gif)<br/>
+### 单人、多人音视频
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/gif/audio_video.gif)<br/>
+### 客服/机器人服务
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/gif/customer_service.gif)<br/>
+### 群组
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/gif/group.gif)<br/>
 ## APK
 [下载 Apk](http://rongcloud.cn/sealtalk)<br/>
 
+## Jcenter & Maven
+
+![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/maven.png)<br/>
+
+```Java
+
+dependencies {
+
+    compile 'cn.rongcloud.android:IMLib:2.8.6'
+    compile 'cn.rongcloud.android:IMKit:2.8.6'
+    compile 'cn.rongcloud.android:CallLib:2.8.6'
+    compile 'cn.rongcloud.android:CallKit:2.8.6'
+    compile 'cn.rongcloud.android:RedPacket:2.8.6'
+}
+
+```
+
+[示例 和 使用](https://github.com/13120241790/RongCloudJcenter)<br/>
+
+
+
 ## UML
  登录类图
- ![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/LoginClassDiagram.png)<br/>
+ ![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/SealTalk_UML.png)<br/>
 
 ## 使用
 #### Step 1:
 [下载融云 SDK](http://rongcloud.cn/downloads) Android IMKit SDK包
 #### Step 2:
-将 IMKit SDK 包当做 Model 导入 Android Studio , 再从 app 工程对其进行引用(暂不支持 Maven)
+将 IMKit SDK 包当做 Model 导入 Android Studio , 再从 app 工程对其进行引用.
 #### Step 3:
 阅读 Android [Android 开发文档](http://www.rongcloud.cn/docs/android.html),熟悉 IM 相关概念 和 接口以及初步集成
 #### Step 4:
 [下载融云 Demo](https://github.com/sealtalk/sealtalk-android) , 在初步集成和依赖好 IMKit 包后, 阅读 demo 源码 Get 你需要的功能模块
 
-## Eclipse
-![image](https://github.com/sealtalk/sealtalk-android/blob/master/screenshots/eclipse_icon.png)<br/>
-[eclipse link](https://github.com/AnOneTable/sealtalk-eclipse)
 
 ## 支持
  - [App 解析文档](https://github.com/sealtalk/sealtalk-android/blob/master/sealtalk_parser.md)

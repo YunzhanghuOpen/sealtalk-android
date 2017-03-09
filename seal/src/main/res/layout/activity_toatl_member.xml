@@ -18,7 +18,7 @@
         android:drawableLeft="@drawable/sealtalk_search"
         android:drawablePadding="10dp"
         android:hint="@string/Search"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textSize="16sp" />
 
     <View

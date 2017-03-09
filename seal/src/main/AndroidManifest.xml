@@ -66,6 +66,7 @@
             android:name=".ui.activity.MainActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
+        android:configChanges="orientation|keyboardHidden|screenSize"
             android:windowSoftInputMode="stateHidden|adjustPan">
 
             <intent-filter>
@@ -82,7 +83,7 @@
             android:name=".ui.activity.GroupListActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.FriendDetailActivity"
+            android:name=".ui.activity.PrivateChatDetailActivity"
             android:screenOrientation="portrait" />
         <!--注册页面-->
         <activity
@@ -105,6 +106,7 @@
         <activity
             android:name=".ui.activity.DisturbActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".ui.activity.MessageDisturbActivity" />
         <!--隐私-->
         <activity
             android:name=".ui.activity.PrivacyActivity"
@@ -154,10 +156,6 @@
             android:name=".ui.activity.PublicServiceSearchActivity"
             android:screenOrientation="portrait" />
 
-        <activity
-            android:name=".ui.activity.RealTimeLocationActivity"
-            android:screenOrientation="portrait" />
-
         <!--选择联系人 多人聊天-->
         <activity
             android:name=".ui.activity.SelectFriendsActivity"
@@ -168,6 +166,9 @@
         <activity
             android:name=".ui.activity.GroupDetailActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.ReadReceiptDetailActivity"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".ui.activity.DiscussionDetailActivity"
@@ -177,34 +178,8 @@
             android:name=".ui.activity.ForgetPasswordActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.AMAPLocationActivity"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".ui.activity.GroupNoticeActivity"
             android:screenOrientation="portrait" />
-        <!--此处 Intent filter 来自于 Kit manifest RongWebviewActivity-->
-        <activity
-            android:name=".ui.activity.SealWebActivity"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="io.rong.imkit.intent.action.webview" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <intent-filter>
-                <data
-                    android:host="*"
-                    android:scheme="http" />
-                <data
-                    android:host="*"
-                    android:scheme="https" />
-
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
-        </activity>
 
         <!--公众-->
         <activity
@@ -281,8 +256,26 @@
                     android:scheme="rong" />
             </intent-filter>
         </activity>
-
-
+        <activity android:name=".ui.activity.SealSearchActivity"
+            android:configChanges="orientation|keyboardHidden|locale"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateVisible|adjustPan"/>
+        <activity android:name=".ui.activity.SealSearchMoreFriendsActivity"
+            android:configChanges="orientation|keyboardHidden|locale"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
+        <activity android:name=".ui.activity.SealSearchMoreGroupActivity"
+            android:configChanges="orientation|keyboardHidden|locale"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
+        <activity android:name=".ui.activity.SealSearchMoreChattingRecordsActivity"
+            android:configChanges="orientation|keyboardHidden|locale"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
+        <activity android:name=".ui.activity.SealSearchChattingDetailActivity"
+            android:configChanges="orientation|keyboardHidden|locale"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity
             android:name=".ui.activity.UpdateNameActivity"
             android:screenOrientation="portrait" />
@@ -305,23 +298,13 @@
             android:process=":ipc" />
 
         <activity
-            android:name="io.rong.imkit.tools.RongWebviewActivity"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".ui.activity.SingleContactActivity"
-            android:screenOrientation="portrait" />
-        <activity
             android:name="io.rong.imkit.widget.provider.TakingPicturesActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" />
 
         <service android:name=".server.UpdateService" />
-
-        <activity
-            android:name=".ui.activity.PersonalProfileActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
+        <activity android:name=".ui.activity.UserDetailActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.activity.SharedReceiverActivity"
             android:screenOrientation="portrait">
@@ -398,6 +381,13 @@
             android:name="com.xiaomi.mipush.sdk.MessageHandleService"
             android:enabled="true" />
         <!--注：此service必须在2.2.5版本以后（包括2.2.5版本）加入-->
+
+        <service
+            android:name="com.xiaomi.push.service.XMJobService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <!--注：此service必须在3.0.1版本以后（包括3.0.1版本）加入-->
 
         <receiver
             android:name="com.xiaomi.push.service.receivers.NetworkStatusReceiver"
@@ -507,6 +497,15 @@
 
         <!--第三方推送的权限 广播 服务 配置结束-->
 
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="cn.rongcloud.im.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/rc_file_path" />
+        </provider>
     </application>
 
 

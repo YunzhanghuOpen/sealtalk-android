@@ -47,21 +47,9 @@ public class UserInfoEngine implements OnDataListener {
 
     private static final int REQUSERINFO = 4234;
 
-
-    private UserInfo userInfo;
-
-    public UserInfo getUserInfo() {
-        return userInfo;
-    }
-
-    public void setUserInfo(UserInfo userInfo) {
-        this.userInfo = userInfo;
-    }
-
-    public UserInfo startEngine(String userid) {
+    public void startEngine(String userid) {
         setUserid(userid);
         AsyncTaskManager.getInstance(context).request(userid, REQUSERINFO, this);
-        return getUserInfo();
     }
 
     @Override
@@ -74,7 +62,7 @@ public class UserInfoEngine implements OnDataListener {
         if (result != null) {
             GetUserInfoByIdResponse res = (GetUserInfoByIdResponse) result;
             if (res.getCode() == 200) {
-                userInfo = new UserInfo(res.getResult().getId(), res.getResult().getNickname(), Uri.parse(res.getResult().getPortraitUri()));
+                UserInfo userInfo = new UserInfo(res.getResult().getId(), res.getResult().getNickname(), Uri.parse(res.getResult().getPortraitUri()));
                 if (mListener != null) {
                     mListener.onResult(userInfo);
                 }

@@ -10,8 +10,14 @@ public class SealConst {
     public static final boolean ISOPENDISCUSSION = false;
     public static final int PERSONALPROFILEFROMCONVERSATION = 3;
     public static final int PERSONALPROFILEFROMGROUP = 4;
+    public static final String GROUP_LIST_UPDATE = "GROUP_LIST_UPDATE";
     public static final String EXIT = "EXIT";
     public static final String CHANGEINFO = "CHANGEINFO";
-    public static final String SEALTALKVERSION = "1.1.4";
+    public static final String SEALTALKVERSION = "1.1.13";
+    public static final String SEALTALK_LOGIN_ID = "loginid";
+    public static final String SEALTALK_LOGIN_NAME = "loginnickname";
+    public static final String SEALTALK_LOGING_PORTRAIT = "loginPortrait";
+    public static final String SEALTALK_LOGING_PHONE = "loginphone";
+    public static final String SEALTALK_LOGING_PASSWORD = "loginpassword";
 
 }

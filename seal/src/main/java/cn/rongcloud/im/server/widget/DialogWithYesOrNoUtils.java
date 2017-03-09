@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import cn.rongcloud.im.R;
+import cn.rongcloud.im.SealConst;
 import cn.rongcloud.im.server.utils.NToast;
 
 
@@ -98,13 +99,17 @@ public class DialogWithYesOrNoUtils {
                 String old = oldPasswordEdit.getText().toString().trim();
                 String new1 = newPasswrodEdit.getText().toString().trim();
                 String new2 = newPassword2Edit.getText().toString().trim();
-                String cachePassword = context.getSharedPreferences("config", Context.MODE_PRIVATE).getString("loginpassword", "");
+                String cachePassword = context.getSharedPreferences("config", Context.MODE_PRIVATE).getString(SealConst.SEALTALK_LOGING_PASSWORD, "");
                 if (TextUtils.isEmpty(old)) {
                     NToast.shortToast(context, R.string.original_password);
                     return;
                 }
                 if (TextUtils.isEmpty(new1)) {
                     NToast.shortToast(context, R.string.new_password_not_null);
+                    return;
+                }
+                if (new1.length() < 6 || new1.length() > 16) {
+                    NToast.shortToast(context, R.string.passwords_invalid);
                     return;
                 }
                 if (TextUtils.isEmpty(new2)) {

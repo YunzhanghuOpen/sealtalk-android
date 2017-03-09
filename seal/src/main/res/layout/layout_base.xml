@@ -6,64 +6,42 @@
     android:background="@color/seal_bg"
     android:orientation="vertical">
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/layout_head"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="48dip"
-        android:background="@color/de_title_bg">
+        android:background="@color/de_title_bg"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/btn_left"
-            android:layout_width="wrap_content"
+            android:layout_width="48dp"
             android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:alpha="255"
             android:background="@drawable/selector_btn_back"
-            android:drawableLeft="@drawable/actionbar_back"
-            android:drawablePadding="10dip"
-            android:minWidth="40dip"
-            android:onClick="onLeftClick"
-            android:paddingLeft="10dip"
-            android:paddingRight="10dip"
-            android:singleLine="true"
-            android:text="@string/app_name"
-            android:textColor="@drawable/selector_btn_top"
-            android:textSize="18sp" />
-
-        <LinearLayout
-            android:id="@+id/layout_head_title"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:background="@drawable/selector_btn_headtitle"
+            android:drawableLeft="@drawable/ac_back_icon"
             android:gravity="center_vertical"
-            android:paddingLeft="10dip"
-            android:paddingRight="10dip"
-            android:visibility="gone">
+            android:onClick="onHeadLeftButtonClick"
+            android:textColor="@drawable/selector_btn_top" />
 
-            <ImageView
-                android:id="@+id/image_head"
-                android:layout_width="35dip"
-                android:layout_height="35dip"
-                android:background="@drawable/ic_default_head" />
+        <View
+            android:layout_width="1dp"
+            android:layout_height="24dp"
+            android:layout_marginBottom="12dp"
+            android:layout_marginTop="12dp"
+            android:background="#0083e0" />
 
-            <TextView
-                android:id="@+id/tv_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLength="20"
-                android:padding="5dip"
-                android:singleLine="true"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
 
-            <ImageView
-                android:id="@+id/image_head_arrow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/ic_down" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/tv_title"
+            android:gravity="center_vertical|left"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:maxLength="20"
+            android:layout_marginLeft="12dp"
+            android:maxLines="1"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/btn_right"
@@ -73,10 +51,24 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="15dp"
             android:background="@null"
-            android:onClick="onRightClick"
-            android:singleLine="true"
+            android:onClick="onHeadRightButtonClick"
+            android:maxLines="1"
             android:textColor="@drawable/selector_btn_top" />
-    </RelativeLayout>
+
+        <TextView
+            android:id="@+id/text_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="15dp"
+            android:clickable="true"
+            android:maxLines="1"
+            android:textColor="#fff"
+            android:textSize="18sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
 
     <ViewFlipper
         android:id="@+id/layout_container"

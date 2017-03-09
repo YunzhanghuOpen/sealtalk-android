@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF"
+    android:background="#ebebeb"
     android:orientation="vertical">
 
 
@@ -17,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="14dp"
-            android:text="聊天室"
+            android:text="@string/fr_chat_room"
             android:textColor="#353535"
             android:textSize="16sp" />
 
@@ -45,7 +44,7 @@
             android:drawableLeft="@drawable/icon_1"
             android:drawablePadding="14dp"
             android:gravity="center_vertical"
-            android:text="聊天室 I"
+            android:text="@string/fr_chat_room_one"
             android:textColor="@color/text_color" />
 
 
@@ -73,7 +72,7 @@
             android:drawableLeft="@drawable/icon_2"
             android:drawablePadding="14dp"
             android:gravity="center_vertical"
-            android:text="聊天室 II"
+            android:text="@string/fr_chat_room_two"
             android:textColor="@color/text_color" />
 
 
@@ -101,7 +100,7 @@
             android:drawableLeft="@drawable/icon_3"
             android:drawablePadding="14dp"
             android:gravity="center_vertical"
-            android:text="聊天室 III"
+            android:text="@string/fr_chat_room_three"
             android:textColor="@color/text_color" />
 
 
@@ -129,7 +128,7 @@
             android:drawableLeft="@drawable/icon_4"
             android:drawablePadding="14dp"
             android:gravity="center_vertical"
-            android:text="聊天室 IV"
+            android:text="@string/fr_chat_room_four"
             android:textColor="@color/text_color" />
 
 

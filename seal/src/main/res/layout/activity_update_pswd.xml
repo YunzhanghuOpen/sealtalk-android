@@ -24,7 +24,7 @@
         android:maxLength="16"
         android:paddingLeft="14dp"
         android:paddingRight="14dp"
-        android:password="true"
+        android:inputType="textPassword"
         android:textColor="#dadada"
         android:textSize="14sp" />
 
@@ -48,7 +48,7 @@
         android:maxLength="16"
         android:paddingLeft="14dp"
         android:paddingRight="14dp"
-        android:password="true"
+        android:inputType="textPassword"
         android:textColor="#dadada"
         android:textSize="14sp" />
 
@@ -72,7 +72,7 @@
         android:maxLength="16"
         android:paddingLeft="14dp"
         android:paddingRight="14dp"
-        android:password="true"
+        android:inputType="textPassword"
         android:textColor="#dadada"
         android:textSize="14sp" />
 

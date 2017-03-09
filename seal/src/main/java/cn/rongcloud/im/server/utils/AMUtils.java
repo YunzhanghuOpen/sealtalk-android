@@ -16,7 +16,7 @@ public class AMUtils {
     /**
      * 手机号正则表达式
      **/
-    public final static String MOBLIE_PHONE_PATTERN = "^((13[0-9])|(15[0-9])|(18[0-9])|(14[7])|(17[0|6|7|8]))\\d{8}$";
+    public final static String MOBLIE_PHONE_PATTERN = "^((13[0-9])|(15[0-9])|(18[0-9])|(14[7])|(17[0|3|6|7|8]))\\d{8}$";
 
     /**
      * 通过正则验证是否是合法手机号码

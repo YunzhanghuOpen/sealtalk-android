@@ -1,10 +1,8 @@
 package cn.rongcloud.im.ui.activity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -18,10 +16,11 @@ import java.util.Date;
 
 import cn.rongcloud.im.R;
 import cn.rongcloud.im.SealAppContext;
-import cn.rongcloud.im.db.DBManager;
+import cn.rongcloud.im.SealUserInfoManager;
 import cn.rongcloud.im.db.Friend;
 import cn.rongcloud.im.server.broadcast.BroadcastManager;
 import cn.rongcloud.im.server.network.http.HttpException;
+import cn.rongcloud.im.server.pinyin.CharacterParser;
 import cn.rongcloud.im.server.response.AgreeFriendsResponse;
 import cn.rongcloud.im.server.response.UserRelationshipResponse;
 import cn.rongcloud.im.server.utils.CommonUtils;
@@ -60,7 +59,7 @@ public class NewFriendListActivity extends BaseActivity implements NewFriendList
         setTitle(R.string.new_friends);
         shipListView = (ListView) findViewById(R.id.shiplistview);
         isData = (TextView) findViewById(R.id.isData);
-        Button rightButton = getBtn_right();
+        Button rightButton = getHeadRightButton();
         rightButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.de_address_new_friend));
         rightButton.setOnClickListener(this);
     }
@@ -116,13 +115,16 @@ public class NewFriendListActivity extends BaseActivity implements NewFriendList
                     AgreeFriendsResponse afres = (AgreeFriendsResponse) result;
                     if (afres.getCode() == 200) {
                         UserRelationshipResponse.ResultEntity bean = userRelationshipResponse.getResult().get(index);
-                        DBManager.getInstance(mContext).getDaoSession().getFriendDao().insertOrReplace(new Friend(bean.getUser().getId()
-                                , bean.getUser().getNickname()
-                                , bean.getUser().getPortraitUri()
-                                , bean.getDisplayName()
-                                , String.valueOf(bean.getStatus())
-                                , null
-                                                                                                                 ));
+                        SealUserInfoManager.getInstance().addFriend(new Friend(bean.getUser().getId(),
+                                bean.getUser().getNickname(),
+                                Uri.parse(bean.getUser().getPortraitUri()),
+                                bean.getDisplayName(),
+                                String.valueOf(bean.getStatus()),
+                                null,
+                                null,
+                                null,
+                                CharacterParser.getInstance().getSpelling(bean.getUser().getNickname()),
+                                CharacterParser.getInstance().getSpelling(bean.getDisplayName())));
                         // 通知好友列表刷新数据
                         NToast.shortToast(mContext, R.string.agreed_friend);
                         LoadDialog.dismiss(mContext);

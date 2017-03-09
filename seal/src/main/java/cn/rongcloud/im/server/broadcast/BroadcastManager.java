@@ -57,7 +57,7 @@ public class BroadcastManager {
      * @param context
      */
     private BroadcastManager(Context context) {
-        this.mContext = context;
+        this.mContext = context.getApplicationContext();
         receiverMap = new HashMap<String, BroadcastReceiver>();
     }
 
@@ -141,7 +141,7 @@ public class BroadcastManager {
      */
     public void destroy(String action) {
         if (receiverMap != null) {
-            BroadcastReceiver receiver = receiverMap.get(action);
+            BroadcastReceiver receiver = receiverMap.remove(action);
             if (receiver != null) {
                 mContext.unregisterReceiver(receiver);
             }

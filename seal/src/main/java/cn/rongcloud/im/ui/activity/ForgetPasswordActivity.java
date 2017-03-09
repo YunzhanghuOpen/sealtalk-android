@@ -238,6 +238,11 @@ public class ForgetPasswordActivity extends BaseActivity implements View.OnClick
                     return;
                 }
 
+                if (mPassword1.length() < 6 || mPassword1.length() > 16) {
+                    NToast.shortToast(mContext, R.string.passwords_invalid);
+                    return;
+                }
+
                 if (TextUtils.isEmpty(mPassword2.getText().toString())) {
                     NToast.shortToast(mContext, getString(R.string.confirm_password));
                     mPassword2.setShakeAnimation();

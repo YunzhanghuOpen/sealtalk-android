@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -28,7 +27,7 @@
                     android:background="#ffffff"
                     android:paddingLeft="16dp"
                     android:paddingTop="5dp"
-                    android:text="讨论组成员()"
+                    android:text="@string/ac_detail_discussion_member_size"
                     android:textColor="@color/group_list_black_textview"
                     android:textSize="16sp" />
 
@@ -40,7 +39,7 @@
                     android:columnWidth="56dp"
                     android:gravity="start"
                     android:listSelector="@android:color/transparent"
-                    android:numColumns="4"></cn.rongcloud.im.ui.widget.DemoGridView>
+                    android:numColumns="4"/>
 
             </LinearLayout>
 
@@ -59,8 +58,8 @@
                     android:layout_marginLeft="16dp"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
-                    android:text="置顶"
-                    android:textSize="16dp" />
+                    android:text="@string/activity_detail_discussion_to_top"
+                    android:textSize="16sp" />
 
                 <cn.rongcloud.im.ui.widget.switchbutton.SwitchButton
                     android:id="@+id/sw_discu_top"
@@ -85,8 +84,8 @@
                     android:layout_marginLeft="16dp"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
-                    android:text="消息免打扰"
-                    android:textSize="16dp" />
+                    android:text="@string/activity_detail_discussion_not_disturb"
+                    android:textSize="16sp" />
 
                 <cn.rongcloud.im.ui.widget.switchbutton.SwitchButton
                     android:id="@+id/sw_discu_notfaction"
@@ -111,8 +110,8 @@
                     android:layout_marginLeft="16dp"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
-                    android:text="清空聊天信息"
-                    android:textSize="16dp" />
+                    android:text="@string/ac_detail_discussion_clear_messages"
+                    android:textSize="16sp" />
 
 
                 <ImageView
@@ -137,8 +136,8 @@
                     android:layout_marginLeft="16dp"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
-                    android:text="开启群组会话"
-                    android:textSize="16dp" />
+                    android:text="@string/ac_detail_discussion_start_chat"
+                    android:textSize="16sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -164,8 +163,8 @@
                     android:layout_marginLeft="16dp"
                     android:layout_marginTop="10dp"
                     android:layout_weight="1"
-                    android:text="群组昵称"
-                    android:textSize="16dp" />
+                    android:text="@string/ac_detail_discussion_group_display_name"
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/group_displayname_text"
@@ -177,9 +176,9 @@
                     android:layout_weight="1"
                     android:gravity="right"
                     android:paddingRight="10dp"
-                    android:text="无"
+                    android:text="@string/ac_detail_discussion_no"
                     android:textColor="@color/group_list_gray"
-                    android:textSize="16dp" />
+                    android:textSize="16sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -197,7 +196,7 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="15dp"
                 android:background="@drawable/rs_select_btn_green"
-                android:text="发起聊天"
+                android:text="@string/ac_detail_discussion_start_chat"
                 android:textColor="#FFF"
                 android:textSize="16sp" />
 
@@ -209,7 +208,7 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="15dp"
                 android:background="@drawable/rs_select_btn_red"
-                android:text="删除并退出讨论组"
+                android:text="@string/ac_detail_discussion_delete_and_quit_discussion"
                 android:textColor="#FFF"
                 android:textSize="16sp" />
 
@@ -221,7 +220,7 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="15dp"
                 android:background="@drawable/rs_select_btn_gray"
-                android:text="解散群组"
+                android:text="@string/ac_detail_discussion_dismiss_group"
                 android:textColor="#FFF"
                 android:textSize="16sp"
                 android:visibility="gone" />

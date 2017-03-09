@@ -18,7 +18,7 @@
         android:maxLength="11"
         android:paddingLeft="10dip"
         android:paddingRight="10dip"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textColor="@color/de_title_bg" />
 
     <LinearLayout
@@ -42,7 +42,7 @@
             android:hint="@string/code"
             android:inputType="number"
             android:maxLength="6"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textColor="@color/de_title_bg" />
 
 
@@ -61,7 +61,7 @@
             android:paddingTop="10dp"
             android:text="@string/send_code"
             android:textColor="#FFF"
-            android:textSize="12dp" />
+            android:textSize="12sp" />
 
     </LinearLayout>
 
@@ -80,8 +80,7 @@
         android:maxLength="16"
         android:paddingLeft="10dip"
         android:paddingRight="10dip"
-        android:password="true"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textColor="@color/de_title_bg" />
 
     <cn.rongcloud.im.server.widget.ClearWriteEditText
@@ -99,8 +98,7 @@
         android:maxLength="16"
         android:paddingLeft="10dip"
         android:paddingRight="10dip"
-        android:password="true"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textColor="@color/de_title_bg"/>
 
     <Button

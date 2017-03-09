@@ -15,7 +15,9 @@ import cn.rongcloud.im.server.network.async.AsyncTaskManager;
 import cn.rongcloud.im.server.network.async.OnDataListener;
 import cn.rongcloud.im.server.network.http.HttpException;
 import cn.rongcloud.im.server.response.DefaultConversationResponse;
+import cn.rongcloud.im.server.utils.NToast;
 import io.rong.imkit.RongIM;
+import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 
 
@@ -43,10 +45,45 @@ public class DiscoverFragment extends Fragment implements View.OnClickListener, 
         chatroomItem2.setOnClickListener(this);
         chatroomItem3.setOnClickListener(this);
         chatroomItem4.setOnClickListener(this);
+        //回调时的线程并不是UI线程，不能在回调中直接操作UI
+        RongIMClient.getInstance().setChatRoomActionListener(new RongIMClient.ChatRoomActionListener() {
+            @Override
+            public void onJoining(String chatRoomId) {
+
+            }
+
+            @Override
+            public void onJoined(String chatRoomId) {
+
+            }
+
+            @Override
+            public void onQuited(String chatRoomId) {
+
+            }
+
+            @Override
+            public void onError(String chatRoomId,final RongIMClient.ErrorCode code) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (code == RongIMClient.ErrorCode.RC_NET_UNAVAILABLE || code == RongIMClient.ErrorCode.RC_NET_CHANNEL_INVALID) {
+                            NToast.shortToast(getActivity(), getString(R.string.network_not_available));
+                        } else {
+                            NToast.shortToast(getActivity(), getString(R.string.fr_chat_room_join_failure));
+                        }
+                    }
+                });
+            }
+        });
     }
 
     @Override
     public void onClick(View v) {
+        if (chatroomList == null || chatroomList.get(0) == null) {
+            NToast.shortToast(getActivity(), getString(R.string.join_chat_room_error_toast));
+            return;
+        }
         switch (v.getId()) {
             case R.id.def_chatroom1:
                 RongIM.getInstance().startConversation(getActivity(), Conversation.ConversationType.CHATROOM, chatroomList.get(0).getId(), "聊天室 I");

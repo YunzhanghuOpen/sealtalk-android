@@ -10,7 +10,7 @@
     <TextView
         android:id="@+id/dis_catalog"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="0dp"
         android:layout_weight="1.0"
         android:background="#f0f0f6"
         android:paddingBottom="5dip"
@@ -46,7 +46,7 @@
             android:layout_marginLeft="8dp"
             android:layout_weight="5"
             android:ellipsize="end"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textColor="@color/text_color"
             android:textSize="16sp" />
 
