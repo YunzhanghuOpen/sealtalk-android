@@ -3,6 +3,8 @@ package cn.rongcloud.im.server.pinyin;
 
 import java.util.Comparator;
 
+import cn.rongcloud.im.db.Friend;
+
 
 /**
  *

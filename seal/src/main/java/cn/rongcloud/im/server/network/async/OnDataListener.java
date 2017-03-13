@@ -14,17 +14,17 @@ public interface OnDataListener {
     /**
      * 异步耗时方法
      * @String parameter 请求传参,可不填
-     * @param requsetCode 请求码
+     * @param requestCode 请求码
      * @return
      * @throws HttpException
      */
-    public Object doInBackground(int requsetCode, String parameter) throws HttpException;
+    Object doInBackground(int requestCode, String parameter) throws HttpException;
     /**
      * 成功方法（可直接更新UI）
      * @param requestCode 请求码
      * @param result 返回结果
      */
-    public void onSuccess(int requestCode, Object result);
+    void onSuccess(int requestCode, Object result);
 
     /**
      * 失败方法（可直接更新UI）
@@ -32,5 +32,5 @@ public interface OnDataListener {
      * @param state 返回状态
      * @param result 返回结果
      */
-    public void onFailure(int requestCode, int state, Object result);
+    void onFailure(int requestCode, int state, Object result);
 }

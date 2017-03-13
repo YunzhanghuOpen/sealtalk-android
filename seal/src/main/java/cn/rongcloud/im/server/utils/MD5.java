@@ -44,7 +44,7 @@ public class MD5 {
     public static String encrypt(String str) {
         String result = null;
         try {
-            result = new String(str);
+            result = str;
             MessageDigest md = MessageDigest.getInstance("MD5");
             result = byteToString(md.digest(str.getBytes()));
         } catch (NoSuchAlgorithmException ex) {
@@ -62,7 +62,7 @@ public class MD5 {
     public static String encrypt(String str, boolean lowerCase) {
         String result = null;
         try {
-            result = new String(str);
+            result = str;
             MessageDigest md = MessageDigest.getInstance("MD5");
             result = byteToString(md.digest(str.getBytes()));
             if (lowerCase) {

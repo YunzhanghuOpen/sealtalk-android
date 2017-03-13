@@ -40,14 +40,8 @@
 
 ##---------------End: proguard configuration for Gson ----------
 
--keepclassmembers class * extends com.sea_monster.dao.AbstractDao {
- public static java.lang.String TABLENAME;
-}
 -keep class **$Properties
 -dontwarn org.eclipse.jdt.annotation.**
-
-##--voip--
--keep class com.ultrapower.** {*;}
 
 ##--AMap
 -keep com.amap.api.** {*;}

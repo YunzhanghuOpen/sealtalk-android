@@ -29,7 +29,7 @@ public class Resource implements Parcelable {
     }
 
     public Resource(Parcel in) {
-        this((Uri) ParcelUtils.readFromParcel(in, Uri.class));
+        this( ParcelUtils.readFromParcel(in, Uri.class));
     }
 
     public Resource(Resource resource) {
@@ -53,7 +53,7 @@ public class Resource implements Parcelable {
     }
 
     public boolean equals(Resource o) {
-        return o != null && (o.getUri() != null || this.getUri() == null) ? o.getUri().equals(this.getUri()) : false;
+        return (o != null && (o.getUri() != null || this.getUri() == null)) && o.getUri().equals(this.getUri());
     }
 
     public void writeToParcel(Parcel dest, int flags) {

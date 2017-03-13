@@ -13,7 +13,7 @@
         android:background="@drawable/selector_item_bg"
         android:gravity="center"
         android:padding="10dip"
-        android:text="拍照"
+        android:text="@string/dialog_bottom_picture"
         android:textColor="@color/text_black_color"
         android:textSize="18sp" />
 
@@ -29,7 +29,7 @@
         android:background="@drawable/selector_item_bg"
         android:gravity="center"
         android:padding="10dip"
-        android:text="从本地导入"
+        android:text="@string/dialog_bottom_import_from_local"
         android:textColor="@color/text_black_color"
         android:textSize="18sp" />
 
@@ -45,7 +45,7 @@
         android:background="@drawable/selector_item_bg"
         android:gravity="center"
         android:padding="10dip"
-        android:text="取消"
+        android:text="@string/share_dialog_cancel"
         android:textColor="@color/text_tips_color"
         android:textSize="18sp" />
 

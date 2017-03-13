@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:background="@color/seal_bg"
     android:layout_height="match_parent"
+    android:background="@color/seal_bg"
     android:orientation="vertical">
 
     <LinearLayout
@@ -17,15 +17,14 @@
             android:id="@+id/friend_header"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            app:sriv_left_bottom_corner_radius="3dip"
-            app:sriv_left_top_corner_radius="3dip"
-            app:sriv_right_bottom_corner_radius="3dip"
-            app:sriv_right_top_corner_radius="3dip"
-            android:scaleType="centerCrop"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="14dp"
             android:layout_marginTop="10dp"
-             />
+            android:scaleType="centerCrop"
+            app:sriv_left_bottom_corner_radius="3dip"
+            app:sriv_left_top_corner_radius="3dip"
+            app:sriv_right_bottom_corner_radius="3dip"
+            app:sriv_right_top_corner_radius="3dip" />
 
         <TextView
             android:id="@+id/friend_name"
@@ -35,13 +34,50 @@
             android:layout_marginLeft="14dp"
             android:layout_marginRight="20dp"
             android:layout_weight="1"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textColor="@color/group_list_black_textview"
-            android:textSize="16dp" />
+            android:textSize="16sp" />
 
 
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.25dp"
+        android:layout_marginLeft="14dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginTop="20dp"
+        android:background="#dfdfdd" />
+    <LinearLayout
+        android:id="@+id/ac_ll_search_messages"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/btn_list_item_bg"
+        android:clickable="true"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:text="@string/search_message"
+            android:textColor="@color/text_color"
+            android:textSize="16sp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFF">
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.25dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginRight="14dp"
+            android:background="#dfdfdd" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -58,8 +94,9 @@
             android:layout_marginLeft="16dp"
             android:layout_marginTop="10dp"
             android:layout_weight="1"
-            android:text="@string/messsage_notice"
-            android:textSize="16dp" />
+            android:text="@string/message_notice"
+            android:textColor="@color/text_color"
+            android:textSize="16sp" />
 
         <cn.rongcloud.im.ui.widget.switchbutton.SwitchButton
             android:id="@+id/sw_friend_notfaction"
@@ -77,13 +114,18 @@
             app:kswThumbMarginTop="-2.5dp" />
     </LinearLayout>
 
-    <ImageView
-        android:layout_width="fill_parent"
-        android:layout_height="1px"
-        android:layout_marginRight="14dp"
-        android:layout_marginLeft="14dp"
-        android:background="?android:attr/listDivider"
-        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFF">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.25dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginRight="14dp"
+            android:background="#dfdfdd" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -101,7 +143,8 @@
             android:layout_marginTop="10dp"
             android:layout_weight="1"
             android:text="@string/set_top"
-            android:textSize="16dp" />
+            android:textColor="@color/text_color"
+            android:textSize="16sp" />
 
         <cn.rongcloud.im.ui.widget.switchbutton.SwitchButton
             android:id="@+id/sw_freind_top"
@@ -119,14 +162,18 @@
             app:kswThumbMarginTop="-2.5dp" />
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.25dp"
-        android:layout_marginLeft="14dp"
-        android:layout_marginRight="14dp"
-        android:background="#dfdfdd"
-        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFF">
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.25dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginRight="14dp"
+            android:background="#dfdfdd" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/clean_friend"
@@ -135,7 +182,6 @@
         android:background="@drawable/btn_list_item_bg"
         android:clickable="true"
         android:orientation="horizontal">
-
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -145,8 +191,7 @@
             android:layout_marginTop="10dp"
             android:layout_weight="1"
             android:text="@string/clean_message"
-            android:textSize="16dp" />
-
-
+            android:textColor="@color/text_color"
+            android:textSize="16sp" />
     </LinearLayout>
 </LinearLayout>

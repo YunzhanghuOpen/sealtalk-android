@@ -6,9 +6,9 @@
     android:orientation="vertical">
 
     <RelativeLayout
-        android:background="@drawable/btn_list_item_bg"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_list_item_bg">
 
         <cn.rongcloud.im.server.widget.SelectableRoundedImageView
             android:id="@+id/share_icon"
@@ -33,8 +33,8 @@
             android:layout_marginLeft="14dp"
             android:layout_toRightOf="@id/share_icon"
             android:ellipsize="end"
-            android:singleLine="true"
-            android:text="一鹿"
+            android:maxLines="1"
+            android:textColor="@color/text_color"
             android:textSize="16sp" />
 
     </RelativeLayout>

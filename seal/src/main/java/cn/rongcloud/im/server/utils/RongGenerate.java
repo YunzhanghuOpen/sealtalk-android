@@ -14,6 +14,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Random;
+
+import io.rong.imlib.model.UserInfo;
 
 /**
  * Created by AMing on 16/4/6.
@@ -21,16 +24,18 @@ import java.io.UnsupportedEncodingException;
  */
 public class RongGenerate {
 
-    //    private static String SAVEADDRESS = "/sdcard/DCIM/Camera/";
-//    private static String SAVEADDRESS = "/sdcard/DCIM/RongDef/";
     private static String SAVEADDRESS = "/data/data/cn.rongcloud.im/temp";
     private static final String SCHEMA = "file://";
 
 
     public static String generateDefaultAvatar(String username, String userid) {
+
         String s = null;
         if (!TextUtils.isEmpty(username)) {
             s = String.valueOf(username.charAt(0));
+        }
+        if (s == null) {
+            s = "A";
         }
         String color = getColorRGB(userid);
         String string = getAllFirstLetter(username);
@@ -57,14 +62,17 @@ public class RongGenerate {
         return saveBitmap(bitmap, string + "_" + userid);
     }
 
+    public static String generateDefaultAvatar(UserInfo userInfo) {
+        if (userInfo == null)
+            return null;
+        else
+            return generateDefaultAvatar(userInfo.getName(), userInfo.getUserId());
+    }
+
     private static void createDir(String saveaddress) {
         boolean b;
         String status = Environment.getExternalStorageState();
-        if (status.equals(Environment.MEDIA_MOUNTED)) {
-            b = true;
-        } else {
-            b = false;
-        }
+        b = status.equals(Environment.MEDIA_MOUNTED);
         if (b) {
             File destDir = new File(saveaddress);
             if (!destDir.exists()) {
@@ -89,11 +97,12 @@ public class RongGenerate {
     }
 
     private static String getColorRGB(String userId) {
+        String[] portraitColors = {"#e97ffb", "#00b8d4", "#82b2ff", "#f3db73", "#f0857c"};
         if (TextUtils.isEmpty(userId)) {
-            throw new RuntimeException("Generate Color userId not is null!");
+            return portraitColors[0];
         }
         int i = getAscii(userId.charAt(0)) % 5;
-        String[] portraitColors = {"#e97ffb", "#00b8d4", "#82b2ff", "#f3db73", "#f0857c"};
+
         return portraitColors[i];
     }
 
@@ -205,5 +214,13 @@ public class RongGenerate {
             System.out.println("字符串编码转换异常：" + ex.getMessage());
         }
         return str;
+    }
+
+    private static String generateRandomCharacter() {
+        final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        final int length = alphabet.length();
+        Random random = new Random();
+        String randomChar = String.valueOf(alphabet.charAt(random.nextInt(length)));
+        return randomChar;
     }
 }

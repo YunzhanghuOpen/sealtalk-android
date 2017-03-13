@@ -11,11 +11,8 @@ import android.webkit.WebViewClient;
 import cn.rongcloud.im.R;
 
 
-/**
- * Created by Administrator on 2015/3/19.
- */
 @SuppressLint("SetJavaScriptEnabled")
-public class UpdateLogActivity extends BaseActionBarActivity {
+public class UpdateLogActivity extends BaseActivity {
 
     private WebView mWebView = null;
 
@@ -23,8 +20,7 @@ public class UpdateLogActivity extends BaseActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_log);
-
-        getSupportActionBar().setTitle(R.string.update_log);
+        setTitle(R.string.update_log);
         mWebView = (WebView) findViewById(R.id.update_log_webview);
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.getSettings().setUseWideViewPort(true);

@@ -22,42 +22,28 @@ import cn.rongcloud.im.server.broadcast.BroadcastManager;
 import cn.rongcloud.im.server.utils.NToast;
 import cn.rongcloud.im.server.widget.DialogWithYesOrNoUtils;
 
-/**
- * Created by Administrator on 2015/3/3.
- */
-public class AboutRongCloudActivity extends BaseActionBarActivity {
-
-    private TextView mSDKVersion;
+public class AboutRongCloudActivity extends BaseActivity {
 
     private boolean isHasNewVersion;
-
     private ImageView mNewVersionView;
-
-    private RelativeLayout mVersionItem;
-
     private String url;
-
-    private RelativeLayout mCloseDebug;
-
-    private RelativeLayout mstartDebug;
-
     long[] mHits = new long[5];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
-        getSupportActionBar().setTitle(R.string.set_rongcloud);
+        setTitle(R.string.set_rongcloud);
 
         RelativeLayout mUpdateLog = (RelativeLayout) findViewById(R.id.rl_update_log);
         RelativeLayout mFunctionIntroduce = (RelativeLayout) findViewById(R.id.rl_function_introduce);
         RelativeLayout mRongCloudWeb = (RelativeLayout) findViewById(R.id.rl_rongcloud_web);
         mNewVersionView = (ImageView) findViewById(R.id.about_sealtalk_version);
-        mSDKVersion = (TextView) findViewById(R.id.sdk_version_text);
-        mVersionItem = (RelativeLayout) findViewById(R.id.rl_version);
+        TextView mSDKVersion = (TextView) findViewById(R.id.sdk_version_text);
+        RelativeLayout mVersionItem = (RelativeLayout) findViewById(R.id.rl_version);
         TextView version = (TextView) findViewById(R.id.sealtalk_version);
-        mCloseDebug = (RelativeLayout) findViewById(R.id.close_debug);
-        mstartDebug = (RelativeLayout) findViewById(R.id.start_debug);
+        RelativeLayout mCloseDebug = (RelativeLayout) findViewById(R.id.close_debug);
+        RelativeLayout mStartDebug = (RelativeLayout) findViewById(R.id.start_debug);
         version.setText(SealConst.SEALTALKVERSION);
         mUpdateLog.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,7 +107,7 @@ public class AboutRongCloudActivity extends BaseActionBarActivity {
         }
 
 
-        mstartDebug.setOnClickListener(new View.OnClickListener() {
+        mStartDebug.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 System.arraycopy(mHits, 1, mHits, 0, mHits.length - 1);
@@ -132,7 +118,7 @@ public class AboutRongCloudActivity extends BaseActionBarActivity {
                     } else {
                         DialogWithYesOrNoUtils.getInstance().showDialog(mContext, "是否开启 App Debug 模式(需要重新登录应用)?", new DialogWithYesOrNoUtils.DialogCallBack() {
                             @Override
-                            public void exectEvent() {
+                            public void executeEvent() {
                                 SharedPreferences.Editor editor = getSharedPreferences("config", MODE_PRIVATE).edit();
                                 editor.putBoolean("isDebug", true);
                                 editor.apply();
@@ -141,7 +127,7 @@ public class AboutRongCloudActivity extends BaseActionBarActivity {
                             }
 
                             @Override
-                            public void exectEditEvent(String editText) {
+                            public void executeEditEvent(String editText) {
 
                             }
 
@@ -162,7 +148,7 @@ public class AboutRongCloudActivity extends BaseActionBarActivity {
                 public void onClick(View v) {
                     DialogWithYesOrNoUtils.getInstance().showDialog(mContext, "是否关闭 App Debug 模式(需要重新登录应用)?", new DialogWithYesOrNoUtils.DialogCallBack() {
                         @Override
-                        public void exectEvent() {
+                        public void executeEvent() {
                             SharedPreferences.Editor editor = getSharedPreferences("config", MODE_PRIVATE).edit();
                             editor.putBoolean("isDebug", false);
                             editor.apply();
@@ -171,7 +157,7 @@ public class AboutRongCloudActivity extends BaseActionBarActivity {
                         }
 
                         @Override
-                        public void exectEditEvent(String editText) {
+                        public void executeEditEvent(String editText) {
 
                         }
 
@@ -183,7 +169,6 @@ public class AboutRongCloudActivity extends BaseActionBarActivity {
                 }
             });
         }
-
 
 
         String[] versionInfo = getVersionInfo();

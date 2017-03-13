@@ -2,6 +2,7 @@ package cn.rongcloud.im.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.RelativeLayout;
 
@@ -19,25 +20,20 @@ import cn.rongcloud.im.server.widget.DialogWithYesOrNoUtils;
  */
 public class AccountSettingActivity extends BaseActivity implements View.OnClickListener {
 
-    private RelativeLayout mPassword, mPrivacy, mNewMessage, mClean, mExit;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_set);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
-        getSupportActionBar().setTitle(R.string.account_setting);
+        setTitle(R.string.account_setting);
         initViews();
     }
 
     private void initViews() {
-        mPassword = (RelativeLayout) findViewById(R.id.ac_set_change_pswd);
-        mPrivacy = (RelativeLayout) findViewById(R.id.ac_set_privacy);
-        mNewMessage = (RelativeLayout) findViewById(R.id.ac_set_new_message);
-        mClean = (RelativeLayout) findViewById(R.id.ac_set_clean);
-        mExit = (RelativeLayout) findViewById(R.id.ac_set_exit);
+        RelativeLayout mPassword = (RelativeLayout) findViewById(R.id.ac_set_change_pswd);
+        RelativeLayout mPrivacy = (RelativeLayout) findViewById(R.id.ac_set_privacy);
+        RelativeLayout mNewMessage = (RelativeLayout) findViewById(R.id.ac_set_new_message);
+        RelativeLayout mClean = (RelativeLayout) findViewById(R.id.ac_set_clean);
+        RelativeLayout mExit = (RelativeLayout) findViewById(R.id.ac_set_exit);
         mPassword.setOnClickListener(this);
         mPrivacy.setOnClickListener(this);
         mNewMessage.setOnClickListener(this);
@@ -60,16 +56,14 @@ public class AccountSettingActivity extends BaseActivity implements View.OnClick
             case R.id.ac_set_clean:
                 DialogWithYesOrNoUtils.getInstance().showDialog(mContext, "是否清除缓存?", new DialogWithYesOrNoUtils.DialogCallBack() {
                     @Override
-                    public void exectEvent() {
-                        String path = "/sdcard/" + getPackageName();
-                        File file = new File(path);
-                        if (file != null)
-                            deleteFile(file);
+                    public void executeEvent() {
+                        File file = new File(Environment.getExternalStorageDirectory().getPath() + getPackageName());
+                        deleteFile(file);
                         NToast.shortToast(mContext, "清除成功");
                     }
 
                     @Override
-                    public void exectEditEvent(String editText) {
+                    public void executeEditEvent(String editText) {
 
                     }
 
@@ -82,12 +76,12 @@ public class AccountSettingActivity extends BaseActivity implements View.OnClick
             case R.id.ac_set_exit:
                 DialogWithYesOrNoUtils.getInstance().showDialog(mContext, "是否退出登录?", new DialogWithYesOrNoUtils.DialogCallBack() {
                     @Override
-                    public void exectEvent() {
+                    public void executeEvent() {
                         BroadcastManager.getInstance(mContext).sendBroadcast(SealConst.EXIT);
                     }
 
                     @Override
-                    public void exectEditEvent(String editText) {
+                    public void executeEditEvent(String editText) {
 
                     }
 
@@ -99,7 +93,6 @@ public class AccountSettingActivity extends BaseActivity implements View.OnClick
                 break;
         }
     }
-
 
 
     public void deleteFile(File file) {

@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.os.HandlerThread;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.yunzhanghu.redpacketsdk.bean.RedPacketInfo;
@@ -20,11 +18,12 @@ import com.yunzhanghu.redpacketui.callback.ToRedPacketActivity;
 import com.yunzhanghu.redpacketui.message.RongRedPacketMessage;
 import com.yunzhanghu.redpacketui.ui.activity.RPRedPacketActivity;
 
-import io.rong.imkit.RongContext;
+import io.rong.imkit.RongExtension;
 import io.rong.imkit.RongIM;
-import io.rong.imkit.widget.provider.InputProvider;
+import io.rong.imkit.plugin.IPluginModule;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Conversation.ConversationType;
 
 /**
  * 自定义群/讨论组红包提供者
@@ -32,7 +31,7 @@ import io.rong.imlib.model.Conversation;
  * @author desert
  * @date 2016-05-23
  */
-public class RongGroupRedPacketProvider extends InputProvider.ExtendProvider implements ToRedPacketActivity {
+public class RongGroupRedPacketProvider implements ToRedPacketActivity, IPluginModule {
 
     private static final String TAG = RongGroupRedPacketProvider.class.getSimpleName();
 
@@ -44,18 +43,13 @@ public class RongGroupRedPacketProvider extends InputProvider.ExtendProvider imp
 
     private RedPacketInfo redPacketInfo;
 
-    private HandlerThread mWorkThread;
+    private ConversationType mConversationType;
 
-    private Handler mUploadHandler;
+    private String mTargetId;
 
+    private Context mContext;
 
-    public RongGroupRedPacketProvider(RongContext context, GetGroupInfoCallback callback) {
-        super(context);
-        this.callback = callback;
-        mWorkThread = new HandlerThread("YZHRedPacket");
-        mWorkThread.start();
-        mUploadHandler = new Handler(mWorkThread.getLooper());
-    }
+    private RongExtension mRongExtension;
 
     /**
      * 设置展示的图标
@@ -64,7 +58,7 @@ public class RongGroupRedPacketProvider extends InputProvider.ExtendProvider imp
      * @return
      */
     @Override
-    public Drawable obtainPluginDrawable(Context context) {
+    public Drawable obtainDrawable(Context context) {
         return ContextCompat.getDrawable(context, R.drawable.yzh_chat_money_provider);
     }
 
@@ -75,24 +69,28 @@ public class RongGroupRedPacketProvider extends InputProvider.ExtendProvider imp
      * @return
      */
     @Override
-    public CharSequence obtainPluginTitle(Context context) {
+    public String obtainTitle(Context context) {
         return context.getString(R.string.red_packet);
     }
 
     /**
      * click 事件，在这里做跳转
      *
-     * @param view
+     * @param fragment
+     * @param rongExtension
      */
     @Override
-    public void onPluginClick(View view) {
-
+    public void onClick(Fragment fragment, RongExtension rongExtension) {
+        mContext = rongExtension.getContext();
+        mConversationType = rongExtension.getConversationType();
+        mTargetId = rongExtension.getTargetId();
+        mRongExtension = rongExtension;
         redPacketInfo = new RedPacketInfo();
         redPacketInfo.fromAvatarUrl = RedPacketUtil.getInstance().getUserAvatar(); //发送者头像url
         redPacketInfo.fromNickName = RedPacketUtil.getInstance().getUserName();//发送者昵称 设置了昵称就传昵称 否则传id
-        redPacketInfo.toGroupId = getCurrentConversation().getTargetId();//群ID
+        redPacketInfo.toGroupId = rongExtension.getTargetId();//群ID
         redPacketInfo.chatType = RPConstant.CHATTYPE_GROUP;//群聊、讨论组类型
-        if (getCurrentConversation().getConversationType() == Conversation.ConversationType.GROUP) {
+        if (rongExtension.getConversationType() == Conversation.ConversationType.GROUP) {
             RedPacketUtil.getInstance().setChatType(RedPacketUtil.CHAT_GROUP);
         } else {
             RedPacketUtil.getInstance().setChatType(RedPacketUtil.CHAT_DISCUSSION);
@@ -101,9 +99,8 @@ public class RongGroupRedPacketProvider extends InputProvider.ExtendProvider imp
         if (callback != null) {
             callback.getGroupPersonNumber(redPacketInfo.toGroupId, this);
         } else {
-            Toast.makeText(getContext(), "回调函数不能为空", Toast.LENGTH_SHORT).show();
+            Toast.makeText(rongExtension.getContext(), "回调函数不能为空", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     @Override
@@ -113,7 +110,7 @@ public class RongGroupRedPacketProvider extends InputProvider.ExtendProvider imp
             return;
         //接受返回的红包信息,并发送红包消息
         if (data != null && requestCode == RedPacketUtil.REQUEST_CODE_SEND_MONEY) {
-            mSponsor = getContext().getString(R.string.sponsor_red_packet);//XX红包
+            mSponsor = mContext.getString(R.string.sponsor_red_packet);//XX红包
             mGreeting = data.getStringExtra(RPConstant.EXTRA_RED_PACKET_GREETING);//祝福语
             String moneyID = data.getStringExtra(RPConstant.EXTRA_RED_PACKET_ID);//红包ID
             String userId = RedPacketUtil.getInstance().getUserID();//发送者ID
@@ -124,10 +121,9 @@ public class RongGroupRedPacketProvider extends InputProvider.ExtendProvider imp
             RongRedPacketMessage message = RongRedPacketMessage.obtain(userId, userName,
                     mGreeting, moneyID, "1", mSponsor, redPacketType, specialReceiveId);
             //发送红包消息到聊天界面
-            mUploadHandler.post(new MyRunnable(message));
+            sendMessage(message);
         }
 
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
@@ -137,41 +133,28 @@ public class RongGroupRedPacketProvider extends InputProvider.ExtendProvider imp
      */
     @Override
     public void toRedPacketActivity(int number) {
-        Intent intent = new Intent(getContext(), RPRedPacketActivity.class);
+        Intent intent = new Intent(mContext, RPRedPacketActivity.class);
         redPacketInfo.groupMemberCount = number;
         intent.putExtra(RPConstant.EXTRA_RED_PACKET_INFO, redPacketInfo);
         intent.putExtra(RPConstant.EXTRA_TOKEN_DATA, RedPacketUtil.getInstance().getTokenData());
-        startActivityForResult(intent, RedPacketUtil.REQUEST_CODE_SEND_MONEY);
+        mRongExtension.startActivityForPluginResult(intent, RedPacketUtil.REQUEST_CODE_SEND_MONEY, this);
     }
 
+    private void sendMessage(RongRedPacketMessage message) {
+        if (RongIM.getInstance() != null && RongIM.getInstance().getRongIMClient() != null) {
+            String mPushContent = "[" + mSponsor + "]" + mGreeting;
+            RongIM.getInstance().getRongIMClient().sendMessage(mConversationType,
+                    mTargetId, message, mPushContent, "", new RongIMClient.SendMessageCallback() {
+                        @Override
+                        public void onError(Integer integer, RongIMClient.ErrorCode errorCode) {
+                            Log.e(TAG, "-----onError--" + errorCode);
+                        }
 
-    class MyRunnable implements Runnable {
-
-        RongRedPacketMessage mMessage;
-
-        public MyRunnable(RongRedPacketMessage message) {
-            mMessage = message;
-        }
-
-        @Override
-        public void run() {
-            if (RongIM.getInstance() != null && RongIM.getInstance().getRongIMClient() != null) {
-
-                String mPushContent = "[" + mSponsor + "]" + mGreeting;
-                RongIM.getInstance().getRongIMClient().sendMessage(getCurrentConversation().getConversationType(),
-                        getCurrentConversation().getTargetId(), mMessage, mPushContent, "", new RongIMClient.SendMessageCallback() {
-                            @Override
-                            public void onError(Integer integer, RongIMClient.ErrorCode errorCode) {
-                                Log.e(TAG, "-----onError--" + errorCode);
-                            }
-
-                            @Override
-                            public void onSuccess(Integer integer) {
-                                Log.e(TAG, "-----onSuccess--" + integer);
-                            }
-                        }, null);
-            }
-
+                        @Override
+                        public void onSuccess(Integer integer) {
+                            Log.e(TAG, "-----onSuccess--" + integer);
+                        }
+                    }, null);
         }
     }
 

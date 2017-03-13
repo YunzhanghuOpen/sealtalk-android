@@ -1,16 +1,17 @@
 package cn.rongcloud.im.ui.activity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -19,19 +20,13 @@ import android.widget.TextView;
 
 import com.yunzhanghu.redpacketui.RedPacketUtil;
 
-import java.util.List;
-
 import cn.rongcloud.im.R;
-import cn.rongcloud.im.db.DBManager;
-import cn.rongcloud.im.db.Friend;
-import cn.rongcloud.im.db.Groups;
-import cn.rongcloud.im.server.network.async.AsyncTaskManager;
+import cn.rongcloud.im.SealConst;
+import cn.rongcloud.im.SealUserInfoManager;
 import cn.rongcloud.im.server.network.http.HttpException;
-import cn.rongcloud.im.server.response.GetGroupResponse;
 import cn.rongcloud.im.server.response.GetTokenResponse;
 import cn.rongcloud.im.server.response.GetUserInfoByIdResponse;
 import cn.rongcloud.im.server.response.LoginResponse;
-import cn.rongcloud.im.server.response.UserRelationshipResponse;
 import cn.rongcloud.im.server.utils.AMUtils;
 import cn.rongcloud.im.server.utils.CommonUtils;
 import cn.rongcloud.im.server.utils.NLog;
@@ -39,10 +34,10 @@ import cn.rongcloud.im.server.utils.NToast;
 import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.widget.ClearWriteEditText;
 import cn.rongcloud.im.server.widget.LoadDialog;
-import cn.rongcloud.im.utils.SharedPreferencesContext;
 import io.rong.imkit.RongIM;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.UserInfo;
+
 
 /**
  * Created by AMing on 16/1/15.
@@ -50,54 +45,45 @@ import io.rong.imlib.model.UserInfo;
  */
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
 
+    private final static String TAG = "LoginActivity";
     private static final int LOGIN = 5;
-    private static final int GETTOKEN = 6;
-    private static final int SYNCUSERINFO = 9;
-    private static final int SYNCGROUP = 17;
-    private static final int AUTOLOGIN = 19;
-    private static final int SYNCFRIEND = 14;
-    private ImageView mImgBackgroud;
+    private static final int GET_TOKEN = 6;
+    private static final int SYNC_USER_INFO = 9;
 
+    private ImageView mImg_Background;
     private ClearWriteEditText mPhoneEdit, mPasswordEdit;
-
-    private Button mConfirm;
-
-    private TextView mRegist, forgetPassword;
-
-    private String phoneString, passwordString, loginToken, connectResultId;
-
+    private String phoneString;
+    private String passwordString;
+    private String connectResultId;
     private SharedPreferences sp;
-
     private SharedPreferences.Editor editor;
-
+    private String loginToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.hide();
+        setHeadVisibility(View.GONE);
         sp = getSharedPreferences("config", MODE_PRIVATE);
         editor = sp.edit();
-
         initView();
     }
 
     private void initView() {
         mPhoneEdit = (ClearWriteEditText) findViewById(R.id.de_login_phone);
         mPasswordEdit = (ClearWriteEditText) findViewById(R.id.de_login_password);
-        mConfirm = (Button) findViewById(R.id.de_login_sign);
-        mRegist = (TextView) findViewById(R.id.de_login_register);
-        forgetPassword = (TextView) findViewById(R.id.de_login_forgot);
+        Button mConfirm = (Button) findViewById(R.id.de_login_sign);
+        TextView mRegister = (TextView) findViewById(R.id.de_login_register);
+        TextView forgetPassword = (TextView) findViewById(R.id.de_login_forgot);
         forgetPassword.setOnClickListener(this);
         mConfirm.setOnClickListener(this);
-        mRegist.setOnClickListener(this);
-        mImgBackgroud = (ImageView) findViewById(R.id.de_img_backgroud);
+        mRegister.setOnClickListener(this);
+        mImg_Background = (ImageView) findViewById(R.id.de_img_backgroud);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 Animation animation = AnimationUtils.loadAnimation(LoginActivity.this, R.anim.translate_anim);
-                mImgBackgroud.startAnimation(animation);
+                mImg_Background.startAnimation(animation);
             }
         }, 200);
         mPhoneEdit.addTextChangedListener(new TextWatcher() {
@@ -119,33 +105,26 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             }
         });
 
-        String oldPhone = sp.getString("loginphone", "");
-        String oldPassword = sp.getString("loginpassword", "");
-        if (oldPhone.equals(mPhoneEdit.getText().toString().trim())) {//和上次登录账户一致
+        String oldPhone = sp.getString(SealConst.SEALTALK_LOGING_PHONE, "");
+        String oldPassword = sp.getString(SealConst.SEALTALK_LOGING_PASSWORD, "");
 
-        } else {
-            //和上次登录账户不一致 或者 换设备登录  重新网络拉取好友 和 群组数据
-            DBManager.getInstance(mContext).getDaoSession().getFriendDao().deleteAll();//清空上个用户的数据库
-            DBManager.getInstance(mContext).getDaoSession().getGroupsDao().deleteAll();
-        }
         if (!TextUtils.isEmpty(oldPhone) && !TextUtils.isEmpty(oldPassword)) {
             mPhoneEdit.setText(oldPhone);
             mPasswordEdit.setText(oldPassword);
         }
 
-
-        if (!sp.getBoolean("exit", false) && !TextUtils.isEmpty(oldPhone) && !TextUtils.isEmpty(oldPassword)) {
-            editor.putBoolean("exit", false);
-            editor.apply();
-            phoneString = oldPhone;
-            passwordString = oldPassword;
-            new Handler().postDelayed(new Runnable() {
+        if (getIntent().getBooleanExtra("kickedByOtherClient", false)) {
+            final AlertDialog dlg = new AlertDialog.Builder(LoginActivity.this).create();
+            dlg.show();
+            Window window = dlg.getWindow();
+            window.setContentView(R.layout.other_devices);
+            TextView text = (TextView) window.findViewById(R.id.ok);
+            text.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void run() {
-                    LoadDialog.show(mContext);
-                    request(AUTOLOGIN);
+                public void onClick(View v) {
+                    dlg.cancel();
                 }
-            }, 100);
+            });
         }
     }
 
@@ -162,11 +141,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                     return;
                 }
 
-                if (!AMUtils.isMobile(phoneString)) {
-                    NToast.shortToast(mContext, R.string.Illegal_phone_number);
-                    mPhoneEdit.setShakeAnimation();
-                    return;
-                }
+//                if (!AMUtils.isMobile(phoneString)) {
+//                    NToast.shortToast(mContext, R.string.Illegal_phone_number);
+//                    mPhoneEdit.setShakeAnimation();
+//                    return;
+//                }
 
                 if (TextUtils.isEmpty(passwordString)) {
                     NToast.shortToast(mContext, R.string.password_is_null);
@@ -181,7 +160,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 LoadDialog.show(mContext);
                 editor.putBoolean("exit", false);
                 editor.apply();
-                request(LOGIN);
+                String oldPhone = sp.getString(SealConst.SEALTALK_LOGING_PHONE, "");
+                request(LOGIN, true);
                 break;
             case R.id.de_login_register:
                 startActivityForResult(new Intent(this, RegisterActivity.class), 1);
@@ -208,10 +188,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             if (!TextUtils.isEmpty(phone) && !TextUtils.isEmpty(password) && !TextUtils.isEmpty(id) && !TextUtils.isEmpty(nickname)) {
                 mPhoneEdit.setText(phone);
                 mPasswordEdit.setText(password);
-                editor.putString("loginphone", phone);
-                editor.putString("loginpassword", password);
-                editor.putString("loginid", id);
-                editor.putString("loginnickname", nickname);
+                editor.putString(SealConst.SEALTALK_LOGING_PHONE, phone);
+                editor.putString(SealConst.SEALTALK_LOGING_PASSWORD, password);
+                editor.putString(SealConst.SEALTALK_LOGIN_ID, id);
+                editor.putString(SealConst.SEALTALK_LOGIN_NAME, nickname);
                 editor.apply();
             }
 
@@ -225,16 +205,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         switch (requestCode) {
             case LOGIN:
                 return action.login("86", phoneString, passwordString);
-            case AUTOLOGIN:
-                return action.login("86", phoneString, passwordString);
-            case GETTOKEN:
+            case GET_TOKEN:
                 return action.getToken();
-            case SYNCUSERINFO:
+            case SYNC_USER_INFO:
                 return action.getUserInfoById(connectResultId);
-            case SYNCGROUP:
-                return action.getGroups();
-            case SYNCFRIEND:
-                return action.getAllUserRelationship();
         }
         return null;
     }
@@ -244,15 +218,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         if (result != null) {
             switch (requestCode) {
                 case LOGIN:
-                    LoginResponse lrres = (LoginResponse) result;
-                    if (lrres.getCode() == 200) {
-                        loginToken = lrres.getResult().getToken();
+                    LoginResponse loginResponse = (LoginResponse) result;
+                    if (loginResponse.getCode() == 200) {
+                        loginToken = loginResponse.getResult().getToken();
                         if (!TextUtils.isEmpty(loginToken)) {
-                            editor.putString("loginToken", loginToken);
-                            editor.putString("loginphone", phoneString);
-                            editor.putString("loginpassword", passwordString);
-                            editor.apply();
-
                             RongIM.connect(loginToken, new RongIMClient.ConnectCallback() {
                                 @Override
                                 public void onTokenIncorrect() {
@@ -264,10 +233,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                                 public void onSuccess(String s) {
                                     connectResultId = s;
                                     NLog.e("connect", "onSuccess userid:" + s);
-                                    editor.putString("loginid", s);
+                                    editor.putString(SealConst.SEALTALK_LOGIN_ID, s);
                                     editor.apply();
-
-                                    request(SYNCUSERINFO, true);
+                                    SealUserInfoManager.getInstance().openDB();
+                                    request(SYNC_USER_INFO, true);
                                 }
 
                                 @Override
@@ -276,142 +245,53 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                                 }
                             });
                         }
-                    } else if (lrres.getCode() == 100) {
+                    } else if (loginResponse.getCode() == 100) {
                         LoadDialog.dismiss(mContext);
                         NToast.shortToast(mContext, R.string.phone_or_psw_error);
-                    } else if (lrres.getCode() == 1000) {
+                    } else if (loginResponse.getCode() == 1000) {
                         LoadDialog.dismiss(mContext);
                         NToast.shortToast(mContext, R.string.phone_or_psw_error);
                     }
                     break;
-                case AUTOLOGIN:
-                    LoginResponse autolrres = (LoginResponse) result;
-                    if (autolrres.getCode() == 200) {
-                        loginToken = autolrres.getResult().getToken();
-                        if (!TextUtils.isEmpty(loginToken)) {
-                            editor.putString("loginToken", loginToken);
-                            editor.putString("loginphone", phoneString);
-                            editor.putString("loginpassword", passwordString);
-                            editor.apply();
-
-                            RongIM.connect(loginToken, new RongIMClient.ConnectCallback() {
-                                @Override
-                                public void onTokenIncorrect() {
-                                    reGetToken();
-                                    NLog.e("connect", "onTokenIncorrect");
-                                }
-
-                                @Override
-                                public void onSuccess(String s) {
-                                    connectResultId = s;
-                                    NLog.e("connect", "onSuccess userid:" + s);
-                                    editor.putString("loginid", s);
-                                    editor.apply();
-
-                                    request(SYNCUSERINFO, true);
-                                }
-
-                                @Override
-                                public void onError(RongIMClient.ErrorCode errorCode) {
-                                    NLog.e("connect", "onError errorcode:" + errorCode.getValue());
-                                }
-                            });
+                case SYNC_USER_INFO:
+                    GetUserInfoByIdResponse userInfoByIdResponse = (GetUserInfoByIdResponse) result;
+                    if (userInfoByIdResponse.getCode() == 200) {
+                        if (TextUtils.isEmpty(userInfoByIdResponse.getResult().getPortraitUri())) {
+                            userInfoByIdResponse.getResult().setPortraitUri(RongGenerate.generateDefaultAvatar(userInfoByIdResponse.getResult().getNickname(), userInfoByIdResponse.getResult().getId()));
                         }
-                    } else if (autolrres.getCode() == 100) {
-                        LoadDialog.dismiss(mContext);
-                        NToast.shortToast(mContext, R.string.phone_or_psw_error);
-                    } else if (autolrres.getCode() == 1000) {
-                        LoadDialog.dismiss(mContext);
-                        NToast.shortToast(mContext, R.string.phone_or_psw_error);
-                    }
-                    break;
-                case SYNCUSERINFO:
-                    GetUserInfoByIdResponse guRes = (GetUserInfoByIdResponse) result;
-                    if (guRes.getCode() == 200) {
-                        editor.putString("loginnickname", guRes.getResult().getNickname());
-                        editor.putString("loginPortrait", guRes.getResult().getPortraitUri());
+                        String nickName = userInfoByIdResponse.getResult().getNickname();
+                        String portraitUri = userInfoByIdResponse.getResult().getPortraitUri();
+                        editor.putString(SealConst.SEALTALK_LOGIN_NAME, nickName);
+                        editor.putString(SealConst.SEALTALK_LOGING_PORTRAIT, portraitUri);
                         editor.apply();
-
-                        if (TextUtils.isEmpty(guRes.getResult().getPortraitUri())) {
-                            guRes.getResult().setPortraitUri(RongGenerate.generateDefaultAvatar(guRes.getResult().getNickname(), guRes.getResult().getId()));
-                        }
                         //初始化用户信息
-                        RedPacketUtil.getInstance().initUserInfo(guRes.getResult().getId(), guRes.getResult().getNickname(), guRes.getResult().getPortraitUri());
-
-                        RongIM.getInstance().setCurrentUserInfo(new UserInfo(guRes.getResult().getId(), guRes.getResult().getNickname(), Uri.parse(guRes.getResult().getPortraitUri())));
-                        RongIM.getInstance().setMessageAttachedUserInfo(true);
-
-                        List<Groups> groupList = DBManager.getInstance(mContext).getDaoSession().getGroupsDao().loadAll();
-                        if (groupList.size() == 0) {
-                            request(SYNCGROUP);
-                        } else {
-                            LoadDialog.dismiss(mContext);
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                            NToast.shortToast(mContext, R.string.login_success);
-                            finish();
-                        }
+                        RedPacketUtil.getInstance().initUserInfo(connectResultId, nickName, Uri.parse(portraitUri).toString());
+                        RongIM.getInstance().refreshUserInfoCache(new UserInfo(connectResultId, nickName, Uri.parse(portraitUri)));
                     }
+                    //不继续在login界面同步好友,群组,群组成员信息
+                    SealUserInfoManager.getInstance().getAllUserInfo();
+                    goToMain();
                     break;
-                case SYNCGROUP:
-                    GetGroupResponse ggRes = (GetGroupResponse) result;
-                    if (ggRes.getCode() == 200) {
-                        List<GetGroupResponse.ResultEntity> list = ggRes.getResult();
-                        if (list.size() > 0 && list != null) {
-                            for (GetGroupResponse.ResultEntity g : list) {
-                                DBManager.getInstance(mContext).getDaoSession().getGroupsDao().insertOrReplace(
-                                        new Groups(g.getGroup().getId(), g.getGroup().getName(), g.getGroup().getPortraitUri(), String.valueOf(g.getRole()))
-                                );
-                                NLog.e("sync_group", "-id-" + g.getGroup().getId() + "-num-" + g.getGroup().getMemberCount());
-                                SharedPreferencesContext.getInstance().getSharedPreferences().edit().putInt(g.getGroup().getId(), g.getGroup().getMemberCount()).commit();
-                            }
-                        }
-                        request(SYNCFRIEND);
-                    }
-                    break;
-                case SYNCFRIEND:
-                    UserRelationshipResponse urRes = (UserRelationshipResponse) result;
-                    if (urRes.getCode() == 200) {
-                        List<UserRelationshipResponse.ResultEntity> list = urRes.getResult();
-                        if (list != null && list.size() > 0) {
-                            for (UserRelationshipResponse.ResultEntity friend : list) {
-                                if (friend.getStatus() == 20) {
-                                    DBManager.getInstance(mContext).getDaoSession().getFriendDao().insertOrReplace(new Friend(
-                                            friend.getUser().getId(),
-                                            friend.getUser().getNickname(),
-                                            friend.getUser().getPortraitUri(),
-                                            friend.getDisplayName(),
-                                            null,
-                                            null
-                                    ));
-                                }
-                            }
 
-                        }
-                        LoadDialog.dismiss(mContext);
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        NToast.shortToast(mContext, R.string.login_success);
-                        finish();
-                    }
-                    break;
-                case GETTOKEN:
-                    GetTokenResponse response = (GetTokenResponse) result;
-                    if (response.getCode() == 200) {
-                        String token = response.getResult().getToken();
+                case GET_TOKEN:
+                    GetTokenResponse tokenResponse = (GetTokenResponse) result;
+                    if (tokenResponse.getCode() == 200) {
+                        String token = tokenResponse.getResult().getToken();
                         if (!TextUtils.isEmpty(token)) {
                             RongIM.connect(token, new RongIMClient.ConnectCallback() {
                                 @Override
                                 public void onTokenIncorrect() {
-                                    Log.e("LoginActivity", "reToken Incorrect");
+                                    Log.e(TAG, "reToken Incorrect");
                                 }
 
                                 @Override
                                 public void onSuccess(String s) {
                                     connectResultId = s;
                                     NLog.e("connect", "onSuccess userid:" + s);
-                                    editor.putString("loginid", s);
+                                    editor.putString(SealConst.SEALTALK_LOGIN_ID, s);
                                     editor.apply();
-
-                                    request(SYNCUSERINFO, true);
+                                    SealUserInfoManager.getInstance().openDB();
+                                    request(SYNC_USER_INFO, true);
                                 }
 
                                 @Override
@@ -421,19 +301,19 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                             });
                         }
                     }
-
                     break;
             }
         }
     }
 
     private void reGetToken() {
-        request(GETTOKEN);
+        request(GET_TOKEN);
     }
 
     @Override
     public void onFailure(int requestCode, int state, Object result) {
         if (!CommonUtils.isNetworkConnected(mContext)) {
+            LoadDialog.dismiss(mContext);
             NToast.shortToast(mContext, getString(R.string.network_not_available));
             return;
         }
@@ -442,19 +322,31 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 LoadDialog.dismiss(mContext);
                 NToast.shortToast(mContext, R.string.login_api_fail);
                 break;
-            case SYNCUSERINFO:
+            case SYNC_USER_INFO:
                 LoadDialog.dismiss(mContext);
                 NToast.shortToast(mContext, R.string.sync_userinfo_api_fail);
                 break;
-            case GETTOKEN:
+            case GET_TOKEN:
                 LoadDialog.dismiss(mContext);
                 NToast.shortToast(mContext, R.string.get_token_api_fail);
-                break;
-            case SYNCGROUP:
-                NToast.shortToast(mContext, R.string.sync_group_api_fail);
                 break;
         }
     }
 
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    private void goToMain() {
+        editor.putString("loginToken", loginToken);
+        editor.putString(SealConst.SEALTALK_LOGING_PHONE, phoneString);
+        editor.putString(SealConst.SEALTALK_LOGING_PASSWORD, passwordString);
+        editor.apply();
+        LoadDialog.dismiss(mContext);
+        NToast.shortToast(mContext, R.string.login_success);
+        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+        finish();
+    }
 }

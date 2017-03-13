@@ -12,8 +12,13 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.view.WindowManager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import cn.rongcloud.im.model.SealSearchConversationResult;
+import io.rong.imlib.model.SearchConversationResult;
 
 /**
  * Created by bob on 2015/2/2.
@@ -108,10 +113,7 @@ public class CommonUtils {
         Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(email);
 
-        if (matcher.matches())
-            return true;
-        else
-            return false;
+        return matcher.matches();
 
     }
 
@@ -127,11 +129,9 @@ public class CommonUtils {
         boolean isGPSEnable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         boolean isNPEnable = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-        if (isGPSEnable || isNPEnable)
-            return true;
+        return isGPSEnable || isNPEnable;
 
 
-        return false;
     }
 
     public static void openGPS(Context context) {
@@ -139,7 +139,7 @@ public class CommonUtils {
         Intent GPSIntent = new Intent();
 
         GPSIntent.setClassName("com.android.settings",
-                               "com.android.settings.widget.SettingsAppWidgetProvider");
+                "com.android.settings.widget.SettingsAppWidgetProvider");
 
         GPSIntent.addCategory("android.intent.category.ALTERNATIVE");
         GPSIntent.setData(Uri.parse("custom:3"));
@@ -151,5 +151,15 @@ public class CommonUtils {
         }
     }
 
+    public static List<SealSearchConversationResult> convertSearchResult(List<SearchConversationResult> results) {
+        List<SealSearchConversationResult> list = new ArrayList<>();
+        for (SearchConversationResult result : results) {
+            SealSearchConversationResult sealSearchConversationResult = new SealSearchConversationResult();
+            sealSearchConversationResult.setConversation(result.getConversation());
+            sealSearchConversationResult.setMatchCount(result.getMatchCount());
+            list.add(sealSearchConversationResult);
+        }
+        return list;
+    }
 
 }

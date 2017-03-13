@@ -4,47 +4,21 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <RelativeLayout
+    <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="#0195ff">
-
-        <TextView
-            android:id="@+id/select_title"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+        <LinearLayout
+            android:id="@+id/ll_selected_friends"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:clickable="true"
-            android:drawableLeft="@drawable/de_actionbar_back"
-            android:onClick="selectFinish"
-            android:text="选择联系人"
-            android:textColor="#fff"
-            android:textSize="18sp" />
-
-
-        <TextView
-            android:id="@+id/select_ok"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="14dp"
-            android:clickable="true"
-            android:text="确定"
-            android:textColor="#fff"
-            android:textSize="14dp" />
-
-
-    </RelativeLayout>
-
-    <cn.rongcloud.im.server.widget.HorizontalListView
-        android:visibility="gone"
-        android:id="@+id/selected_listview"
-        android:background="#fff"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="44dp"/>
+            android:layout_height="44dp"
+            android:visibility="gone"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+        </LinearLayout>
+    </HorizontalScrollView>
 
     <FrameLayout
         android:layout_width="match_parent"

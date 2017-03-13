@@ -4,9 +4,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import com.yunzhanghu.redpacketui.RedPacketUtil;
 
@@ -25,57 +24,35 @@ import io.rong.imlib.model.UserInfo;
  * Created by AMing on 16/6/23.
  * Company RongCloud
  */
-public class UpdateNameActivity extends BaseActivity {
+public class UpdateNameActivity extends BaseActivity implements View.OnClickListener {
 
-    private static final int UPDATENAME = 7;
-
+    private static final int UPDATE_NAME = 7;
     private ClearWriteEditText mNameEditText;
-
     private String newName;
-
     private SharedPreferences sp;
-
     private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_name);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.de_actionbar_back);
-        getSupportActionBar().setTitle(R.string.nickname);
+        setTitle(getString(R.string.update_name));
+        Button rightButton = getHeadRightButton();
+        rightButton.setVisibility(View.GONE);
+        mHeadRightText.setVisibility(View.VISIBLE);
+        mHeadRightText.setText(getString(R.string.confirm));
+        mHeadRightText.setOnClickListener(this);
         mNameEditText = (ClearWriteEditText) findViewById(R.id.update_name);
         sp = getSharedPreferences("config", MODE_PRIVATE);
+        mNameEditText.setText(sp.getString(SealConst.SEALTALK_LOGIN_NAME, ""));
+        mNameEditText.setSelection(sp.getString(SealConst.SEALTALK_LOGIN_NAME, "").length());
         editor = sp.edit();
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.de_select_ok, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.ok) {
-            newName = mNameEditText.getText().toString().trim();
-            if (!TextUtils.isEmpty(newName)) {
-                LoadDialog.show(mContext);
-                request(UPDATENAME, true);
-            } else {
-                NToast.shortToast(mContext, "昵称不能为空");
-                mNameEditText.setShakeAnimation();
-            }
-        } else {
-            finish();
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public Object doInBackground(int requsetCode, String id) throws HttpException {
+    public Object doInBackground(int requestCode, String id) throws HttpException {
         return action.setName(newName);
     }
 
@@ -83,18 +60,30 @@ public class UpdateNameActivity extends BaseActivity {
     public void onSuccess(int requestCode, Object result) {
         SetNameResponse sRes = (SetNameResponse) result;
         if (sRes.getCode() == 200) {
-            editor.putString("loginnickname", newName);
+            editor.putString(SealConst.SEALTALK_LOGIN_NAME, newName);
             editor.commit();
 
             BroadcastManager.getInstance(mContext).sendBroadcast(SealConst.CHANGEINFO);
 
-            RongIM.getInstance().refreshUserInfoCache(new UserInfo(sp.getString("loginid", ""), newName, Uri.parse(sp.getString("loginPortrait", ""))));
-            RongIM.getInstance().setCurrentUserInfo(new UserInfo(sp.getString("loginid", ""), newName, Uri.parse(sp.getString("loginPortrait", ""))));
+            RongIM.getInstance().refreshUserInfoCache(new UserInfo(sp.getString(SealConst.SEALTALK_LOGIN_ID, ""), newName, Uri.parse(sp.getString(SealConst.SEALTALK_LOGING_PORTRAIT, ""))));
+            RongIM.getInstance().setCurrentUserInfo(new UserInfo(sp.getString(SealConst.SEALTALK_LOGIN_ID, ""), newName, Uri.parse(sp.getString(SealConst.SEALTALK_LOGING_PORTRAIT, ""))));
 
             LoadDialog.dismiss(mContext);
             NToast.shortToast(mContext, "昵称更改成功");
             RedPacketUtil.getInstance().setUserName(newName);
             finish();
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        newName = mNameEditText.getText().toString().trim();
+        if (!TextUtils.isEmpty(newName)) {
+            LoadDialog.show(mContext);
+            request(UPDATE_NAME, true);
+        } else {
+            NToast.shortToast(mContext, "昵称不能为空");
+            mNameEditText.setShakeAnimation();
         }
     }
 }

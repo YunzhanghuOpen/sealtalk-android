@@ -1,26 +1,21 @@
 package cn.rongcloud.im.ui.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.text.TextUtils;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-
 import cn.rongcloud.im.App;
 import cn.rongcloud.im.R;
+import cn.rongcloud.im.SealUserInfoManager;
 import cn.rongcloud.im.server.response.UserRelationshipResponse;
-import cn.rongcloud.im.server.utils.RongGenerate;
 import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
+import io.rong.imageloader.core.ImageLoader;
+import io.rong.imlib.model.UserInfo;
 
-/**
- * Created by Bob on 2015/3/26.
- */
-
+@SuppressWarnings("deprecation")
 public class NewFriendListAdapter extends BaseAdapters {
-    private ViewHoler holer;
 
     public NewFriendListAdapter(Context context) {
         super(context);
@@ -28,26 +23,29 @@ public class NewFriendListAdapter extends BaseAdapters {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
         if (convertView == null) {
-            holer = new ViewHoler();
-            convertView = mInflater.inflate(R.layout.rs_ada_user_ship, null);
-            holer.mName = (TextView) convertView.findViewById(R.id.ship_name);
-            holer.mMessage = (TextView) convertView.findViewById(R.id.ship_message);
-            holer.mHead = (SelectableRoundedImageView) convertView.findViewById(R.id.new_header);
-            holer.mState = (TextView) convertView.findViewById(R.id.ship_state);
-            convertView.setTag(holer);
+            holder = new ViewHolder();
+            convertView = mInflater.inflate(R.layout.rs_ada_user_ship, parent, false);
+            holder.mName = (TextView) convertView.findViewById(R.id.ship_name);
+            holder.mMessage = (TextView) convertView.findViewById(R.id.ship_message);
+            holder.mHead = (SelectableRoundedImageView) convertView.findViewById(R.id.new_header);
+            holder.mState = (TextView) convertView.findViewById(R.id.ship_state);
+            convertView.setTag(holder);
         } else {
-            holer = (ViewHoler) convertView.getTag();
+            holder = (ViewHolder) convertView.getTag();
         }
         final UserRelationshipResponse.ResultEntity bean = (UserRelationshipResponse.ResultEntity) dataSet.get(position);
-        holer.mName.setText(bean.getUser().getNickname());
-        if (TextUtils.isEmpty(bean.getUser().getPortraitUri())) {
-            ImageLoader.getInstance().displayImage(RongGenerate.generateDefaultAvatar(bean.getUser().getNickname(), bean.getUser().getId()), holer.mHead, App.getOptions());
-        } else {
-            ImageLoader.getInstance().displayImage(bean.getUser().getPortraitUri(), holer.mHead, App.getOptions());
+        holder.mName.setText(bean.getUser().getNickname());
+        String portraitUri = null;
+        if (bean != null && bean.getUser() != null) {
+            UserRelationshipResponse.ResultEntity.UserEntity userEntity = bean.getUser();
+            portraitUri = SealUserInfoManager.getInstance().getPortraitUri(new UserInfo(
+                              userEntity.getId(), userEntity.getNickname(), Uri.parse(userEntity.getPortraitUri())));
         }
-        holer.mMessage.setText(bean.getMessage());
-        holer.mState.setOnClickListener(new View.OnClickListener() {
+        ImageLoader.getInstance().displayImage(portraitUri, holder.mHead, App.getOptions());
+        holder.mMessage.setText(bean.getMessage());
+        holder.mState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mOnItemButtonClick != null) {
@@ -58,24 +56,24 @@ public class NewFriendListAdapter extends BaseAdapters {
 
         switch (bean.getStatus()) {
             case 11: //收到了好友邀请
-                holer.mState.setText(R.string.agree);
-                holer.mState.setBackgroundDrawable(mContext.getResources().getDrawable(R.drawable.de_add_friend_selector));
+                holder.mState.setText(R.string.agree);
+                holder.mState.setBackgroundDrawable(mContext.getResources().getDrawable(R.drawable.de_add_friend_selector));
                 break;
             case 10: // 发出了好友邀请
-                holer.mState.setText(R.string.request);
-                holer.mState.setBackgroundDrawable(null);
+                holder.mState.setText(R.string.request);
+                holder.mState.setBackgroundDrawable(null);
                 break;
             case 21: // 忽略好友邀请
-                holer.mState.setText(R.string.ignore);
-                holer.mState.setBackgroundDrawable(null);
+                holder.mState.setText(R.string.ignore);
+                holder.mState.setBackgroundDrawable(null);
                 break;
             case 20: // 已是好友
-                holer.mState.setText(R.string.added);
-                holer.mState.setBackgroundDrawable(null);
+                holder.mState.setText(R.string.added);
+                holder.mState.setBackgroundDrawable(null);
                 break;
             case 30: // 删除了好友关系
-                holer.mState.setText(R.string.deleted);
-                holer.mState.setBackgroundDrawable(null);
+                holder.mState.setText(R.string.deleted);
+                holder.mState.setBackgroundDrawable(null);
                 break;
         }
         return convertView;
@@ -89,19 +87,16 @@ public class NewFriendListAdapter extends BaseAdapters {
      * user : {"id":"i3gRfA1ml","nickname":"nihaoa","portraitUri":""}
      */
 
-    class ViewHoler {
+    class ViewHolder {
         SelectableRoundedImageView mHead;
         TextView mName;
         TextView mState;
-        TextView mtime;
+        //        TextView mtime;
         TextView mMessage;
     }
 
     OnItemButtonClick mOnItemButtonClick;
 
-    public OnItemButtonClick getOnItemButtonClick() {
-        return mOnItemButtonClick;
-    }
 
     public void setOnItemButtonClick(OnItemButtonClick onItemButtonClick) {
         this.mOnItemButtonClick = onItemButtonClick;

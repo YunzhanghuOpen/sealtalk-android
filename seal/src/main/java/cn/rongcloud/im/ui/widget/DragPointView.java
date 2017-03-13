@@ -160,7 +160,7 @@ public class DragPointView extends TextView {
     }
 
     public interface OnDragListencer {
-        public void onDragOut();
+        void onDragOut();
     }
 
     class PointView extends View {
@@ -218,6 +218,9 @@ public class DragPointView extends TextView {
                 canvas.drawCircle(c2.x + dr, c2.y + dr, c2.r / (brokenProgress + 2), paint);
             } else {
                 // 绘制手指跟踪的圆形
+                if (catchBitmap == null || (catchBitmap != null && catchBitmap.isRecycled())) {
+                    return;
+                }
                 canvas.drawBitmap(catchBitmap, c2.x - c2.r, c2.y - c2.r, paint);
                 path.reset();
                 float deltaX = c2.x - c1.x;
@@ -341,7 +344,7 @@ public class DragPointView extends TextView {
         GradientDrawable gradientStateNormal = new GradientDrawable();
         gradientStateNormal.setColor(color);
         gradientStateNormal.setShape(GradientDrawable.RECTANGLE);
-        gradientStateNormal.setCornerRadius(radius);
+        gradientStateNormal.setCornerRadius(50);
         gradientStateNormal.setStroke(0, 0);
         bg.addState(View.EMPTY_STATE_SET, gradientStateNormal);
         return bg;

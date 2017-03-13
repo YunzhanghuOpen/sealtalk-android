@@ -19,17 +19,15 @@ import cn.rongcloud.im.ui.activity.SelectFriendsActivity;
 
 
 public class MorePopWindow extends PopupWindow {
-    private View conentView;
-
 
     @SuppressLint("InflateParams")
     public MorePopWindow(final Activity context) {
         LayoutInflater inflater = (LayoutInflater) context
                                   .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        conentView = inflater.inflate(R.layout.popupwindow_add, null);
+        View content = inflater.inflate(R.layout.popupwindow_add, null);
 
         // 设置SelectPicPopupWindow的View
-        this.setContentView(conentView);
+        this.setContentView(content);
         // 设置SelectPicPopupWindow弹出窗体的宽
         this.setWidth(LayoutParams.WRAP_CONTENT);
         // 设置SelectPicPopupWindow弹出窗体的高
@@ -48,9 +46,9 @@ public class MorePopWindow extends PopupWindow {
         this.setAnimationStyle(R.style.AnimationPreview);
 
 
-        RelativeLayout re_addfriends = (RelativeLayout) conentView.findViewById(R.id.re_addfriends);
-        RelativeLayout re_chatroom = (RelativeLayout) conentView.findViewById(R.id.re_chatroom);
-        RelativeLayout re_scanner = (RelativeLayout) conentView.findViewById(R.id.re_scanner);
+        RelativeLayout re_addfriends = (RelativeLayout) content.findViewById(R.id.re_addfriends);
+        RelativeLayout re_chatroom = (RelativeLayout) content.findViewById(R.id.re_chatroom);
+        RelativeLayout re_scanner = (RelativeLayout) content.findViewById(R.id.re_scanner);
         re_addfriends.setOnClickListener(new OnClickListener() {
 
             @Override

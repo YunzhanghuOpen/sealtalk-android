@@ -8,10 +8,12 @@ android {
         applicationId "cn.rongcloud.im"
         minSdkVersion 11
         targetSdkVersion 23
-
-        versionCode 2016081820
-        versionName "2.7.0 Dev"
+        versionCode 2017030510
+        versionName "2.8.7 Stable"
         multiDexEnabled true
+        ndk {
+            abiFilters "armeabi-v7a", "x86"
+        }
     }
 
     signingConfigs {
@@ -25,7 +27,7 @@ android {
     sourceSets {
         main {
             jni.srcDirs = []
-            jniLibs.srcDirs = ['src/main/libs']
+            jniLibs.srcDirs = ['libs']
         }
     }
     packagingOptions {
@@ -50,25 +52,40 @@ android {
         abortOnError false
     }
     dexOptions {
-        javaMaxHeapSize "2g"
-        preDexLibraries = false
+        javaMaxHeapSize "4g"
     }
 }
 
-
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:23.1.0'
-    //compile 'com.android.support:support-v4:21.0.3'
-    // libs 中 happy dns.jar - okhttp.jar - okio.jar 为 qiniu存储所需依赖jar 融云 sdk 和你的 app 中都无需依赖
-    compile files('libs/Android_Location_V1.3.3.jar')
-    compile files('libs/universal-image-loader-1.9.5.jar')
-    // org.apache.http.legacy.jar 为适配 Android tagetId 22 以上 jar
-    compile files('libs/org.apache.http.legacy.jar')
-    compile project(':redpacketlibrary')
-    compile 'com.android.support:multidex:1.0.0'
+//<<<<<<< HEAD
+//    compile fileTree(include: ['*.jar'], dir: 'libs')
+//    compile 'com.android.support:appcompat-v7:23.1.0'
+//    //compile 'com.android.support:support-v4:21.0.3'
+//    // libs 中 happy dns.jar - okhttp.jar - okio.jar 为 qiniu存储所需依赖jar 融云 sdk 和你的 app 中都无需依赖
+//    compile files('libs/Android_Location_V1.3.3.jar')
+//    compile files('libs/universal-image-loader-1.9.5.jar')
+//    // org.apache.http.legacy.jar 为适配 Android tagetId 22 以上 jar
+//    compile files('libs/org.apache.http.legacy.jar')
+//    compile project(':redpacketlibrary')
+//    compile 'com.android.support:multidex:1.0.0'
+//
+//    compile files('libs/jsoup-1.8.3.jar')
+//    //compile project(':Rong_Cloud_Android_IMKit_SDK_v2_7_0_dev_with_CallKit')
+//=======
 
-    compile files('libs/jsoup-1.8.3.jar')
-    //compile project(':Rong_Cloud_Android_IMKit_SDK_v2_7_0_dev_with_CallKit')
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.android.support:support-v4:23.0.1'
+    compile project(':Recognizer')
+    compile project(':contactcard')
+    compile project(':sticker')
+    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.facebook.stetho:stetho:1.4.1'
+    compile files('libs/MiPush_SDK_Client_3_1_2.jar')
+    compile project(':IMKit')
+    compile project(':CallKit')
+    compile project(':redpacketlibrary')
+    //compile project(':RedPacket')
+
 }
 apply plugin: 'com.google.gms.google-services'

@@ -31,7 +31,7 @@ public class GroupMemberEngine implements OnDataListener {
     }
 
     @Override
-    public Object doInBackground(int requsetCode, String groupId) throws HttpException {
+    public Object doInBackground(int requestCode, String groupId) throws HttpException {
         return new SealAction(context).getGroupMember(groupId);
     }
 

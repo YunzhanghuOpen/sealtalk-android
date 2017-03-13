@@ -19,10 +19,10 @@ public class BaseAction {
     protected SyncHttpClient httpManager;
 
 
-
     /**
      * 构造方法
-     * @param context
+     *
+     * @param context 上下文
      */
     public BaseAction(Context context) {
         this.mContext = context;
@@ -31,9 +31,9 @@ public class BaseAction {
 
     /**
      * JSON转JAVA对象方法
-     * @param json
-     * @param cls
-     * @return
+     *
+     * @param json json
+     * @param cls  class
      * @throws HttpException
      */
     public <T> T jsonToBean(String json, Class<T> cls) throws HttpException {
@@ -42,9 +42,9 @@ public class BaseAction {
 
     /**
      * JSON转JAVA数组方法
-     * @param json
-     * @param
-     * @return
+     *
+     * @param json json
+     * @param cls  class
      * @throws HttpException
      */
     public <T> List<T> jsonToList(String json, Class<T> cls) throws HttpException {
@@ -53,8 +53,8 @@ public class BaseAction {
 
     /**
      * JAVA对象转JSON方法
-     * @param obj
-     * @return
+     *
+     * @param obj object
      * @throws HttpException
      */
     public String BeanTojson(Object obj) throws HttpException {
@@ -64,28 +64,29 @@ public class BaseAction {
 
     /**
      * 获取完整URL方法
-     * @param url
-     * @return
+     *
+     * @param url url
      */
     protected String getURL(String url) {
         return getURL(url, new String[] {});
     }
+
     /**
      * 获取完整URL方法
-     * @param url
-     * @param params
-     * @return
+     *
+     * @param url    url
+     * @param params params
      */
     protected String getURL(String url, String... params) {
-        StringBuilder urlBilder = new StringBuilder(DOMAIN).append(url);
+        StringBuilder urlBuilder = new StringBuilder(DOMAIN).append(url);
         if (params != null) {
             for (String param : params) {
-                if (!urlBilder.toString().endsWith("/")) {
-                    urlBilder.append("/");
+                if (!urlBuilder.toString().endsWith("/")) {
+                    urlBuilder.append("/");
                 }
-                urlBilder.append(param);
+                urlBuilder.append(param);
             }
         }
-        return urlBilder.toString();
+        return urlBuilder.toString();
     }
 }

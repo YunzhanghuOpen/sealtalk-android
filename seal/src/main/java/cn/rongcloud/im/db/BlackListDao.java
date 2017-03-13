@@ -26,7 +26,7 @@ public class BlackListDao extends AbstractDao<BlackList, String> {
         public final static Property UserId = new Property(0, String.class, "userId", true, "USER_ID");
         public final static Property Status = new Property(1, String.class, "status", false, "STATUS");
         public final static Property Timestamp = new Property(2, Long.class, "timestamp", false, "TIMESTAMP");
-    };
+    }
 
 
     public BlackListDao(DaoConfig config) {

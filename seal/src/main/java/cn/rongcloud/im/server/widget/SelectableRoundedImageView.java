@@ -104,14 +104,12 @@ public class SelectableRoundedImageView extends ImageView {
             mLeftBottomCornerRadius, mLeftBottomCornerRadius
         };
 
-        mBorderWidth = a.getDimensionPixelSize(
-                           R.styleable.SelectableRoundedImageView_sriv_border_width, 0);
+        mBorderWidth = a.getDimensionPixelSize(R.styleable.SelectableRoundedImageView_sriv_border_width, 0);
         if (mBorderWidth < 0) {
             throw new IllegalArgumentException("border width cannot be negative.");
         }
 
-        mBorderColor = a
-                       .getColorStateList(R.styleable.SelectableRoundedImageView_sriv_border_color);
+        mBorderColor = a.getColorStateList(R.styleable.SelectableRoundedImageView_sriv_border_color);
         if (mBorderColor == null) {
             mBorderColor = ColorStateList.valueOf(DEFAULT_BORDER_COLOR);
         }

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="true">
+    <item android:drawable="@drawable/volume_5"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_6"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_7"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_8"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_9"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_10"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_11"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_12"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_13"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_14"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_15"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_16"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_17"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_18"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_19"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_20"
+        android:duration="50"/>
+    <item android:drawable="@drawable/volume_0"
+        android:duration="100"/>
+
+</animation-list>

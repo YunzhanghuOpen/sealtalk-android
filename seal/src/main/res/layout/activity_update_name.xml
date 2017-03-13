@@ -13,6 +13,7 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
         android:maxLength="32"
+        android:maxLines="1"
         android:textColor="@color/text_color"
         android:textSize="16sp" />
 

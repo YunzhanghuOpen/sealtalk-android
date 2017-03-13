@@ -31,6 +31,7 @@ import io.rong.imkit.widget.ArraysDialogFragment;
 import io.rong.imkit.widget.provider.IContainerItemProvider;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Message;
 
 
 /**
@@ -82,7 +83,7 @@ public class RongRedPacketMessageProvider extends IContainerItemProvider.Message
         ViewHolder holder = (ViewHolder) v.getTag();
 
         // 更改气泡样式
-        if (message.getMessageDirection() == UIMessage.MessageDirection.SEND) {
+        if (message.getMessageDirection() == Message.MessageDirection.SEND) {
             // 消息方向，自己发送的
             holder.view.setBackgroundResource(R.drawable.yzh_money_chat_to_bg);
         } else {
@@ -128,7 +129,7 @@ public class RongRedPacketMessageProvider extends IContainerItemProvider.Message
         redPacketInfo.toAvatarUrl = RedPacketUtil.getInstance().getUserAvatar();//获取打开红包者的头像
         redPacketInfo.toNickName = RedPacketUtil.getInstance().getUserName();//获取打开红包者的名字
         //判断发送方还是接收方
-        if (message.getMessageDirection() == UIMessage.MessageDirection.SEND) {
+        if (message.getMessageDirection() == Message.MessageDirection.SEND) {
             redPacketInfo.moneyMsgDirect = RPConstant.MESSAGE_DIRECT_SEND;//发送者
         } else {
             redPacketInfo.moneyMsgDirect = RPConstant.MESSAGE_DIRECT_RECEIVE;//接受方

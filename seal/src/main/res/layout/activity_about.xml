@@ -110,7 +110,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="25dp"
-            android:text="SealTalk 版本"
+            android:text="@string/ac_about_seal_talk_version"
             android:textColor="#353535"
             android:textSize="16sp" />
 
@@ -155,7 +155,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="25dp"
-            android:text="SDK 版本"
+            android:text="@string/ac_about_sdk_version"
             android:textColor="#353535"
             android:textSize="16sp" />
 
@@ -192,7 +192,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="25dp"
-            android:text="关闭 debug 模式"
+            android:text="@string/ac_about_shut_down_debug_mode"
             android:textColor="#353535"
             android:textSize="16sp" />
 

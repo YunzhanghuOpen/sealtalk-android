@@ -15,7 +15,7 @@
         android:layout_marginTop="4dp"
         android:background="@color/de_transparent"
         android:ellipsize="end"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textColor="@color/group_list_black_textview"
         android:textSize="@dimen/de_conversation_item_name_size" />
 
@@ -41,7 +41,7 @@
         android:background="@color/de_transparent"
         android:ellipsize="end"
         android:gravity="center_vertical"
-        android:singleLine="true"
+        android:maxLines="1"
         android:text="@string/de_message_at_me"
         android:textColor="@color/de_draft_color"
         android:visibility="gone"
@@ -60,7 +60,7 @@
         android:background="@color/de_transparent"
         android:ellipsize="end"
         android:gravity="center_vertical"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textColor="@color/group_list_gray"
         android:textSize="@dimen/de_conversation_item_data_size" />
 

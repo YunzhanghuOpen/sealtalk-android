@@ -2,8 +2,8 @@
 <resources>
     <declare-styleable name="SwitchGroup">
         <attr name="orientation1">
-            <flag name="horizontal" value="0"></flag>
-            <flag name="vertical" value="1"></flag>
+            <flag name="horizontal" value="0"/>
+            <flag name="vertical" value="1"/>
         </attr>
         <attr name="pinned_view1" format="reference" />
         <attr name="pinned_item1" format="reference" />
@@ -13,9 +13,9 @@
         <attr name="pull_limit" format="dimension" />
         <attr name="support_over" format="boolean" />
         <attr name="hold_adjust_type">
-            <flag name="not_adjust" value="0"></flag>
-            <flag name="adjust_content" value="1"></flag>
-            <flag name="elasticity_adjust" value="2"></flag>
+            <flag name="not_adjust" value="0"/>
+            <flag name="adjust_content" value="1"/>
+            <flag name="elasticity_adjust" value="2"/>
         </attr>
     </declare-styleable>
     <declare-styleable name="ProgressWheel">

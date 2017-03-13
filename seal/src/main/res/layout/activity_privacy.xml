@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/seal_bg"
-    android:layout_height="match_parent">
+    android:orientation="vertical">
 
 
     <RelativeLayout
@@ -13,7 +13,8 @@
         android:layout_height="45.5dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/btn_list_item_bg"
-        android:clickable="true">
+        android:clickable="true"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
@@ -53,15 +54,13 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="14dp"
             android:layout_centerVertical="true"
+            android:layout_marginLeft="14dp"
             android:text="@string/the_blacklist"
             android:textColor="@color/text_color"
             android:textSize="16sp" />
 
     </RelativeLayout>
-
-
 
 
     <!--<RelativeLayout
@@ -113,8 +112,6 @@
     </RelativeLayout>
 
     <include layout="@layout/de_merge_view"/>-->
-
-
 
 
 </LinearLayout>

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
+import cn.rongcloud.im.SealUserInfoManager;
 import cn.rongcloud.im.ui.widget.LoadingDialog;
 import io.rong.imkit.RongIM;
 import io.rong.imlib.RongIMClient;
@@ -32,8 +33,6 @@ public class ConversationListActivity extends BaseActivity {
 
             //通过intent.getData().getQueryParameter("push") 为true，判断是否是push消息
             if (intent.getData().getQueryParameter("push").equals("true")) {
-                String id = intent.getData().getQueryParameter("pushId");
-
                 enterActivity();
             }
 
@@ -59,45 +58,31 @@ public class ConversationListActivity extends BaseActivity {
      * MainActivity 页面，而不是直接退回到 桌面。
      */
     private void enterActivity() {
-
         String token = sp.getString("loginToken", "");
-
         if (token.equals("default")) {
-
             startActivity(new Intent(ConversationListActivity.this, LoginActivity.class));
             finish();
         } else {
-
             if (mDialog != null && !mDialog.isShowing()) {
                 mDialog.show();
             }
-
             reconnect(token);
         }
-
-
     }
 
-    /**
-     * @param token
-     */
-    private void reconnect(String token) {
 
+    private void reconnect(String token) {
         RongIM.connect(token, new RongIMClient.ConnectCallback() {
             @Override
             public void onTokenIncorrect() {
-
                 Log.e(TAG, "---onTokenIncorrect--");
             }
 
             @Override
             public void onSuccess(String s) {
                 Log.i(TAG, "---onSuccess--" + s);
-
                 if (mDialog != null)
                     mDialog.dismiss();
-
-
                 startActivity(new Intent(ConversationListActivity.this, MainActivity.class));
                 finish();
             }

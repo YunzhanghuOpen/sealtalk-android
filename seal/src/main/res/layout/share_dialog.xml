@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:lines="2"
-            android:textSize="20dp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -43,7 +43,7 @@
                 android:ellipsize="end"
                 android:lines="3"
                 android:textColor="#999"
-                android:textSize="18dp" />
+                android:textSize="18sp" />
         </LinearLayout>
 
 
@@ -57,8 +57,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:singleLine="true"
-                android:text="来自:UC浏览器"
+                android:maxLines="1"
+                android:text="@string/share_dialog_from"
                 android:textColor="#999"
                 android:textSize="14sp" />
         </LinearLayout>
@@ -75,7 +75,7 @@
                 android:layout_marginLeft="14dp"
                 android:layout_marginRight="14dp"
                 android:background="@null"
-                android:hint="说些什么"
+                android:hint="@string/share_dialog_hint"
                 android:textColor="#999"
                 android:textSize="16sp" />
 
@@ -87,7 +87,7 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"></LinearLayout>
+                    android:layout_weight="2"/>
 
                 <Button
                     android:id="@+id/share_cancel"
@@ -95,7 +95,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@null"
-                    android:text="取消"
+                    android:text="@string/share_dialog_cancel"
                     android:textColor="#999" />
 
                 <Button
@@ -104,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@null"
-                    android:text="分享"
+                    android:text="@string/share_dialog_share"
                     android:textColor="@color/de_title_bg" />
 
             </LinearLayout>
