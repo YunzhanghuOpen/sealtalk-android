@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="wrap_content"
-                android:layout_height="90dp"
-                android:layout_gravity="center">
+    android:layout_width="wrap_content"
+    android:layout_height="90dp"
+    android:layout_gravity="center">
 
     <RelativeLayout
         android:id="@+id/bubble"
         android:layout_width="220dp"
         android:layout_height="90dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:background="@drawable/yzh_money_chat_to_bg"
         android:layout_alignParentTop="true"
-        android:background="@drawable/yzh_money_chat_to_bg">
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
         <ImageView
             android:id="@+id/iv_money_icon"
@@ -20,7 +20,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="15dp"
-            android:src="@drawable/yzh_money_icon"/>
+            android:src="@drawable/yzh_money_icon" />
 
         <TextView
             android:id="@+id/tv_money_greeting"
@@ -28,13 +28,13 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@+id/iv_money_icon"
-            android:layout_marginRight="@dimen/size30px"
             android:layout_toRightOf="@id/iv_money_icon"
-            android:ellipsize="end"
+            android:layout_marginRight="10dp"
             android:lines="1"
+            android:ellipsize="end"
             android:text="恭喜发财 大吉大利!"
             android:textColor="#ffffff"
-            android:textSize="15sp"/>
+            android:textSize="15sp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -44,7 +44,7 @@
             android:layout_toRightOf="@id/iv_money_icon"
             android:text="查看红包"
             android:textColor="#ffffff"
-            android:textSize="12sp"/>
+            android:textSize="12sp" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -60,7 +60,7 @@
                 android:layout_marginTop="3dp"
                 android:text="云账户红包"
                 android:textColor="#9e9e9e"
-                android:textSize="12sp"/>
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/tv_packet_type"
@@ -71,7 +71,7 @@
                 android:layout_marginTop="3dp"
                 android:textColor="#D24F44"
                 android:textSize="12sp"
-                android:visibility="gone"/>
+                android:visibility="gone" />
         </RelativeLayout>
 
 

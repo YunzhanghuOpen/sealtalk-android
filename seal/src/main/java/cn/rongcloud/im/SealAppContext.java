@@ -9,19 +9,17 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
+import com.yunzhanghu.redpacket.RedPacketCache;
+import com.yunzhanghu.redpacket.RedPacketUtil;
+import com.yunzhanghu.redpacket.callback.GetGroupInfoCallback;
+import com.yunzhanghu.redpacket.callback.ToRedPacketActivity;
+import com.yunzhanghu.redpacket.message.EmptyMessage;
+import com.yunzhanghu.redpacket.provider.GroupRedPacketProvider;
+import com.yunzhanghu.redpacket.provider.SingleRedPacketProvider;
+import com.yunzhanghu.redpacketsdk.RPGroupMemberListener;
+import com.yunzhanghu.redpacketsdk.RPValueCallback;
+import com.yunzhanghu.redpacketsdk.RedPacket;
 import com.yunzhanghu.redpacketsdk.bean.RPUserBean;
-import com.yunzhanghu.redpacketui.RedPacketCache;
-import com.yunzhanghu.redpacketui.RedPacketUtil;
-import com.yunzhanghu.redpacketui.callback.GetGroupInfoCallback;
-import com.yunzhanghu.redpacketui.callback.GetUserInfoCallback;
-import com.yunzhanghu.redpacketui.callback.GroupMemberCallback;
-import com.yunzhanghu.redpacketui.callback.NotifyGroupMemberCallback;
-import com.yunzhanghu.redpacketui.callback.SetUserInfoCallback;
-import com.yunzhanghu.redpacketui.callback.ToRedPacketActivity;
-import com.yunzhanghu.redpacketui.message.RongEmptyMessage;
-import com.yunzhanghu.redpacketui.provider.RongGroupRedPacketProvider;
-import com.yunzhanghu.redpacketui.provider.RongRedPacketProvider;
-import com.yunzhanghu.redpacketui.utils.RPGroupMemberUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +37,6 @@ import cn.rongcloud.im.server.network.async.OnDataListener;
 import cn.rongcloud.im.server.network.http.HttpException;
 import cn.rongcloud.im.server.response.ContactNotificationMessageData;
 import cn.rongcloud.im.server.response.GetGroupMemberResponse;
-import cn.rongcloud.im.server.response.GetUserInfoByIdResponse;
 import cn.rongcloud.im.server.response.GetUserInfosResponse;
 import cn.rongcloud.im.server.utils.NLog;
 import cn.rongcloud.im.server.utils.NToast;
@@ -83,7 +80,6 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
 
     public static final int REQUEST_SYNCGROUP = 101;
     public static final int REQUEST_GROUP_MEMBER = 102;
-    public static final int REQUEST_USERINFO = 103;
     public static final int REQUEST_SYNCDISCUSSION = 104;
     public static final int REQUEST_DISCUSSION_MEMBER = 105;
     public static final String UPDATE_FRIEND = "update_friend";
@@ -102,13 +98,9 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
 
     private String mGroupId;
 
-    private String mUserId;
-
     private RedPacketCache mRedPacketCache;
 
-    private GroupMemberCallback mGroupMemberCallback;
-
-    private SetUserInfoCallback mSetUserInfoCallback;
+    private RPValueCallback<List<RPUserBean>> mGroupMemberCallback;
 
     public SealAppContext(Context mContext) {
         this.mContext = mContext;
@@ -212,7 +204,7 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
                 new ImageInputProvider(RongContext.getInstance()),
                 new RealTimeLocationInputProvider(RongContext.getInstance()), //带位置共享的地理位
                 new FileInputProvider(RongContext.getInstance()),//文件消息
-                new RongRedPacketProvider(RongContext.getInstance())//单聊红包
+                new SingleRedPacketProvider(RongContext.getInstance())//单聊红包
         };
 
         InputProvider.ExtendProvider[] muiltiProvider = {
@@ -230,54 +222,35 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
         RongIM.resetInputExtensionProvider(Conversation.ConversationType.DISCUSSION, groupProvider);
         RongIM.resetInputExtensionProvider(Conversation.ConversationType.CUSTOMER_SERVICE, muiltiProvider);
         RongIM.resetInputExtensionProvider(Conversation.ConversationType.GROUP, groupProvider);
-        //根据群(讨论组)id获取群(讨论组)成员信息,然后 groupMemberCallback.setGroupMember(list);
-        RPGroupMemberUtil.getInstance().setGroupMemberListener(new NotifyGroupMemberCallback() {
+        //根据群(讨论组)id获取群(讨论组)成员信息,然后 rpValueCallback.onSuccess(list);
+        RedPacket.getInstance().setRPGroupMemberListener(new RPGroupMemberListener() {
             @Override
-            public void getGroupMember(String groupId, GroupMemberCallback groupMemberCallback) {
+            public void getGroupMember(String groupId, RPValueCallback<List<RPUserBean>> rpValueCallback) {
                 //(只是针对融云demo做的缓存逻辑,App开发者及供参考)
                 if (RedPacketUtil.getInstance().getChatType().equals(RedPacketUtil.CHAT_GROUP)) {
                     ArrayList<GetGroupMemberResponse.ResultEntity> list = (ArrayList<GetGroupMemberResponse.ResultEntity>) mRedPacketCache.getAsObject(groupId);
                     if (list != null) {
                         NLog.e("group_member", "-cache-");
-                        groupMemberCallback.setGroupMember(sortingData(list));
+                        rpValueCallback.onSuccess(sortingData(list));
                     } else {
                         NLog.e("group_member", "-no-cache-");
                         mGroupId = groupId;
-                        mGroupMemberCallback = groupMemberCallback;
+                        mGroupMemberCallback = rpValueCallback;
                         AsyncTaskManager.getInstance(mContext).request(REQUEST_GROUP_MEMBER, SealAppContext.this);
                     }
                 } else if (RedPacketUtil.getInstance().getChatType().equals(RedPacketUtil.CHAT_DISCUSSION)) {//讨论组
                     ArrayList<GetUserInfosResponse.ResultEntity> list = (ArrayList<GetUserInfosResponse.ResultEntity>) mRedPacketCache.getAsObject(groupId);
                     if (list != null) {
                         NLog.e("discussion_member", "-cache-");
-                        groupMemberCallback.setGroupMember(sortingDiscussionData(list));
+                        rpValueCallback.onSuccess(sortingDiscussionData(list));
                     } else {
                         NLog.e("discussion_member", "-no-cache-");
                         mGroupId = groupId;
-                        mGroupMemberCallback = groupMemberCallback;
+                        mGroupMemberCallback = rpValueCallback;
                         AsyncTaskManager.getInstance(mContext).request(REQUEST_DISCUSSION_MEMBER, SealAppContext.this);
                     }
 
                 }
-
-            }
-        });
-        //App开发者需要根据用户ID获取用户信息,然后mCallback.setUserInfo
-        RedPacketUtil.getInstance().setGetUserInfoCallback(new GetUserInfoCallback() {
-            @Override
-            public void getUserInfo(String userId, final SetUserInfoCallback mCallback) {
-                //(只是针对融云demo做的缓存逻辑,App开发者仅供参考)
-                UserInfo userInfo = RongContext.getInstance().getUserInfoFromCache(userId);
-                if (userInfo != null) {
-                    NLog.e("userInfo", "-user-cache-" + userInfo.getName());
-                    mCallback.setUserInfo(userInfo.getName(), userInfo.getPortraitUri().toString());
-                } else {
-                    NLog.e("userInfo", "-user-no-cache-");
-                    mUserId = userId;
-                    mSetUserInfoCallback = mCallback;
-                    AsyncTaskManager.getInstance(mContext).request(REQUEST_USERINFO, SealAppContext.this);
-                }
-
             }
         });
 
@@ -285,9 +258,9 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
 
     //App开发者需要根据群(讨论组)ID获取群(讨论组)成员人数,
     //然后mCallback.toRedPacketActivity(number),打开发送红包界面
-    private RongGroupRedPacketProvider createGroupProvider() {
+    private GroupRedPacketProvider createGroupProvider() {
         //(只是针对融云demo做的缓存逻辑,App开发者及供参考)
-        RongGroupRedPacketProvider groupRedPacketProvider = new RongGroupRedPacketProvider(
+        GroupRedPacketProvider groupRedPacketProvider = new GroupRedPacketProvider(
                 RongContext.getInstance(), new GetGroupInfoCallback() {
             @Override
             public void getGroupPersonNumber(String groupID, final ToRedPacketActivity mCallback) {
@@ -360,8 +333,6 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
                 return action.getGroupMember(mGroupId);
             case REQUEST_GROUP_MEMBER:
                 return action.getGroupMember(mGroupId);
-            case REQUEST_USERINFO:
-                return action.getUserInfoById(mUserId);
             case REQUEST_SYNCDISCUSSION:
                 return action.getUserInfos(mIds);
             case REQUEST_DISCUSSION_MEMBER:
@@ -397,31 +368,13 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
                             //缓存群成员信息
                             mRedPacketCache.put(mGroupId, (ArrayList<GetGroupMemberResponse.ResultEntity>) list);
                             if (mGroupMemberCallback != null) {
-                                mGroupMemberCallback.setGroupMember(sortingData(list));
+                                mGroupMemberCallback.onSuccess(sortingData(list));
                             }
                         } else {
                             if (mGroupMemberCallback != null) {
-                                mGroupMemberCallback.setGroupMember(null);
+                                mGroupMemberCallback.onError("error", "number is zero");
                             }
                         }
-                    }
-                    break;
-                case REQUEST_USERINFO:
-                    GetUserInfoByIdResponse userResponse = (GetUserInfoByIdResponse) result;
-                    if (userResponse.getCode() == 200) {
-                        GetUserInfoByIdResponse.ResultEntity resultEntity = userResponse.getResult();
-                        if (resultEntity != null) {
-                            UserInfo userInfo = new UserInfo(resultEntity.getId(), resultEntity.getNickname(), Uri.parse(resultEntity.getPortraitUri()));
-                            RongIM.getInstance().refreshUserInfoCache(userInfo);
-                            if (mSetUserInfoCallback != null) {
-                                mSetUserInfoCallback.setUserInfo(userInfo.getName(), userInfo.getPortraitUri().toString());
-                            }
-                        } else {
-                            if (mSetUserInfoCallback != null) {
-                                mSetUserInfoCallback.UserInfoError("data is null");
-                            }
-                        }
-
                     }
                     break;
                 case REQUEST_SYNCDISCUSSION:
@@ -442,11 +395,11 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
                             //缓存讨论组成员信息
                             mRedPacketCache.put(mGroupId, (ArrayList<GetUserInfosResponse.ResultEntity>) infos);
                             if (mGroupMemberCallback != null) {
-                                mGroupMemberCallback.setGroupMember(sortingDiscussionData(infos));
+                                mGroupMemberCallback.onSuccess(sortingDiscussionData(infos));
                             }
                         } else {
                             if (mGroupMemberCallback != null) {
-                                mGroupMemberCallback.setGroupMember(null);
+                                mGroupMemberCallback.onError("error", "number is zero");
                             }
                         }
                     }
@@ -467,17 +420,12 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
         switch (requestCode) {
             case REQUEST_GROUP_MEMBER:
                 if (mGroupMemberCallback != null) {
-                    mGroupMemberCallback.setGroupMember(null);
+                    mGroupMemberCallback.onError("error", "number is zero");
                 }
                 break;
             case REQUEST_DISCUSSION_MEMBER:
                 if (mGroupMemberCallback != null) {
-                    mGroupMemberCallback.setGroupMember(null);
-                }
-                break;
-            case REQUEST_USERINFO:
-                if (mSetUserInfoCallback != null) {
-                    mSetUserInfoCallback.UserInfoError("data is null");
+                    mGroupMemberCallback.onError("error", "number is zero");
                 }
                 break;
         }
@@ -593,7 +541,7 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener, 
         } else if (messageContent instanceof ImageMessage) {
             ImageMessage imageMessage = (ImageMessage) messageContent;
             Log.e("imageMessage", imageMessage.getRemoteUri().toString());
-        } else if (messageContent instanceof RongEmptyMessage) {
+        } else if (messageContent instanceof EmptyMessage) {
             //接收到空消息（不展示UI的消息）向本地插入一条“XX领取了你的红包”
             RedPacketUtil.getInstance().insertMessage(message);
         }

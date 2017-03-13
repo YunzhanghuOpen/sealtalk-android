@@ -14,5 +14,6 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
+       maven { url "https://raw.githubusercontent.com/YunzhanghuOpen/redpacket-maven-repo/master/release" }
     }
 }

@@ -16,7 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.yunzhanghu.redpacketui.RedPacketUtil;
+import com.yunzhanghu.redpacket.RedPacketUtil;
 
 import cn.rongcloud.im.App;
 import cn.rongcloud.im.R;

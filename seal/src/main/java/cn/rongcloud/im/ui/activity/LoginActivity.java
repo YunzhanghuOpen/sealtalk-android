@@ -17,15 +17,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.yunzhanghu.redpacketui.RedPacketUtil;
-
 import java.util.List;
 
 import cn.rongcloud.im.R;
 import cn.rongcloud.im.db.DBManager;
 import cn.rongcloud.im.db.Friend;
 import cn.rongcloud.im.db.Groups;
-import cn.rongcloud.im.server.network.async.AsyncTaskManager;
 import cn.rongcloud.im.server.network.http.HttpException;
 import cn.rongcloud.im.server.response.GetGroupResponse;
 import cn.rongcloud.im.server.response.GetTokenResponse;
@@ -335,9 +332,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         if (TextUtils.isEmpty(guRes.getResult().getPortraitUri())) {
                             guRes.getResult().setPortraitUri(RongGenerate.generateDefaultAvatar(guRes.getResult().getNickname(), guRes.getResult().getId()));
                         }
-                        //初始化用户信息
-                        RedPacketUtil.getInstance().initUserInfo(guRes.getResult().getId(), guRes.getResult().getNickname(), guRes.getResult().getPortraitUri());
-
                         RongIM.getInstance().setCurrentUserInfo(new UserInfo(guRes.getResult().getId(), guRes.getResult().getNickname(), Uri.parse(guRes.getResult().getPortraitUri())));
                         RongIM.getInstance().setMessageAttachedUserInfo(true);
 

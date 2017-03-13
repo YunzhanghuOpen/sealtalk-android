@@ -19,12 +19,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.yunzhanghu.redpacketsdk.RPRefreshSignListener;
-import com.yunzhanghu.redpacketsdk.RPValueCallback;
-import com.yunzhanghu.redpacketsdk.RedPacket;
-import com.yunzhanghu.redpacketsdk.bean.TokenData;
-import com.yunzhanghu.redpacketui.RedPacketUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,19 +92,6 @@ public class MainActivity extends BaseActivity implements ViewPager.OnPageChange
             changeTextViewColor();
             changeSelectedTabState(0);
         }
-        //刷新签名
-        //App开发者需要去自己服务器请求签名参数,换成自己的URl
-        //@param partner      商户代码 (联系云账户后端获取)
-        // @param userId       商户用户id
-        // @param timestamp    签名使用的时间戳
-        // @param sign         签名
-        final String url = "http://rpv2.easemob.com/api/sign?duid=" + RedPacketUtil.getInstance().getUserID()+"&dcode=1101%23testrongyun";
-        RedPacket.getInstance().setRefreshSignListener(new RPRefreshSignListener() {
-            @Override
-            public void onRefreshSign(RPValueCallback<TokenData> rpValueCallback) {
-                RedPacketUtil.getInstance().requestSign(mContext, url, rpValueCallback);
-            }
-        });
     }
 
     private void reconnect() {

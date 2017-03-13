@@ -2,6 +2,7 @@ package cn.rongcloud.im;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.multidex.MultiDex;
 
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -9,9 +10,13 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.yunzhanghu.redpacketsdk.RPInitRedPacketCallback;
+import com.yunzhanghu.redpacketsdk.RPValueCallback;
 import com.yunzhanghu.redpacketsdk.RedPacket;
+import com.yunzhanghu.redpacketsdk.bean.RedPacketInfo;
+import com.yunzhanghu.redpacketsdk.bean.TokenData;
 import com.yunzhanghu.redpacketsdk.constant.RPConstant;
-import com.yunzhanghu.redpacketui.RedPacketUtil;
+import com.yunzhanghu.redpacket.RedPacketUtil;
 
 import cn.rongcloud.im.message.provider.ContactNotificationMessageProvider;
 import cn.rongcloud.im.message.provider.GroupNotificationMessageProvider;
@@ -25,7 +30,6 @@ import io.rong.message.FileMessage;
 import io.rong.message.GroupNotificationMessage;
 import io.rong.push.RongPushClient;
 import io.rong.push.common.RongException;
-
 
 
 public class App extends Application {
@@ -75,28 +79,47 @@ public class App extends Application {
         }
 
         options = new DisplayImageOptions.Builder()
-        .showImageForEmptyUri(R.drawable.de_default_portrait)
-        .showImageOnFail(R.drawable.de_default_portrait)
-        .showImageOnLoading(R.drawable.de_default_portrait)
-        .displayer(new FadeInBitmapDisplayer(300))
-        .cacheInMemory(true)
-        .cacheOnDisk(true)
-        .build();
+                .showImageForEmptyUri(R.drawable.de_default_portrait)
+                .showImageOnFail(R.drawable.de_default_portrait)
+                .showImageOnLoading(R.drawable.de_default_portrait)
+                .displayer(new FadeInBitmapDisplayer(300))
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .build();
 
         //初始化图片下载组件
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
-        .threadPriority(Thread.NORM_PRIORITY - 2)
-        .denyCacheImageMultipleSizesInMemory()
-        .diskCacheSize(50 * 1024 * 1024)
-        .diskCacheFileCount(200)
-        .diskCacheFileNameGenerator(new Md5FileNameGenerator())
-        .defaultDisplayImageOptions(options)
-        .build();
+                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .denyCacheImageMultipleSizesInMemory()
+                .diskCacheSize(50 * 1024 * 1024)
+                .diskCacheFileCount(200)
+                .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                .defaultDisplayImageOptions(options)
+                .build();
 
         //Initialize ImageLoader with configuration.
         ImageLoader.getInstance().init(config);
         //初始化红包上下文
-        RedPacket.getInstance().initContext(this, RPConstant.AUTH_METHOD_SIGN);
+        RedPacket.getInstance().initRedPacket(this, RPConstant.AUTH_METHOD_SIGN, new RPInitRedPacketCallback() {
+            @Override
+            public void initTokenData(RPValueCallback<TokenData> rpValueCallback) {
+                //TokenData中的四个参数需要开发者向自己的Server获取
+                final String url = "http://rpv2.yunzhanghu.com/api/sign?duid=" + RongIM.getInstance().getCurrentUserId() + "&dcode=1101%23testrongyun";
+                RedPacketUtil.getInstance().requestSign(App.this, url, rpValueCallback);
+
+            }
+
+            @Override
+            public RedPacketInfo initCurrentUserSync() {
+                //这里需要同步设置当前用户id、昵称和头像url
+                SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
+                RedPacketInfo redPacketInfo = new RedPacketInfo();
+                redPacketInfo.fromUserId = sp.getString("loginid", "none");
+                redPacketInfo.fromAvatarUrl = sp.getString("loginPortrait", "none");
+                redPacketInfo.fromNickName = sp.getString("loginnickname", "none");
+                return redPacketInfo;
+            }
+        });
         RedPacket.getInstance().setDebugMode(true);
     }
 
