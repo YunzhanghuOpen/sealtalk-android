@@ -10,12 +10,16 @@ import android.util.Log;
 import android.view.View;
 
 import com.alibaba.fastjson.JSONException;
-import com.yunzhanghu.redpacketui.RedPacketCache;
-import com.yunzhanghu.redpacketui.RedPacketUtil;
-import com.yunzhanghu.redpacketui.callback.GroupMemberCallback;
-import com.yunzhanghu.redpacketui.callback.SetUserInfoCallback;
-import com.yunzhanghu.redpacketui.message.RongEmptyMessage;
-import com.yunzhanghu.redpacketui.module.TestModule;
+import com.yunzhanghu.redpacket.RedPacketCache;
+import com.yunzhanghu.redpacket.RedPacketUtil;
+import com.yunzhanghu.redpacket.callback.GetGroupInfoCallback;
+import com.yunzhanghu.redpacket.callback.ToRedPacketActivity;
+import com.yunzhanghu.redpacket.message.EmptyMessage;
+import com.yunzhanghu.redpacket.module.RedPacketModule;
+import com.yunzhanghu.redpacketsdk.RPGroupMemberListener;
+import com.yunzhanghu.redpacketsdk.RPValueCallback;
+import com.yunzhanghu.redpacketsdk.RedPacket;
+import com.yunzhanghu.redpacketsdk.bean.RPUserBean;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -28,15 +32,22 @@ import cn.rongcloud.im.db.GroupMember;
 import cn.rongcloud.im.db.Groups;
 import cn.rongcloud.im.server.SealAction;
 import cn.rongcloud.im.server.broadcast.BroadcastManager;
+import cn.rongcloud.im.server.network.async.AsyncTaskManager;
+import cn.rongcloud.im.server.network.async.OnDataListener;
 import cn.rongcloud.im.server.network.http.HttpException;
 import cn.rongcloud.im.server.pinyin.CharacterParser;
 import cn.rongcloud.im.server.response.ContactNotificationMessageData;
+import cn.rongcloud.im.server.response.GetGroupMemberResponse;
+import cn.rongcloud.im.server.response.GetUserInfosResponse;
 import cn.rongcloud.im.server.utils.NLog;
+import cn.rongcloud.im.server.utils.NToast;
 import cn.rongcloud.im.server.utils.json.JsonMananger;
+import cn.rongcloud.im.server.widget.LoadDialog;
 import cn.rongcloud.im.ui.activity.LoginActivity;
 import cn.rongcloud.im.ui.activity.MainActivity;
 import cn.rongcloud.im.ui.activity.NewFriendListActivity;
 import cn.rongcloud.im.ui.activity.UserDetailActivity;
+import cn.rongcloud.im.utils.SharedPreferencesContext;
 import io.rong.imkit.DefaultExtensionModule;
 import io.rong.imkit.IExtensionModule;
 import io.rong.imkit.RongExtensionManager;
@@ -46,6 +57,7 @@ import io.rong.imkit.model.GroupUserInfo;
 import io.rong.imkit.model.UIConversation;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Discussion;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
@@ -59,16 +71,7 @@ import io.rong.message.ImageMessage;
  * Created by AMing on 16/1/7.
  * Company RongCloud
  */
-//        <<<<<<<HEAD
-//
-//public class SealAppContext implements RongIM.ConversationListBehaviorListener, RongIMClient.OnReceiveMessageListener, RongIM.UserInfoProvider, RongIM.GroupInfoProvider, RongIM.GroupUserInfoProvider, RongIMClient.ConnectionStatusListener, RongIM.LocationProvider, RongIM.ConversationBehaviorListener, OnDataListener {
-//
-//    public static final int REQUEST_SYNCGROUP = 101;
-//    public static final int REQUEST_GROUP_MEMBER = 102;
-//    public static final int REQUEST_USERINFO = 103;
-//    public static final int REQUEST_SYNCDISCUSSION = 104;
-//    public static final int REQUEST_DISCUSSION_MEMBER = 105;
-//=======
+
 public class SealAppContext implements RongIM.ConversationListBehaviorListener,
         RongIMClient.OnReceiveMessageListener,
         RongIM.UserInfoProvider,
@@ -77,12 +80,18 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener,
         RongIM.LocationProvider,
         RongIMClient.ConnectionStatusListener,
         RongIM.ConversationBehaviorListener,
-        RongIM.IGroupMembersProvider {
+        RongIM.IGroupMembersProvider,
+        OnDataListener {
 
     private static final int CLICK_CONVERSATION_USER_PORTRAIT = 1;
 
 
     private final static String TAG = "SealAppContext";
+
+    public static final int REQUEST_SYNCGROUP = 101;
+    public static final int REQUEST_GROUP_MEMBER = 102;
+    public static final int REQUEST_SYNCDISCUSSION = 104;
+    public static final int REQUEST_DISCUSSION_MEMBER = 105;
     public static final String UPDATE_FRIEND = "update_friend";
     public static final String UPDATE_RED_DOT = "update_red_dot";
     public static final String UPDATE_GROUP_NAME = "update_group_name";
@@ -103,13 +112,9 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener,
 
     private String mGroupId;
 
-    private String mUserId;
-
     private RedPacketCache mRedPacketCache;
 
-    private GroupMemberCallback mGroupMemberCallback;
-
-    private SetUserInfoCallback mSetUserInfoCallback;
+    private RPValueCallback<List<RPUserBean>> mGroupMemberCallback;
 
     public SealAppContext(Context mContext) {
         this.mContext = mContext;
@@ -188,301 +193,8 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener,
 
     private void setInputProvider() {
         RongIM.setOnReceiveMessageListener(this);
-//<<<<<<< HEAD
-//        RongIM.setConnectionStatusListener(this);
-//
-//        InputProvider.ExtendProvider[] singleProvider = {
-//                new ImageInputProvider(RongContext.getInstance()),
-//                new RealTimeLocationInputProvider(RongContext.getInstance()), //带位置共享的地理位
-//                new FileInputProvider(RongContext.getInstance()),//文件消息
-//                new RongRedPacketProvider(RongContext.getInstance())//单聊红包
-//        };
-//
-//        InputProvider.ExtendProvider[] muiltiProvider = {
-//                new ImageInputProvider(RongContext.getInstance()),
-//                new LocationInputProvider(RongContext.getInstance()),//地理位置
-//                new FileInputProvider(RongContext.getInstance())//文件消息
-//        };
-//        InputProvider.ExtendProvider[] groupProvider = {
-//                new ImageInputProvider(RongContext.getInstance()),
-//                new LocationInputProvider(RongContext.getInstance()),//地理位置
-//                createGroupProvider()//群红包
-//        };
-//
-//        RongIM.resetInputExtensionProvider(Conversation.ConversationType.PRIVATE, singleProvider);
-//        RongIM.resetInputExtensionProvider(Conversation.ConversationType.DISCUSSION, groupProvider);
-//        RongIM.resetInputExtensionProvider(Conversation.ConversationType.CUSTOMER_SERVICE, muiltiProvider);
-//        RongIM.resetInputExtensionProvider(Conversation.ConversationType.GROUP, groupProvider);
-//        //根据群(讨论组)id获取群(讨论组)成员信息,然后 groupMemberCallback.setGroupMember(list);
-//        RPGroupMemberUtil.getInstance().setGroupMemberListener(new NotifyGroupMemberCallback() {
-//            @Override
-//            public void getGroupMember(String groupId, GroupMemberCallback groupMemberCallback) {
-//                //(只是针对融云demo做的缓存逻辑,App开发者及供参考)
-//                if (RedPacketUtil.getInstance().getChatType().equals(RedPacketUtil.CHAT_GROUP)) {
-//                    ArrayList<GetGroupMemberResponse.ResultEntity> list = (ArrayList<GetGroupMemberResponse.ResultEntity>) mRedPacketCache.getAsObject(groupId);
-//                    if (list != null) {
-//                        NLog.e("group_member", "-cache-");
-//                        groupMemberCallback.setGroupMember(sortingData(list));
-//                    } else {
-//                        NLog.e("group_member", "-no-cache-");
-//                        mGroupId = groupId;
-//                        mGroupMemberCallback = groupMemberCallback;
-//                        AsyncTaskManager.getInstance(mContext).request(REQUEST_GROUP_MEMBER, SealAppContext.this);
-//                    }
-//                } else if (RedPacketUtil.getInstance().getChatType().equals(RedPacketUtil.CHAT_DISCUSSION)) {//讨论组
-//                    ArrayList<GetUserInfosResponse.ResultEntity> list = (ArrayList<GetUserInfosResponse.ResultEntity>) mRedPacketCache.getAsObject(groupId);
-//                    if (list != null) {
-//                        NLog.e("discussion_member", "-cache-");
-//                        groupMemberCallback.setGroupMember(sortingDiscussionData(list));
-//                    } else {
-//                        NLog.e("discussion_member", "-no-cache-");
-//                        mGroupId = groupId;
-//                        mGroupMemberCallback = groupMemberCallback;
-//                        AsyncTaskManager.getInstance(mContext).request(REQUEST_DISCUSSION_MEMBER, SealAppContext.this);
-//                    }
-//
-//                }
-//
-//            }
-//        });
-//        //App开发者需要根据用户ID获取用户信息,然后mCallback.setUserInfo
-//        RedPacketUtil.getInstance().setGetUserInfoCallback(new GetUserInfoCallback() {
-//            @Override
-//            public void getUserInfo(String userId, final SetUserInfoCallback mCallback) {
-//                //(只是针对融云demo做的缓存逻辑,App开发者仅供参考)
-//                UserInfo userInfo = RongContext.getInstance().getUserInfoFromCache(userId);
-//                if (userInfo != null) {
-//                    NLog.e("userInfo", "-user-cache-" + userInfo.getName());
-//                    mCallback.setUserInfo(userInfo.getName(), userInfo.getPortraitUri().toString());
-//                } else {
-//                    NLog.e("userInfo", "-user-no-cache-");
-//                    mUserId = userId;
-//                    mSetUserInfoCallback = mCallback;
-//                    AsyncTaskManager.getInstance(mContext).request(REQUEST_USERINFO, SealAppContext.this);
-//                }
-//
-//            }
-//        });
-//
-//    }
-//
-//    //App开发者需要根据群(讨论组)ID获取群(讨论组)成员人数,
-//    //然后mCallback.toRedPacketActivity(number),打开发送红包界面
-//    private RongGroupRedPacketProvider createGroupProvider() {
-//        //(只是针对融云demo做的缓存逻辑,App开发者及供参考)
-//        RongGroupRedPacketProvider groupRedPacketProvider = new RongGroupRedPacketProvider(
-//                RongContext.getInstance(), new GetGroupInfoCallback() {
-//            @Override
-//            public void getGroupPersonNumber(String groupID, final ToRedPacketActivity mCallback) {
-//
-//                if (RedPacketUtil.getInstance().getChatType().equals(RedPacketUtil.CHAT_GROUP)) {
-//                    mGroupId = groupID;
-//                    //同步群信息
-//                    AsyncTaskManager.getInstance(mContext).request(REQUEST_SYNCGROUP, SealAppContext.this);
-//                    int number = SharedPreferencesContext.getInstance().getSharedPreferences().getInt(groupID, 0);
-//                    mCallback.toRedPacketActivity(number);
-//                } else {//讨论组
-//                    mGroupId = groupID;
-//                    RongIM.getInstance().getDiscussion(groupID, new RongIMClient.ResultCallback<Discussion>() {
-//                        @Override
-//                        public void onSuccess(Discussion discussion) {
-//                            mIds = discussion.getMemberIdList();
-//                            //同步讨论组信息
-//                            AsyncTaskManager.getInstance(mContext).request(REQUEST_SYNCDISCUSSION, SealAppContext.this);
-//                            mCallback.toRedPacketActivity(discussion.getMemberIdList().size());
-//                        }
-//
-//                        @Override
-//                        public void onError(RongIMClient.ErrorCode errorCode) {
-//
-//                        }
-//                    });
-//                }
-//            }
-//        });
-//        return groupRedPacketProvider;
-//    }
-//
-//    private List<RPUserBean> sortingDiscussionData(List<GetUserInfosResponse.ResultEntity> mList) {
-//        String userID = RongIM.getInstance().getCurrentUserId();
-//        List<RPUserBean> data = new ArrayList<RPUserBean>();
-//        for (int i = 0; i < mList.size(); i++) {
-//            if (userID.equals(mList.get(i).getId())) {
-//                continue;
-//            }
-//            RPUserBean mRPUserBean = new RPUserBean();
-//            mRPUserBean.userId = mList.get(i).getId();
-//            mRPUserBean.userNickname = mList.get(i).getNickname();
-//            mRPUserBean.userAvatar = mList.get(i).getPortraitUri();
-//            data.add(mRPUserBean);
-//        }
-//        return data;
-//    }
-//
-//    private List<RPUserBean> sortingData(List<GetGroupMemberResponse.ResultEntity> mList) {
-//        String userID = RongIM.getInstance().getCurrentUserId();
-//        List<RPUserBean> data = new ArrayList<RPUserBean>();
-//        for (int i = 0; i < mList.size(); i++) {
-//            if (userID.equals(mList.get(i).getUser().getId())) {
-//                continue;
-//            }
-//            RPUserBean mRPUserBean = new RPUserBean();
-//            mRPUserBean.userId = mList.get(i).getUser().getId();
-//            mRPUserBean.userNickname = mList.get(i).getUser().getNickname();
-//            mRPUserBean.userAvatar = mList.get(i).getUser().getPortraitUri();
-//            data.add(mRPUserBean);
-//        }
-//        return data;
-//    }
-//
-//
-//    @Override
-//    public Object doInBackground(int requestCode, String parameter) throws HttpException {
-//        switch (requestCode) {
-//            case REQUEST_SYNCGROUP:
-//                return action.getGroupMember(mGroupId);
-//            case REQUEST_GROUP_MEMBER:
-//                return action.getGroupMember(mGroupId);
-//            case REQUEST_USERINFO:
-//                return action.getUserInfoById(mUserId);
-//            case REQUEST_SYNCDISCUSSION:
-//                return action.getUserInfos(mIds);
-//            case REQUEST_DISCUSSION_MEMBER:
-//                return action.getUserInfos(mIds);
-//        }
-//
-//        return null;
-//    }
-//
-//    @Override
-//    public void onSuccess(int requestCode, Object result) {
-//        if (result != null) {
-//            switch (requestCode) {
-//                case REQUEST_SYNCGROUP:
-//                    GetGroupMemberResponse groupMemberResponse = (GetGroupMemberResponse) result;
-//                    if (groupMemberResponse.getCode() == 200) {
-//                        List<GetGroupMemberResponse.ResultEntity> list = groupMemberResponse.getResult();
-//                        if (list != null && list.size() > 0) {
-//                            //缓存群成员个数
-//                            SharedPreferencesContext.getInstance().getSharedPreferences().edit().putInt(mGroupId, list.size());
-//                            //缓存群成员信息
-//                            mRedPacketCache.put(mGroupId, (ArrayList<GetGroupMemberResponse.ResultEntity>) list);
-//                        }
-//                    }
-//                    break;
-//                case REQUEST_GROUP_MEMBER:
-//                    GetGroupMemberResponse mGroupMemberResponse = (GetGroupMemberResponse) result;
-//                    if (mGroupMemberResponse.getCode() == 200) {
-//                        List<GetGroupMemberResponse.ResultEntity> list = mGroupMemberResponse.getResult();
-//                        if (list != null && list.size() > 0) {
-//                            //缓存群成员个数
-//                            SharedPreferencesContext.getInstance().getSharedPreferences().edit().putInt(mGroupId, list.size());
-//                            //缓存群成员信息
-//                            mRedPacketCache.put(mGroupId, (ArrayList<GetGroupMemberResponse.ResultEntity>) list);
-//                            if (mGroupMemberCallback != null) {
-//                                mGroupMemberCallback.setGroupMember(sortingData(list));
-//                            }
-//                        } else {
-//                            if (mGroupMemberCallback != null) {
-//                                mGroupMemberCallback.setGroupMember(null);
-//                            }
-//                        }
-//                    }
-//                    break;
-//                case REQUEST_USERINFO:
-//                    GetUserInfoByIdResponse userResponse = (GetUserInfoByIdResponse) result;
-//                    if (userResponse.getCode() == 200) {
-//                        GetUserInfoByIdResponse.ResultEntity resultEntity = userResponse.getResult();
-//                        if (resultEntity != null) {
-//                            UserInfo userInfo = new UserInfo(resultEntity.getId(), resultEntity.getNickname(), Uri.parse(resultEntity.getPortraitUri()));
-//                            RongIM.getInstance().refreshUserInfoCache(userInfo);
-//                            if (mSetUserInfoCallback != null) {
-//                                mSetUserInfoCallback.setUserInfo(userInfo.getName(), userInfo.getPortraitUri().toString());
-//                            }
-//                        } else {
-//                            if (mSetUserInfoCallback != null) {
-//                                mSetUserInfoCallback.UserInfoError("data is null");
-//                            }
-//                        }
-//
-//                    }
-//                    break;
-//                case REQUEST_SYNCDISCUSSION:
-//                    GetUserInfosResponse response = (GetUserInfosResponse) result;
-//                    if (response.getCode() == 200) {
-//                        List<GetUserInfosResponse.ResultEntity> infos = response.getResult();
-//                        if (infos != null && infos.size() > 0) {
-//                            //缓存讨论组成员信息
-//                            mRedPacketCache.put(mGroupId, (ArrayList<GetUserInfosResponse.ResultEntity>) infos);
-//                        }
-//                    }
-//                    break;
-//                case REQUEST_DISCUSSION_MEMBER:
-//                    GetUserInfosResponse mInfoResponse = (GetUserInfosResponse) result;
-//                    if (mInfoResponse.getCode() == 200) {
-//                        List<GetUserInfosResponse.ResultEntity> infos = mInfoResponse.getResult();
-//                        if (infos != null && infos.size() > 0) {
-//                            //缓存讨论组成员信息
-//                            mRedPacketCache.put(mGroupId, (ArrayList<GetUserInfosResponse.ResultEntity>) infos);
-//                            if (mGroupMemberCallback != null) {
-//                                mGroupMemberCallback.setGroupMember(sortingDiscussionData(infos));
-//                            }
-//                        } else {
-//                            if (mGroupMemberCallback != null) {
-//                                mGroupMemberCallback.setGroupMember(null);
-//                            }
-//                        }
-//                    }
-//                    break;
-//            }
-//
-//        }
-//
-//    }
-//
-//    @Override
-//    public void onFailure(int requestCode, int state, Object result) {
-//        if (state == AsyncTaskManager.HTTP_NULL_CODE || state == AsyncTaskManager.HTTP_ERROR_CODE) {
-//            LoadDialog.dismiss(mContext);
-//            NToast.shortToast(mContext, R.string.network_not_available);
-//            return;
-//        }
-//        switch (requestCode) {
-//            case REQUEST_GROUP_MEMBER:
-//                if (mGroupMemberCallback != null) {
-//                    mGroupMemberCallback.setGroupMember(null);
-//                }
-//                break;
-//            case REQUEST_DISCUSSION_MEMBER:
-//                if (mGroupMemberCallback != null) {
-//                    mGroupMemberCallback.setGroupMember(null);
-//                }
-//                break;
-//            case REQUEST_USERINFO:
-//                if (mSetUserInfoCallback != null) {
-//                    mSetUserInfoCallback.UserInfoError("data is null");
-//                }
-//                break;
-//        }
-//
-//    }
-//
-//
-//    /**
-//     * 需要 rongcloud connect 成功后设置的 listener
-//     */
-//    public void setUserInfoEngineListener() {
-//        UserInfoEngine.getInstance(mContext).setListener(new UserInfoEngine.UserInfoListener() {
-//            @Override
-//            public void onResult(UserInfo info) {
-//                if (info != null && RongIM.getInstance() != null) {
-//                    if (TextUtils.isEmpty(String.valueOf(info.getPortraitUri()))) {
-//                        info.setPortraitUri(Uri.parse(RongGenerate.generateDefaultAvatar(info.getName(), info.getUserId())));
-//                    }
-//                    NLog.e("UserInfoEngine", info.getName() + info.getPortraitUri());
-//                    RongIM.getInstance().refreshUserInfoCache(info);
-//=======
-
+        //设置定向红包
+        setDirectionalRedPacket();
         List<IExtensionModule> moduleList = RongExtensionManager.getInstance().getExtensionModules();
         IExtensionModule defaultModule = null;
         if (moduleList != null) {
@@ -490,16 +202,227 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener,
                 if (module instanceof DefaultExtensionModule) {
                     defaultModule = module;
                     break;
-//>>>>>>>master
                 }
             }
             if (defaultModule != null) {
                 RongExtensionManager.getInstance().unregisterExtensionModule(defaultModule);
-//                RongExtensionManager.getInstance().registerExtensionModule(new SealExtensionModule());
-                RongExtensionManager.getInstance().registerExtensionModule(new TestModule());
+                //注册自定义module
+                RongExtensionManager.getInstance().registerExtensionModule(createRedPacketModule());
             }
         }
+
     }
+
+    private RedPacketModule createRedPacketModule() {
+        //App开发者需要根据群(讨论组)ID获取群(讨论组)成员人数,
+        //然后mCallback.toRedPacketActivity(number),打开发送红包界面
+        RedPacketModule redPacketModule = new RedPacketModule(new GetGroupInfoCallback() {
+            @Override
+            public void getGroupPersonNumber(String groupID, final ToRedPacketActivity mCallback) {
+                //(只是针对融云demo做的缓存逻辑,App开发者及供参考)
+                if (RedPacketUtil.getInstance().getChatType().equals(RedPacketUtil.CHAT_GROUP)) {
+                    mGroupId = groupID;
+                    //同步群信息
+                    AsyncTaskManager.getInstance(mContext).request(REQUEST_SYNCGROUP, SealAppContext.this);
+                    int number = SharedPreferencesContext.getInstance().getSharedPreferences().getInt(groupID, 0);
+                    mCallback.toRedPacketActivity(number);
+                } else {//讨论组
+                    mGroupId = groupID;
+                    RongIM.getInstance().getDiscussion(groupID, new RongIMClient.ResultCallback<Discussion>() {
+                        @Override
+                        public void onSuccess(Discussion discussion) {
+                            mIds = discussion.getMemberIdList();
+                            //同步讨论组信息
+                            AsyncTaskManager.getInstance(mContext).request(REQUEST_SYNCDISCUSSION, SealAppContext.this);
+                            mCallback.toRedPacketActivity(discussion.getMemberIdList().size());
+                        }
+
+                        @Override
+                        public void onError(RongIMClient.ErrorCode errorCode) {
+
+                        }
+                    });
+                }
+            }
+        });
+        return redPacketModule;
+    }
+
+    private void setDirectionalRedPacket() {
+        //根据群(讨论组)id获取群(讨论组)成员信息,然后 rpValueCallback.onSuccess(list);
+        RedPacket.getInstance().setRPGroupMemberListener(new RPGroupMemberListener() {
+            @Override
+            public void getGroupMember(String groupId, RPValueCallback<List<RPUserBean>> rpValueCallback) {
+                //(只是针对融云demo做的缓存逻辑,App开发者及供参考)
+                if (RedPacketUtil.getInstance().getChatType().equals(RedPacketUtil.CHAT_GROUP)) {
+                    ArrayList<GetGroupMemberResponse.ResultEntity> list = (ArrayList<GetGroupMemberResponse.ResultEntity>) mRedPacketCache.getAsObject(groupId);
+                    if (list != null) {
+                        NLog.e("group_member", "-cache-");
+                        rpValueCallback.onSuccess(sortingData(list));
+                    } else {
+                        NLog.e("group_member", "-no-cache-");
+                        mGroupId = groupId;
+                        mGroupMemberCallback = rpValueCallback;
+                        AsyncTaskManager.getInstance(mContext).request(REQUEST_GROUP_MEMBER, SealAppContext.this);
+                    }
+                } else if (RedPacketUtil.getInstance().getChatType().equals(RedPacketUtil.CHAT_DISCUSSION)) {//讨论组
+                    ArrayList<GetUserInfosResponse.ResultEntity> list = (ArrayList<GetUserInfosResponse.ResultEntity>) mRedPacketCache.getAsObject(groupId);
+                    if (list != null) {
+                        NLog.e("discussion_member", "-cache-");
+                        rpValueCallback.onSuccess(sortingDiscussionData(list));
+                    } else {
+                        NLog.e("discussion_member", "-no-cache-");
+                        mGroupId = groupId;
+                        mGroupMemberCallback = rpValueCallback;
+                        AsyncTaskManager.getInstance(mContext).request(REQUEST_DISCUSSION_MEMBER, SealAppContext.this);
+                    }
+
+                }
+            }
+        });
+
+    }
+
+
+    @Override
+    public Object doInBackground(int requestCode, String parameter) throws HttpException {
+        switch (requestCode) {
+            case REQUEST_SYNCGROUP:
+                return action.getGroupMember(mGroupId);
+            case REQUEST_GROUP_MEMBER:
+                return action.getGroupMember(mGroupId);
+            case REQUEST_SYNCDISCUSSION:
+                return action.getUserInfos(mIds);
+            case REQUEST_DISCUSSION_MEMBER:
+                return action.getUserInfos(mIds);
+        }
+
+        return null;
+    }
+
+    @Override
+    public void onSuccess(int requestCode, Object result) {
+        if (result != null) {
+            switch (requestCode) {
+                case REQUEST_SYNCGROUP:
+                    GetGroupMemberResponse groupMemberResponse = (GetGroupMemberResponse) result;
+                    if (groupMemberResponse.getCode() == 200) {
+                        List<GetGroupMemberResponse.ResultEntity> list = groupMemberResponse.getResult();
+                        if (list != null && list.size() > 0) {
+                            //缓存群成员个数
+                            SharedPreferencesContext.getInstance().getSharedPreferences().edit().putInt(mGroupId, list.size()).commit();
+                            //缓存群成员信息
+                            mRedPacketCache.put(mGroupId, (ArrayList<GetGroupMemberResponse.ResultEntity>) list);
+                        }
+                    }
+                    break;
+                case REQUEST_GROUP_MEMBER:
+                    GetGroupMemberResponse mGroupMemberResponse = (GetGroupMemberResponse) result;
+                    if (mGroupMemberResponse.getCode() == 200) {
+                        List<GetGroupMemberResponse.ResultEntity> list = mGroupMemberResponse.getResult();
+                        if (list != null && list.size() > 0) {
+                            //缓存群成员个数
+                            SharedPreferencesContext.getInstance().getSharedPreferences().edit().putInt(mGroupId, list.size()).commit();
+                            //缓存群成员信息
+                            mRedPacketCache.put(mGroupId, (ArrayList<GetGroupMemberResponse.ResultEntity>) list);
+                            if (mGroupMemberCallback != null) {
+                                mGroupMemberCallback.onSuccess(sortingData(list));
+                            }
+                        } else {
+                            if (mGroupMemberCallback != null) {
+                                mGroupMemberCallback.onError("error", "number is zero");
+                            }
+                        }
+                    }
+                    break;
+                case REQUEST_SYNCDISCUSSION:
+                    GetUserInfosResponse response = (GetUserInfosResponse) result;
+                    if (response.getCode() == 200) {
+                        List<GetUserInfosResponse.ResultEntity> infos = response.getResult();
+                        if (infos != null && infos.size() > 0) {
+                            //缓存讨论组成员信息
+                            mRedPacketCache.put(mGroupId, (ArrayList<GetUserInfosResponse.ResultEntity>) infos);
+                        }
+                    }
+                    break;
+                case REQUEST_DISCUSSION_MEMBER:
+                    GetUserInfosResponse mInfoResponse = (GetUserInfosResponse) result;
+                    if (mInfoResponse.getCode() == 200) {
+                        List<GetUserInfosResponse.ResultEntity> infos = mInfoResponse.getResult();
+                        if (infos != null && infos.size() > 0) {
+                            //缓存讨论组成员信息
+                            mRedPacketCache.put(mGroupId, (ArrayList<GetUserInfosResponse.ResultEntity>) infos);
+                            if (mGroupMemberCallback != null) {
+                                mGroupMemberCallback.onSuccess(sortingDiscussionData(infos));
+                            }
+                        } else {
+                            if (mGroupMemberCallback != null) {
+                                mGroupMemberCallback.onError("error", "number is zero");
+                            }
+                        }
+                    }
+                    break;
+            }
+
+        }
+
+    }
+
+    @Override
+    public void onFailure(int requestCode, int state, Object result) {
+        if (state == AsyncTaskManager.HTTP_NULL_CODE || state == AsyncTaskManager.HTTP_ERROR_CODE) {
+            LoadDialog.dismiss(mContext);
+            NToast.shortToast(mContext, R.string.network_not_available);
+            return;
+        }
+        switch (requestCode) {
+            case REQUEST_GROUP_MEMBER:
+                if (mGroupMemberCallback != null) {
+                    mGroupMemberCallback.onError("error", "number is zero");
+                }
+                break;
+            case REQUEST_DISCUSSION_MEMBER:
+                if (mGroupMemberCallback != null) {
+                    mGroupMemberCallback.onError("error", "number is zero");
+                }
+                break;
+        }
+
+    }
+
+
+    private List<RPUserBean> sortingDiscussionData(List<GetUserInfosResponse.ResultEntity> mList) {
+        String userID = RongIM.getInstance().getCurrentUserId();
+        List<RPUserBean> data = new ArrayList<>();
+        for (int i = 0; i < mList.size(); i++) {
+            if (userID.equals(mList.get(i).getId())) {
+                continue;
+            }
+            RPUserBean mRPUserBean = new RPUserBean();
+            mRPUserBean.userId = mList.get(i).getId();
+            mRPUserBean.userNickname = mList.get(i).getNickname();
+            mRPUserBean.userAvatar = mList.get(i).getPortraitUri();
+            data.add(mRPUserBean);
+        }
+        return data;
+    }
+
+    private List<RPUserBean> sortingData(List<GetGroupMemberResponse.ResultEntity> mList) {
+        String userID = RongIM.getInstance().getCurrentUserId();
+        List<RPUserBean> data = new ArrayList<>();
+        for (int i = 0; i < mList.size(); i++) {
+            if (userID.equals(mList.get(i).getUser().getId())) {
+                continue;
+            }
+            RPUserBean mRPUserBean = new RPUserBean();
+            mRPUserBean.userId = mList.get(i).getUser().getId();
+            mRPUserBean.userNickname = mList.get(i).getUser().getNickname();
+            mRPUserBean.userAvatar = mList.get(i).getUser().getPortraitUri();
+            data.add(mRPUserBean);
+        }
+        return data;
+    }
+
 
     @Override
     public boolean onConversationPortraitClick(Context
@@ -657,7 +580,7 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener,
             return true;
         } else if (messageContent instanceof ImageMessage) {
             //ImageMessage imageMessage = (ImageMessage) messageContent;
-        }else if (messageContent instanceof RongEmptyMessage){
+        } else if (messageContent instanceof EmptyMessage) {
             //接收到空消息（不展示UI的消息）向本地插入一条“XX领取了你的红包”
             RedPacketUtil.getInstance().insertMessage(message);
         }
@@ -725,7 +648,8 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener,
     }
 
     @Override
-    public boolean onUserPortraitClick(Context context, Conversation.ConversationType conversationType, UserInfo userInfo) {
+    public boolean onUserPortraitClick(Context context, Conversation.ConversationType
+            conversationType, UserInfo userInfo) {
         if (conversationType == Conversation.ConversationType.CUSTOMER_SERVICE || conversationType == Conversation.ConversationType.PUBLIC_SERVICE || conversationType == Conversation.ConversationType.APP_PUBLIC_SERVICE) {
             return false;
         }
@@ -742,12 +666,14 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener,
     }
 
     @Override
-    public boolean onUserPortraitLongClick(Context context, Conversation.ConversationType conversationType, UserInfo userInfo) {
+    public boolean onUserPortraitLongClick(Context context, Conversation.ConversationType
+            conversationType, UserInfo userInfo) {
         return false;
     }
 
     @Override
-    public boolean onMessageClick(final Context context, final View view, final Message message) {
+    public boolean onMessageClick(final Context context, final View view,
+                                  final Message message) {
         //real-time location message end
         /**
          * demo 代码  开发者需替换成自己的代码。
@@ -762,11 +688,13 @@ public class SealAppContext implements RongIM.ConversationListBehaviorListener,
     }
 
 
-    private void startRealTimeLocation(Context context, Conversation.ConversationType conversationType, String targetId) {
+    private void startRealTimeLocation(Context context, Conversation.ConversationType
+            conversationType, String targetId) {
 
     }
 
-    private void joinRealTimeLocation(Context context, Conversation.ConversationType conversationType, String targetId) {
+    private void joinRealTimeLocation(Context context, Conversation.ConversationType
+            conversationType, String targetId) {
 
     }
 

@@ -18,7 +18,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.yunzhanghu.redpacketui.RedPacketUtil;
+
 
 import cn.rongcloud.im.R;
 import cn.rongcloud.im.SealConst;
@@ -264,8 +264,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         editor.putString(SealConst.SEALTALK_LOGIN_NAME, nickName);
                         editor.putString(SealConst.SEALTALK_LOGING_PORTRAIT, portraitUri);
                         editor.apply();
-                        //初始化用户信息
-                        RedPacketUtil.getInstance().initUserInfo(connectResultId, nickName, Uri.parse(portraitUri).toString());
                         RongIM.getInstance().refreshUserInfoCache(new UserInfo(connectResultId, nickName, Uri.parse(portraitUri)));
                     }
                     //不继续在login界面同步好友,群组,群组成员信息

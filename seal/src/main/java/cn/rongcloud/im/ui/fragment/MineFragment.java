@@ -16,8 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.yunzhanghu.redpacketui.RedPacketUtil;
-
+import com.yunzhanghu.redpacketui.utils.RPRedPacketUtil;
 
 import cn.rongcloud.im.App;
 import cn.rongcloud.im.R;
@@ -33,7 +32,6 @@ import cn.rongcloud.im.server.widget.SelectableRoundedImageView;
 import cn.rongcloud.im.ui.activity.AboutRongCloudActivity;
 import cn.rongcloud.im.ui.activity.AccountSettingActivity;
 import cn.rongcloud.im.ui.activity.MyAccountActivity;
-import io.rong.imageloader.core.ImageLoader;
 import io.rong.imkit.RongIM;
 import io.rong.imlib.model.CSCustomServiceInfo;
 import io.rong.imlib.model.UserInfo;
@@ -167,7 +165,7 @@ public class MineFragment extends Fragment implements View.OnClickListener {
                 startActivity(intent);
                 break;
             case R.id.mine_change://我的零钱
-                RedPacketUtil.getInstance().toChangeActivity(getActivity());
+                RPRedPacketUtil.getInstance().startChangeActivity(getActivity());
                 break;
         }
     }
@@ -185,7 +183,7 @@ public class MineFragment extends Fragment implements View.OnClickListener {
         if (!TextUtils.isEmpty(userId)) {
             String portraitUri = SealUserInfoManager.getInstance().getPortraitUri
                                  (new UserInfo(userId, username, Uri.parse(userPortrait)));
-            ImageLoader.getInstance().displayImage(portraitUri, imageView, App.getOptions());
+            io.rong.imageloader.core.ImageLoader.getInstance().displayImage(portraitUri, imageView, App.getOptions());
         }
     }
 }

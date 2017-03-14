@@ -1,6 +1,5 @@
 package cn.rongcloud.im;
 
-
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,14 +10,20 @@ import com.facebook.stetho.Stetho;
 import com.facebook.stetho.dumpapp.DumperPlugin;
 import com.facebook.stetho.inspector.database.DefaultDatabaseConnectionProvider;
 import com.facebook.stetho.inspector.protocol.ChromeDevtoolsDomain;
+import com.yunzhanghu.redpacket.RedPacketUtil;
+import com.yunzhanghu.redpacketsdk.RPInitRedPacketCallback;
+import com.yunzhanghu.redpacketsdk.RPValueCallback;
 import com.yunzhanghu.redpacketsdk.RedPacket;
+import com.yunzhanghu.redpacketsdk.bean.RedPacketInfo;
+import com.yunzhanghu.redpacketsdk.bean.TokenData;
 import com.yunzhanghu.redpacketsdk.constant.RPConstant;
-import com.yunzhanghu.redpacketui.RedPacketUtil;
 
 import cn.rongcloud.im.message.TestMessage;
 import cn.rongcloud.im.message.provider.ContactNotificationMessageProvider;
 import cn.rongcloud.im.message.provider.TestMessageProvider;
 import cn.rongcloud.im.server.utils.NLog;
+import cn.rongcloud.im.stetho.RongDatabaseDriver;
+import cn.rongcloud.im.stetho.RongDatabaseFilesProvider;
 import cn.rongcloud.im.stetho.RongDbFilesDumperPlugin;
 import cn.rongcloud.im.utils.SharedPreferencesContext;
 import io.rong.imageloader.core.DisplayImageOptions;
@@ -28,6 +33,7 @@ import io.rong.imkit.widget.provider.RealTimeLocationMessageProvider;
 import io.rong.imlib.ipc.RongExceptionHandler;
 import io.rong.push.RongPushClient;
 import io.rong.push.common.RongException;
+
 
 public class App extends MultiDexApplication {
 
@@ -104,7 +110,26 @@ public class App extends MultiDexApplication {
                     .cacheOnDisk(true)
                     .build();
             //初始化红包上下文
-            RedPacket.getInstance().initContext(this, RPConstant.AUTH_METHOD_SIGN);
+            RedPacket.getInstance().initRedPacket(this, RPConstant.AUTH_METHOD_SIGN, new RPInitRedPacketCallback() {
+                @Override
+                public void initTokenData(RPValueCallback<TokenData> rpValueCallback) {
+                    //TokenData中的四个参数需要开发者向自己的Server获取
+                    final String url = "http://rpv2.yunzhanghu.com/api/sign?duid=" + RongIM.getInstance().getCurrentUserId() + "&dcode=1101%23testrongyun";
+                    RedPacketUtil.getInstance().requestSign(App.this, url, rpValueCallback);
+
+                }
+
+                @Override
+                public RedPacketInfo initCurrentUserSync() {
+                    //这里需要同步设置当前用户id、昵称和头像url
+                    SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
+                    RedPacketInfo redPacketInfo = new RedPacketInfo();
+                    redPacketInfo.fromUserId = sp.getString("loginid", "none");
+                    redPacketInfo.fromAvatarUrl = sp.getString("loginPortrait", "none");
+                    redPacketInfo.fromNickName = sp.getString("loginnickname", "none");
+                    return redPacketInfo;
+                }
+            });
             RedPacket.getInstance().setDebugMode(true);
             //RongExtensionManager.getInstance().registerExtensionModule(new PTTExtensionModule(this, true, 1000 * 60));
         }
