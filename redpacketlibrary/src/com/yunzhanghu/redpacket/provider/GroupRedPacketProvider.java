@@ -33,8 +33,6 @@ import io.rong.imlib.model.Conversation;
  */
 public class GroupRedPacketProvider extends InputProvider.ExtendProvider implements ToRedPacketActivity {
 
-    private static final String TAG = GroupRedPacketProvider.class.getSimpleName();
-
     private String mGreeting;//祝福语
 
     private String mSponsor;//厂商名字(XX红包)

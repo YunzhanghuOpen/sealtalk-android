@@ -16,7 +16,6 @@ import com.yunzhanghu.redpacket.provider.NotificationMsgProvider;
 import com.yunzhanghu.redpacket.provider.RedPacketMsgProvider;
 import com.yunzhanghu.redpacketsdk.RPValueCallback;
 import com.yunzhanghu.redpacketsdk.bean.TokenData;
-import com.yunzhanghu.redpacketui.utils.RPRedPacketUtil;
 
 import org.json.JSONObject;
 
@@ -77,15 +76,6 @@ public class RedPacketUtil implements Response.Listener<JSONObject>, Response.Er
         if (content.getSendUserID().equals(userID)) {//如果当前用户是发送红包者,插入一条"XX领取了你的红包"
             RongIM.getInstance().getRongIMClient().insertMessage(message.getConversationType(), message.getTargetId(), content.getReceiveUserID(), notificationMessage, null);
         }
-    }
-
-    /**
-     * 跳转到零钱页
-     *
-     * @param mContext
-     */
-    public void toChangeActivity(Context mContext) {
-        RPRedPacketUtil.getInstance().startChangeActivity(mContext);
     }
 
     public String getChatType() {

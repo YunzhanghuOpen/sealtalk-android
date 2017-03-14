@@ -16,7 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.yunzhanghu.redpacket.RedPacketUtil;
+import com.yunzhanghu.redpacketui.utils.RPRedPacketUtil;
 
 import cn.rongcloud.im.App;
 import cn.rongcloud.im.R;
@@ -176,7 +176,7 @@ public class MineFragment extends Fragment implements View.OnClickListener {
                 startActivity(intent);
                 break;
             case R.id.mine_change://我的零钱
-                RedPacketUtil.getInstance().toChangeActivity(getActivity());
+                RPRedPacketUtil.getInstance().startChangeActivity(getActivity());
                 break;
         }
     }

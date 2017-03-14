@@ -30,8 +30,6 @@ import io.rong.imlib.model.UserInfo;
  */
 public class SingleRedPacketProvider extends InputProvider.ExtendProvider {
 
-    private static final String TAG = SingleRedPacketProvider.class.getSimpleName();
-
     private String mGreeting;//祝福语
 
     private String mSponsor;//厂商名字(XX红包)
