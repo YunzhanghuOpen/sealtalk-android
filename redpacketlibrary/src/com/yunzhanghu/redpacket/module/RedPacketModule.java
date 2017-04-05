@@ -12,7 +12,6 @@ import com.yunzhanghu.redpacket.provider.SingleRedPacketProvider;
 import java.util.List;
 
 import io.rong.imkit.DefaultExtensionModule;
-import io.rong.imkit.RongContext;
 import io.rong.imkit.RongExtension;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.emoticon.IEmoticonTab;
@@ -36,8 +35,8 @@ public class RedPacketModule extends DefaultExtensionModule {
         RongIM.registerMessageType(EmptyMessage.class);
         RongIM.registerMessageType(NotificationMessage.class);
         RongIM.registerMessageType(RedPacketMessage.class);
-        RongIM.registerMessageTemplate(new NotificationMsgProvider(RongContext.getInstance()));
-        RongIM.registerMessageTemplate(new RedPacketMsgProvider(RongContext.getInstance()));
+        RongIM.registerMessageTemplate(new NotificationMsgProvider());
+        RongIM.registerMessageTemplate(new RedPacketMsgProvider());
     }
 
     @Override

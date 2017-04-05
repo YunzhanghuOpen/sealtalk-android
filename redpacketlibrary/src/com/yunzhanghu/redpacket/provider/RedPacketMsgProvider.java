@@ -22,6 +22,7 @@ import com.yunzhanghu.redpacketsdk.bean.RedPacketInfo;
 import com.yunzhanghu.redpacketsdk.constant.RPConstant;
 import com.yunzhanghu.redpacketui.utils.RPRedPacketUtil;
 
+import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.model.ProviderTag;
 import io.rong.imkit.model.UIMessage;
@@ -52,9 +53,9 @@ public class RedPacketMsgProvider extends IContainerItemProvider.MessageProvider
     private UIMessage mMessage;
 
 
-    public RedPacketMsgProvider(Context mContext) {
+    public RedPacketMsgProvider() {
         super();
-        this.mContext = mContext;
+        this.mContext = RongContext.getInstance();
     }
 
     /**

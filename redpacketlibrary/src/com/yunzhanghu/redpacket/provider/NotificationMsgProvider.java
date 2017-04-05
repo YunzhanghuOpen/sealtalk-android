@@ -14,6 +14,7 @@ import com.yunzhanghu.redpacket.message.NotificationMessage;
 import com.yunzhanghu.redpacketsdk.RedPacket;
 import com.yunzhanghu.redpacketsdk.bean.RedPacketInfo;
 
+import io.rong.imkit.RongContext;
 import io.rong.imkit.model.ProviderTag;
 import io.rong.imkit.model.UIMessage;
 import io.rong.imkit.widget.provider.IContainerItemProvider;
@@ -26,14 +27,14 @@ import io.rong.imkit.widget.provider.IContainerItemProvider;
  * @date 2016-05-22
  */
 // 会话界面自定义UI注解
-@ProviderTag(messageContent = NotificationMessage.class, showWarning = false, showPortrait = false, showProgress = false, centerInHorizontal = true)
+@ProviderTag(messageContent = NotificationMessage.class, showWarning = false, showPortrait = false, showProgress = false, showSummaryWithName = false, centerInHorizontal = true)
 public class NotificationMsgProvider extends IContainerItemProvider.MessageProvider<NotificationMessage> {
 
     private Context mContext;
 
-    public NotificationMsgProvider(Context mContext) {
+    public NotificationMsgProvider() {
         super();
-        this.mContext = mContext;
+        this.mContext = RongContext.getInstance();
     }
 
     /**
