@@ -87,8 +87,6 @@ public class App extends MultiDexApplication {
             Thread.setDefaultUncaughtExceptionHandler(new RongExceptionHandler(this));
 
             try {
-                //注册红包消息、回执消息类以及消息展示模板
-                RedPacketUtil.getInstance().registerMsgTypeAndTemplate(this);
                 RongIM.registerMessageTemplate(new ContactNotificationMessageProvider());
                 RongIM.registerMessageTemplate(new RealTimeLocationMessageProvider());
                 RongIM.registerMessageType(TestMessage.class);

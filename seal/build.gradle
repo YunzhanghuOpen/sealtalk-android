@@ -11,6 +11,8 @@ android {
         versionCode 2017030510
         versionName "2.8.7 Stable"
         multiDexEnabled true
+       // resValue "string", "rp_provider_authorities_name", "cn.rongcloud.im.FileProvider"
+        resValue "string", "rp_provider_authorities_name","${applicationId}.FileProvider"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
@@ -57,21 +59,6 @@ android {
 }
 
 dependencies {
-//<<<<<<< HEAD
-//    compile fileTree(include: ['*.jar'], dir: 'libs')
-//    compile 'com.android.support:appcompat-v7:23.1.0'
-//    //compile 'com.android.support:support-v4:21.0.3'
-//    // libs 中 happy dns.jar - okhttp.jar - okio.jar 为 qiniu存储所需依赖jar 融云 sdk 和你的 app 中都无需依赖
-//    compile files('libs/Android_Location_V1.3.3.jar')
-//    compile files('libs/universal-image-loader-1.9.5.jar')
-//    // org.apache.http.legacy.jar 为适配 Android tagetId 22 以上 jar
-//    compile files('libs/org.apache.http.legacy.jar')
-//    compile project(':redpacketlibrary')
-//    compile 'com.android.support:multidex:1.0.0'
-//
-//    compile files('libs/jsoup-1.8.3.jar')
-//    //compile project(':Rong_Cloud_Android_IMKit_SDK_v2_7_0_dev_with_CallKit')
-//=======
 
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:23.0.1'
@@ -85,7 +72,7 @@ dependencies {
     compile project(':IMKit')
     compile project(':CallKit')
     compile project(':redpacketlibrary')
-    //compile project(':RedPacket')
+
 
 }
 apply plugin: 'com.google.gms.google-services'

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="cn.rongcloud.im">
 
     <uses-sdk
@@ -499,11 +500,13 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
+            tools:replace="android:authorities"
             android:authorities="cn.rongcloud.im.FileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
+                tools:replace="android:resource"
                 android:resource="@xml/rc_file_path" />
         </provider>
     </application>

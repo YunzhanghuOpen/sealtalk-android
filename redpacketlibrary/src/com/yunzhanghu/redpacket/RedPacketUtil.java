@@ -11,9 +11,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.yunzhanghu.redpacket.message.EmptyMessage;
 import com.yunzhanghu.redpacket.message.NotificationMessage;
-import com.yunzhanghu.redpacket.message.RedPacketMessage;
-import com.yunzhanghu.redpacket.provider.NotificationMsgProvider;
-import com.yunzhanghu.redpacket.provider.RedPacketMsgProvider;
 import com.yunzhanghu.redpacketsdk.RPValueCallback;
 import com.yunzhanghu.redpacketsdk.bean.TokenData;
 
@@ -51,17 +48,6 @@ public class RedPacketUtil implements Response.Listener<JSONObject>, Response.Er
             }
         }
         return mRedPacketUtil;
-    }
-
-    /**
-     * 注册消息类型以及消息展示模板
-     */
-    public void registerMsgTypeAndTemplate(Context mContext) {
-        RongIM.registerMessageType(RedPacketMessage.class);
-        RongIM.registerMessageType(NotificationMessage.class);
-        RongIM.registerMessageType(EmptyMessage.class);
-        RongIM.registerMessageTemplate(new RedPacketMsgProvider(mContext));
-        RongIM.registerMessageTemplate(new NotificationMsgProvider(mContext));
     }
 
     /**

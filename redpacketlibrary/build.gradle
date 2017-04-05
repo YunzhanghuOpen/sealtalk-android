@@ -48,5 +48,5 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:support-v4:23.0.1'
     compile project(':IMKit')
-    compile 'com.yunzhanghu:redpacket:3.4.4@aar'
+    compile 'com.yunzhanghu.redpacket:redpacket-wallet:3.4.5'
 }
