@@ -84,7 +84,7 @@ public class SingleRedPacketProvider implements IPluginModule {
         redPacketInfo.toUserId = toUserId; //接受者id
         if (userInfo != null) {
             redPacketInfo.toNickName = !TextUtils.isEmpty(userInfo.getName()) ? userInfo.getName() : toUserId;
-            redPacketInfo.toNickName = !TextUtils.isEmpty(userInfo.getPortraitUri().toString()) ? userInfo.getPortraitUri().toString() : toUserId;
+            redPacketInfo.toAvatarUrl= !TextUtils.isEmpty(userInfo.getPortraitUri().toString()) ? userInfo.getPortraitUri().toString() : "none";
         }
         redPacketInfo.chatType = RPConstant.CHATTYPE_SINGLE;//单聊
         RPRedPacketUtil.getInstance().startRedPacket((FragmentActivity) mContext, RPConstant.RP_ITEM_TYPE_SINGLE, redPacketInfo, new RPSendPacketCallback() {
