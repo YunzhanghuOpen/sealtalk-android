@@ -170,7 +170,7 @@
     <string name="mine_about">About SealTalk</string>
     <string name="mine_service">Feedback</string>
     <string name="mine_setting">Account Settings</string>
-    <string name="mine_change">Account MyChange</string>
+    <string name="mine_record">Account RedPacketRecord</string>
     <string name="account_setting">Account Setting</string>
     <string name="exit_login">Log Out</string>
     <string name="clear_cache">Clear Cache</string>

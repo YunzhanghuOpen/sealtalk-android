@@ -211,7 +211,7 @@
     <string name="my_wallet">我的钱包</string>
     <string name="mine_service">意见反馈</string>
     <string name="mine_setting">帐号设置</string>
-    <string name="mine_change">我的零钱</string>
+    <string name="mine_record">红包记录</string>
     <string name="account_setting">账号设置</string>
     <string name="exit_login">退出登录</string>
     <string name="clear_cache">清除缓存</string>

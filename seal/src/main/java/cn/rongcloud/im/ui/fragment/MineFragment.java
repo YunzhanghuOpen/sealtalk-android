@@ -165,7 +165,7 @@ public class MineFragment extends Fragment implements View.OnClickListener {
                 startActivity(intent);
                 break;
             case R.id.mine_change://我的零钱
-                RPRedPacketUtil.getInstance().startChangeActivity(getActivity());
+                RPRedPacketUtil.getInstance().startRecordActivity(getActivity());
                 break;
         }
     }

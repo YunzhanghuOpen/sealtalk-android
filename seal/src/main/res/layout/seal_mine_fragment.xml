@@ -77,9 +77,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="14dp"
-            android:drawableLeft="@drawable/mine_change"
+            android:drawableLeft="@drawable/rp_red_packet_records"
             android:drawablePadding="14sp"
-            android:text="@string/mine_change"
+            android:text="@string/mine_record"
             android:textColor="@color/text_color"
             android:textSize="16sp" />
 
