@@ -22,7 +22,6 @@ import com.yunzhanghu.redpacketui.utils.RPRedPacketUtil;
 import io.rong.imkit.RongExtension;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.plugin.IPluginModule;
-import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 
 /**
@@ -144,7 +143,7 @@ public class GroupRedPacketProvider implements ToRedPacketActivity, IPluginModul
     private void sendMessage(RedPacketMessage message) {
         if (RongIM.getInstance() != null && RongIM.getInstance().getRongIMClient() != null) {
             String mPushContent = "[" + mSponsor + "]" + mGreeting;
-            RongIMClient.getInstance().sendMessage(mConversationType,
+            RongIM.getInstance().getRongIMClient().sendMessage(mConversationType,
                     mTargetId, message, mPushContent, "", null, null);
         }
     }
