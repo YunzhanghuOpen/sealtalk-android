@@ -1,1 +1,1 @@
-include ':seal', ':redpacketlibrary',':Recognizer', ':contactcard', ':sticker', ':IMLib', ':IMKit', ':CallLib', ':CallKit'
+include ':seal',':Recognizer', ':contactcard', ':sticker', ':IMLib', ':IMKit', ':CallLib', ':CallKit',':redpacketui-open'

@@ -1,4 +1,4 @@
-package com.yunzhanghu.redpacket.provider;
+package cn.rongcloud.im.redpacket;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,21 +8,16 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.widget.Toast;
 
-import com.yunzhanghu.redpacket.R;
-import com.yunzhanghu.redpacket.RedPacketUtil;
-import com.yunzhanghu.redpacket.callback.GetGroupInfoCallback;
-import com.yunzhanghu.redpacket.callback.ToRedPacketActivity;
-import com.yunzhanghu.redpacket.message.RedPacketMessage;
 import com.yunzhanghu.redpacketsdk.RPSendPacketCallback;
 import com.yunzhanghu.redpacketsdk.RedPacket;
 import com.yunzhanghu.redpacketsdk.bean.RedPacketInfo;
 import com.yunzhanghu.redpacketsdk.constant.RPConstant;
 import com.yunzhanghu.redpacketui.utils.RPRedPacketUtil;
 
+import cn.rongcloud.im.R;
 import io.rong.imkit.RongExtension;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.plugin.IPluginModule;
-import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 
 /**
@@ -144,7 +139,7 @@ public class GroupRedPacketProvider implements ToRedPacketActivity, IPluginModul
     private void sendMessage(RedPacketMessage message) {
         if (RongIM.getInstance() != null && RongIM.getInstance().getRongIMClient() != null) {
             String mPushContent = "[" + mSponsor + "]" + mGreeting;
-            RongIMClient.getInstance().sendMessage(mConversationType,
+            RongIM.getInstance().getRongIMClient().sendMessage(mConversationType,
                     mTargetId, message, mPushContent, "", null, null);
         }
     }

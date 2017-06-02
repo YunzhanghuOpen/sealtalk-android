@@ -1,13 +1,4 @@
-package com.yunzhanghu.redpacket.module;
-
-import com.yunzhanghu.redpacket.callback.GetGroupInfoCallback;
-import com.yunzhanghu.redpacket.message.EmptyMessage;
-import com.yunzhanghu.redpacket.message.NotificationMessage;
-import com.yunzhanghu.redpacket.message.RedPacketMessage;
-import com.yunzhanghu.redpacket.provider.GroupRedPacketProvider;
-import com.yunzhanghu.redpacket.provider.NotificationMsgProvider;
-import com.yunzhanghu.redpacket.provider.RedPacketMsgProvider;
-import com.yunzhanghu.redpacket.provider.SingleRedPacketProvider;
+package cn.rongcloud.im.redpacket;
 
 import java.util.List;
 

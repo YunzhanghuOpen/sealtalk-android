@@ -1,4 +1,4 @@
-package com.yunzhanghu.redpacket.message;
+package cn.rongcloud.im.redpacket;
 
 import android.os.Parcel;
 import android.util.Log;
@@ -13,13 +13,9 @@ import java.io.UnsupportedEncodingException;
 import io.rong.common.ParcelUtils;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.model.UserInfo;
-import io.rong.message.NotificationMessage;
-
-
-
 
 /**
- * 自定义红包透传消息类
+ * 自定义红包回执消息类
  *
  * @author desert
  * @date 2016-05-18
@@ -33,8 +29,8 @@ import io.rong.message.NotificationMessage;
  * 请不要以 "RC:" 开头， "RC:" 为官方保留前缀。
  */
 
-@MessageTag(value = "YZH:RedPacketEmptyMsg", flag = MessageTag.NONE)
-public class EmptyMessage extends NotificationMessage {
+@MessageTag(value = "YZH:RedPacketAckMsg", flag = MessageTag.ISPERSISTED)
+public class NotificationMessage extends io.rong.message.NotificationMessage {
 
     private String sendUserID;//发送红包者ID
 
@@ -44,23 +40,24 @@ public class EmptyMessage extends NotificationMessage {
 
     private String receiveUserName;//接受红包者名字
 
-    private String isOpenMoney;//是否打开红包((和ios保持统一需要的字段))
+    private String isOpenMoney;//是否打开红包(和ios保持统一需要的字段)
 
-    public EmptyMessage() {
+
+    public NotificationMessage() {
     }
 
-    public static EmptyMessage obtain(String sendUserID, String sendUserName, String receiveUserID, String receiveUserName, String isOpenMoney) {
-        EmptyMessage emptyMessage = new EmptyMessage();
-        emptyMessage.sendUserID = sendUserID;
-        emptyMessage.sendUserName = sendUserName;
-        emptyMessage.receiveUserID = receiveUserID;
-        emptyMessage.receiveUserName = receiveUserName;
-        emptyMessage.isOpenMoney = isOpenMoney;
-        return emptyMessage;
+    public static NotificationMessage obtain(String sendUserID, String sendUserName, String receiveUserID, String receiveUserName, String isOpenMoney) {
+        NotificationMessage notificationMessage = new NotificationMessage();
+        notificationMessage.sendUserID = sendUserID;
+        notificationMessage.sendUserName = sendUserName;
+        notificationMessage.receiveUserID = receiveUserID;
+        notificationMessage.receiveUserName = receiveUserName;
+        notificationMessage.isOpenMoney = isOpenMoney;
+        return notificationMessage;
     }
 
     // 给消息赋值。
-    public EmptyMessage(byte[] data) {
+    public NotificationMessage(byte[] data) {
 
         try {
             String jsonStr = new String(data, "UTF-8");
@@ -69,10 +66,6 @@ public class EmptyMessage extends NotificationMessage {
             setSendUserName(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_SENDER_NICKNAME));
             setReceiveUserID(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_RECEIVER_ID));
             setReceiveUserName(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_RECEIVER_NICKNAME));
-//            setSendUserID(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_SENDER_ID));
-//            setSendUserName(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_SENDER_NAME));
-//            setReceiveUserID(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_RECEIVER_ID));
-//            setReceiveUserName(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_RECEIVER_NAME));
             setIsOpenMoney(jsonObj.getString(RPConstant.MESSAGE_ATTR_IS_RED_PACKET_ACK_MESSAGE));
             if (jsonObj.has("user")) {
                 setUserInfo(parseJsonToUserInfo(jsonObj.getJSONObject("user")));
@@ -89,28 +82,29 @@ public class EmptyMessage extends NotificationMessage {
      *
      * @param in 初始化传入的 Parcel。
      */
-    public EmptyMessage(Parcel in) {
+    public NotificationMessage(Parcel in) {
         setSendUserID(ParcelUtils.readFromParcel(in));
         setSendUserName(ParcelUtils.readFromParcel(in));
         setReceiveUserID(ParcelUtils.readFromParcel(in));
         setReceiveUserName(ParcelUtils.readFromParcel(in));
         setIsOpenMoney(ParcelUtils.readFromParcel(in));
+
         setUserInfo(ParcelUtils.readFromParcel(in, UserInfo.class));
     }
 
     /**
      * 读取接口，目的是要从Parcel中构造一个实现了Parcelable的类的实例处理。
      */
-    public static final Creator<EmptyMessage> CREATOR = new Creator<EmptyMessage>() {
+    public static final Creator<NotificationMessage> CREATOR = new Creator<NotificationMessage>() {
 
         @Override
-        public EmptyMessage createFromParcel(Parcel source) {
-            return new EmptyMessage(source);
+        public NotificationMessage createFromParcel(Parcel source) {
+            return new NotificationMessage(source);
         }
 
         @Override
-        public EmptyMessage[] newArray(int size) {
-            return new EmptyMessage[size];
+        public NotificationMessage[] newArray(int size) {
+            return new NotificationMessage[size];
         }
     };
 
@@ -173,7 +167,6 @@ public class EmptyMessage extends NotificationMessage {
         return null;
     }
 
-
     public String getSendUserID() {
         return sendUserID;
     }
@@ -189,6 +182,7 @@ public class EmptyMessage extends NotificationMessage {
     public void setSendUserName(String sendUserName) {
         this.sendUserName = sendUserName;
     }
+
 
     public String getReceiveUserID() {
         return receiveUserID;

@@ -1,4 +1,4 @@
-package com.yunzhanghu.redpacket;
+package cn.rongcloud.im.redpacket;
 
 import android.content.Context;
 
@@ -9,8 +9,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.yunzhanghu.redpacket.message.EmptyMessage;
-import com.yunzhanghu.redpacket.message.NotificationMessage;
 import com.yunzhanghu.redpacketsdk.RPValueCallback;
 import com.yunzhanghu.redpacketsdk.bean.TokenData;
 

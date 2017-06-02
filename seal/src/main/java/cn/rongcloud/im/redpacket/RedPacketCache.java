@@ -1,4 +1,4 @@
-package com.yunzhanghu.redpacket;
+package cn.rongcloud.im.redpacket;
 
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -1,4 +1,4 @@
-package com.yunzhanghu.redpacket.provider;
+package cn.rongcloud.im.redpacket;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,14 +8,13 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 
-import com.yunzhanghu.redpacket.R;
-import com.yunzhanghu.redpacket.message.RedPacketMessage;
 import com.yunzhanghu.redpacketsdk.RPSendPacketCallback;
 import com.yunzhanghu.redpacketsdk.RedPacket;
 import com.yunzhanghu.redpacketsdk.bean.RedPacketInfo;
 import com.yunzhanghu.redpacketsdk.constant.RPConstant;
 import com.yunzhanghu.redpacketui.utils.RPRedPacketUtil;
 
+import cn.rongcloud.im.R;
 import io.rong.imkit.RongContext;
 import io.rong.imkit.RongExtension;
 import io.rong.imkit.RongIM;

@@ -1,4 +1,4 @@
-package com.yunzhanghu.redpacket.provider;
+package cn.rongcloud.im.redpacket;
 
 import android.content.Context;
 import android.text.Spannable;
@@ -9,11 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.yunzhanghu.redpacket.R;
-import com.yunzhanghu.redpacket.message.NotificationMessage;
 import com.yunzhanghu.redpacketsdk.RedPacket;
 import com.yunzhanghu.redpacketsdk.bean.RedPacketInfo;
 
+import cn.rongcloud.im.R;
 import io.rong.imkit.RongContext;
 import io.rong.imkit.model.ProviderTag;
 import io.rong.imkit.model.UIMessage;

@@ -1,4 +1,4 @@
-package com.yunzhanghu.redpacket.message;
+package cn.rongcloud.im.redpacket;
 
 import android.os.Parcel;
 import android.util.Log;

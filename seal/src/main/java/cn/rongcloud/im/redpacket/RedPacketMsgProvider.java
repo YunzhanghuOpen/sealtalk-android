@@ -1,4 +1,4 @@
-package com.yunzhanghu.redpacket.provider;
+package cn.rongcloud.im.redpacket;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -13,15 +13,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.yunzhanghu.redpacket.R;
-import com.yunzhanghu.redpacket.message.EmptyMessage;
-import com.yunzhanghu.redpacket.message.NotificationMessage;
-import com.yunzhanghu.redpacket.message.RedPacketMessage;
 import com.yunzhanghu.redpacketsdk.RedPacket;
 import com.yunzhanghu.redpacketsdk.bean.RedPacketInfo;
 import com.yunzhanghu.redpacketsdk.constant.RPConstant;
 import com.yunzhanghu.redpacketui.utils.RPRedPacketUtil;
 
+import cn.rongcloud.im.R;
 import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.model.ProviderTag;
@@ -201,7 +198,7 @@ public class RedPacketMsgProvider extends IContainerItemProvider.MessageProvider
 
             @Override
             public void hideLoading() {
-                progressDialog.hide();
+                progressDialog.dismiss();
             }
 
             @Override

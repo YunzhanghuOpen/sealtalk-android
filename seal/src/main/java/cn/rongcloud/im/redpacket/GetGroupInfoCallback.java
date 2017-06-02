@@ -1,4 +1,4 @@
-package com.yunzhanghu.redpacket.callback;
+package cn.rongcloud.im.redpacket;
 
 /**
  * Created by desert on 16/5/29.
