@@ -199,7 +199,7 @@ public class RedPacketMsgProvider extends IContainerItemProvider.MessageProvider
 
             @Override
             public void hideLoading() {
-                progressDialog.hide();
+                progressDialog.dismiss();
             }
 
             @Override
