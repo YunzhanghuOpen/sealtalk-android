@@ -495,4 +495,8 @@ public void onItemLongClick(View view, int position, RedPacketMessage content, f
 
                  }
              }).show(((FragmentActivity) view.getContext()).getSupportFragmentManager());
+<<<<<<< HEAD
  }
+=======
+ }
+>>>>>>> 7ea75111845f418f3a3f9e262ab503d63d399710
