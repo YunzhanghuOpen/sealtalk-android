@@ -6,7 +6,7 @@
 * 使用支付宝版红包SDK的用户，发红包仅支持支付宝支付；收到的红包金额即时入账至绑定的支付宝账号。
 * 请选择希望接入的版本并下载对应的SDK进行集成，钱包版红包SDK与支付宝版红包SDK集成方式相同。
 * 需要注意的是如果已经集成了钱包版红包SDK，暂不支持切换到支付宝版红包SDK（两个版本不支持互通）。
-* [融云Demo](https://github.com/YunzhanghuOpen/sealtalk-android/tree/redpacket-plugin-ali)中使用redPacketlibrary模块集成了红包SDK相关红能。
+* [融云Demo](https://github.com/YunzhanghuOpen/sealtalk-android/tree/redpacket-ali-open)中使用redPacketlibrary模块集成了红包SDK相关红能。
 
 ## redPacketlibrary介绍
 
@@ -31,7 +31,7 @@
 * git submodule update
 * **开源版没有redpacketlibrary，红包使用相关的工具类移步到seal里面的redpacket包下面，开发可以自己拷贝到Library（redpacket-open）下面维护。**
 ## 红包SDK的更新
-* 以支付宝版红包SDK为例，修改com.yunzhanghu.redpacket:redpacket-alipay:1.1.2中的1.1.2为已发布的更高版本(例如1.1.3)，同步之后即可完成红包SDK的更新。
+* 以支付宝版红包SDK为例，修改com.yunzhanghu.redpacket:redpacket-alipay:1.1.2中的1.1.2为已发布的更高版本(例如1.1.3)。
 
 # 开始集成
 
