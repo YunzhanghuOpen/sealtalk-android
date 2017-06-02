@@ -31,7 +31,7 @@
 * git submodule update
 * **开源版没有redpacketlibrary，红包使用相关的工具类移步到seal里面的redpacket包下面。**
 ## 红包SDK的更新
-* 以支付宝版红包SDK为例，修改com.yunzhanghu.redpacket:redpacket-alipay:1.1.2中的1.1.2为已发布的更高版本(例如1.1.3)，同步之后即可完成红包SDK的更新。
+* 以支付宝版红包SDK为例，修改com.yunzhanghu.redpacket:redpacket-alipay:1.1.2中的1.1.2为已发布的更高版本(例如1.1.3)。
 
 # 开始集成
 
