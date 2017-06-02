@@ -65,10 +65,14 @@ public class EmptyMessage extends NotificationMessage {
         try {
             String jsonStr = new String(data, "UTF-8");
             JSONObject jsonObj = new JSONObject(jsonStr);
-            setSendUserID(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_SENDER_ID));
-            setSendUserName(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_SENDER_NAME));
-            setReceiveUserID(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_RECEIVER_ID));
-            setReceiveUserName(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_RECEIVER_NAME));
+            setSendUserID(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_SENDER_ID));
+            setSendUserName(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_SENDER_NICKNAME));
+            setReceiveUserID(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_RECEIVER_ID));
+            setReceiveUserName(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_RECEIVER_NICKNAME));
+//            setSendUserID(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_SENDER_ID));
+//            setSendUserName(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_SENDER_NAME));
+//            setReceiveUserID(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_RECEIVER_ID));
+//            setReceiveUserName(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_RECEIVER_NAME));
             setIsOpenMoney(jsonObj.getString(RPConstant.MESSAGE_ATTR_IS_RED_PACKET_ACK_MESSAGE));
             if (jsonObj.has("user")) {
                 setUserInfo(parseJsonToUserInfo(jsonObj.getJSONObject("user")));
@@ -147,10 +151,10 @@ public class EmptyMessage extends NotificationMessage {
         JSONObject jsonObj = new JSONObject();
         try {
 
-            jsonObj.put(RPConstant.EXTRA_RED_PACKET_SENDER_ID, sendUserID);
-            jsonObj.put(RPConstant.EXTRA_RED_PACKET_SENDER_NAME, sendUserName);
-            jsonObj.put(RPConstant.EXTRA_RED_PACKET_RECEIVER_ID, receiveUserID);
-            jsonObj.put(RPConstant.EXTRA_RED_PACKET_RECEIVER_NAME, receiveUserName);
+            jsonObj.put(RPConstant.MESSAGE_ATTR_RED_PACKET_SENDER_ID, sendUserID);
+            jsonObj.put(RPConstant.MESSAGE_ATTR_RED_PACKET_SENDER_NICKNAME, sendUserName);
+            jsonObj.put(RPConstant.MESSAGE_ATTR_RED_PACKET_RECEIVER_ID, receiveUserID);
+            jsonObj.put(RPConstant.MESSAGE_ATTR_RED_PACKET_RECEIVER_NICKNAME, receiveUserName);
             jsonObj.put(RPConstant.MESSAGE_ATTR_IS_RED_PACKET_ACK_MESSAGE, isOpenMoney);
 
             if (getJSONUserInfo() != null)

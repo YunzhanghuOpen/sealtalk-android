@@ -73,14 +73,14 @@ public class RedPacketMessage extends MessageContent {
         try {
             String jsonStr = new String(data, "UTF-8");
             JSONObject jsonObj = new JSONObject(jsonStr);
-            setSendUserID(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_SENDER_ID));
-            setSendUserName(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_SENDER_NAME));
-            setMessage(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_GREETING));
-            setMoneyID(jsonObj.getString(RPConstant.EXTRA_RED_PACKET_ID));
+            setSendUserID(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_SENDER_ID));
+            setSendUserName(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_SENDER_NICKNAME));
+            setMessage(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_GREETING));
+            setMoneyID(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_ID));
             setIsMoneyMsg(jsonObj.getString(RPConstant.MESSAGE_ATTR_IS_RED_PACKET_MESSAGE));
-            setSponsorName(jsonObj.getString(RPConstant.EXTRA_SPONSOR_NAME));
+            setSponsorName(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_SPONSOR_NAME));
             setRedPacketType(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_TYPE));
-            setSpecialReceivedID(jsonObj.getString(RPConstant.MESSAGE_ATTR_SPECIAL_RECEIVER_ID));
+            setSpecialReceivedID(jsonObj.getString(RPConstant.MESSAGE_ATTR_RED_PACKET_RECEIVER_ID));
             if (jsonObj.has("user")) {
                 setUserInfo(parseJsonToUserInfo(jsonObj.getJSONObject("user")));
             }
@@ -164,14 +164,14 @@ public class RedPacketMessage extends MessageContent {
         JSONObject jsonObj = new JSONObject();
         try {
 
-            jsonObj.put(RPConstant.EXTRA_RED_PACKET_SENDER_ID, sendUserID);
-            jsonObj.put(RPConstant.EXTRA_RED_PACKET_SENDER_NAME, sendUserName);
-            jsonObj.put(RPConstant.EXTRA_RED_PACKET_GREETING, message);
-            jsonObj.put(RPConstant.EXTRA_RED_PACKET_ID, moneyID);
+            jsonObj.put(RPConstant.MESSAGE_ATTR_RED_PACKET_SENDER_ID, sendUserID);
+            jsonObj.put(RPConstant.MESSAGE_ATTR_RED_PACKET_SENDER_NICKNAME, sendUserName);
+            jsonObj.put(RPConstant.MESSAGE_ATTR_RED_PACKET_GREETING, message);
+            jsonObj.put(RPConstant.MESSAGE_ATTR_RED_PACKET_ID, moneyID);
             jsonObj.put(RPConstant.MESSAGE_ATTR_IS_RED_PACKET_MESSAGE, isMoneyMsg);
-            jsonObj.put(RPConstant.EXTRA_SPONSOR_NAME, sponsorName);
+            jsonObj.put(RPConstant.MESSAGE_ATTR_RED_PACKET_SPONSOR_NAME, sponsorName);
             jsonObj.put(RPConstant.MESSAGE_ATTR_RED_PACKET_TYPE, redPacketType);
-            jsonObj.put(RPConstant.MESSAGE_ATTR_SPECIAL_RECEIVER_ID, specialReceivedID);
+            jsonObj.put(RPConstant.MESSAGE_ATTR_RED_PACKET_RECEIVER_ID, specialReceivedID);
 
             if (getJSONUserInfo() != null)
                 jsonObj.putOpt("user", getJSONUserInfo());

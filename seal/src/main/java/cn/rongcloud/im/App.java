@@ -122,9 +122,9 @@ public class App extends MultiDexApplication {
                     //这里需要同步设置当前用户id、昵称和头像url
                     SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
                     RedPacketInfo redPacketInfo = new RedPacketInfo();
-                    redPacketInfo.fromUserId = sp.getString("loginid", "none");
-                    redPacketInfo.fromAvatarUrl = sp.getString("loginPortrait", "none");
-                    redPacketInfo.fromNickName = sp.getString("loginnickname", "none");
+                    redPacketInfo.currentUserId = sp.getString("loginid", "none");
+                    redPacketInfo.currentAvatarUrl = sp.getString("loginPortrait", "none");
+                    redPacketInfo.currentNickname = sp.getString("loginnickname", "none");
                     return redPacketInfo;
                 }
             });

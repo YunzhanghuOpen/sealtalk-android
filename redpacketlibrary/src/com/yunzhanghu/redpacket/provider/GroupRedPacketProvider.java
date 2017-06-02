@@ -22,6 +22,7 @@ import com.yunzhanghu.redpacketui.utils.RPRedPacketUtil;
 import io.rong.imkit.RongExtension;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.plugin.IPluginModule;
+import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 
 /**
@@ -31,8 +32,6 @@ import io.rong.imlib.model.Conversation;
  * @date 2016-05-23
  */
 public class GroupRedPacketProvider implements ToRedPacketActivity, IPluginModule {
-
-    private static final String TAG = GroupRedPacketProvider.class.getSimpleName();
 
     private String mGreeting;//祝福语
 
@@ -90,8 +89,8 @@ public class GroupRedPacketProvider implements ToRedPacketActivity, IPluginModul
         mConversationType = rongExtension.getConversationType();
         mTargetId = rongExtension.getTargetId();
         redPacketInfo = new RedPacketInfo();
-        redPacketInfo.toGroupId = mTargetId;//群ID
-        redPacketInfo.chatType = RPConstant.CHATTYPE_GROUP;//群聊、讨论组类型
+        redPacketInfo.groupId = mTargetId;//群ID
+        redPacketInfo.chatType = RPConstant.CHAT_TYPE_GROUP;//群聊、讨论组类型
         if (mConversationType == Conversation.ConversationType.GROUP) {
             RedPacketUtil.getInstance().setChatType(RedPacketUtil.CHAT_GROUP);
         } else {
@@ -99,7 +98,7 @@ public class GroupRedPacketProvider implements ToRedPacketActivity, IPluginModul
         }
 
         if (callback != null) {
-            callback.getGroupPersonNumber(redPacketInfo.toGroupId, this);
+            callback.getGroupPersonNumber(redPacketInfo.groupId, this);
         } else {
             Toast.makeText(mContext, "回调函数不能为空", Toast.LENGTH_SHORT).show();
         }
@@ -125,10 +124,10 @@ public class GroupRedPacketProvider implements ToRedPacketActivity, IPluginModul
                 mGreeting = redPacketInfo.redPacketGreeting;//祝福语
                 mSponsor = mContext.getString(R.string.sponsor_red_packet);//XX红包
                 RedPacketInfo currentUserSync = RedPacket.getInstance().getRPInitRedPacketCallback().initCurrentUserSync();
-                String userId = currentUserSync.fromUserId;//发送者ID
-                String userName = currentUserSync.fromNickName;//发送者名字
+                String userId = currentUserSync.currentUserId;//发送者ID
+                String userName = currentUserSync.currentNickname;//发送者名字
                 String redPacketType = redPacketInfo.redPacketType;//群红包类型
-                String specialReceiveId = redPacketInfo.toUserId;//专属红包接受者ID
+                String specialReceiveId = "";//专属红包接受者ID
                 RedPacketMessage message = RedPacketMessage.obtain(userId, userName,
                         redPacketInfo.redPacketGreeting, redPacketInfo.redPacketId, "1", mSponsor, redPacketType, specialReceiveId);
                 //发送红包消息到聊天界面
@@ -145,7 +144,7 @@ public class GroupRedPacketProvider implements ToRedPacketActivity, IPluginModul
     private void sendMessage(RedPacketMessage message) {
         if (RongIM.getInstance() != null && RongIM.getInstance().getRongIMClient() != null) {
             String mPushContent = "[" + mSponsor + "]" + mGreeting;
-            RongIM.getInstance().getRongIMClient().sendMessage(mConversationType,
+            RongIMClient.getInstance().sendMessage(mConversationType,
                     mTargetId, message, mPushContent, "", null, null);
         }
     }
