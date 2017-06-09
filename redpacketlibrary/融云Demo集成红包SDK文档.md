@@ -29,7 +29,7 @@
 * cd redpacketui-open 
 * git submodule init
 * git submodule update
-* **开源版没有redpacketlibrary，红包使用相关的工具类移步到seal里面的redpacket包下面。**
+* **开源版没有redpacketlibrary，红包使用相关的工具类移步到seal里面的redpacket包下面。资源文件以yzh开头。**
 ## 红包SDK的更新
 * 以支付宝版红包SDK为例，修改com.yunzhanghu.redpacket:redpacket-alipay:1.1.2中的1.1.2为已发布的更高版本(例如1.1.3)，同步之后即可完成红包SDK的更新。
 
@@ -51,7 +51,10 @@ allprojects {
 ```
 * SealTalkDemo的build.gradle中
 ```java
+//非开源版
 compile project(':redpacketlibrary')
+//支付宝UI开源版本
+compile project(':redpacket-open')
 ```
 * 在redpacketlibrary的build.gradle中
 
@@ -348,8 +351,8 @@ public void onClick(Fragment fragment, RongExtension rongExtension) {
      UserInfo userInfo = RongContext.getInstance().getUserInfoFromCache(toUserId);
      redPacketInfo.toUserId = toUserId; //接收者ID
      if (userInfo != null) {
-        redPacketInfo.toNickName = !TextUtils.isEmpty(userInfo.getName()) ? userInfo.getName() : toUserId;
-        redPacketInfo.toAvatarUrl= !TextUtils.isEmpty(userInfo.getPortraitUri().toString()) ? 
+        redPacketInfo.receiverNickname = !TextUtils.isEmpty(userInfo.getName()) ? userInfo.getName() : toUserId;
+        redPacketInfo.receiverAvatarUrl= !TextUtils.isEmpty(userInfo.getPortraitUri().toString()) ? 
                                      userInfo.getPortraitUri().toString() :"none";
      }
      redPacketInfo.chatType = RPConstant.CHATTYPE_SINGLE;//单聊
@@ -386,7 +389,7 @@ public void onClick(Fragment fragment, RongExtension rongExtension) {
      mConversationType = rongExtension.getConversationType();
      mTargetId = rongExtension.getTargetId();
      redPacketInfo = new RedPacketInfo();
-     redPacketInfo.toGroupId = mTargetId;//群ID
+     redPacketInfo.groupId = mTargetId;//群ID
      redPacketInfo.chatType = RPConstant.CHATTYPE_GROUP;//群聊、讨论组类型
      if (mConversationType == Conversation.ConversationType.GROUP) {
          RedPacketUtil.getInstance().setChatType(RedPacketUtil.CHAT_GROUP);
@@ -394,7 +397,7 @@ public void onClick(Fragment fragment, RongExtension rongExtension) {
          RedPacketUtil.getInstance().setChatType(RedPacketUtil.CHAT_DISCUSSION);
      }
      if (callback != null) {
-       callback.getGroupPersonNumber(redPacketInfo.toGroupId, this);
+       callback.getGroupPersonNumber(redPacketInfo.groupId, this);
      } else {
          Toast.makeText(mContext, "回调函数不能为空", Toast.LENGTH_SHORT).show();
      }
@@ -419,7 +422,7 @@ public void toRedPacketActivity(int number) {
             String userId = currentUserSync.currentUserId;//发送者ID
             String userName = currentUserSync.currentNickname;//发送者名字
             String redPacketType = redPacketInfo.redPacketType;//群红包类型
-            String specialReceiveId = redPacketInfo.toUserId;//专属红包接受者ID
+            String specialReceiveId = "";//专属红包接受者ID
             RedPacketMessage message = RedPacketMessage.obtain(userId, userName,
                     redPacketInfo.redPacketGreeting, redPacketInfo.redPacketId, "1", mSponsor, redPacketType, specialReceiveId);
             //发送红包消息到聊天页面
@@ -454,9 +457,9 @@ public void onItemClick(View view, int position, final RedPacketMessage content,
       }
       //获取聊天类型
       if (message.getConversationType() == Conversation.ConversationType.PRIVATE) {//单聊
-          redPacketInfo.chatType = RPConstant.CHATTYPE_SINGLE;
+          redPacketInfo.chatType = RPConstant.CHAT_TYPE_SINGLE;
       } else {//群聊
-          redPacketInfo.chatType = RPConstant.CHATTYPE_GROUP;
+          redPacketInfo.chatType = RPConstant.CHAT_TYPE_GROUP;
       }
       //钱包版
       RPRedPacketUtil.getInstance().openRedPacket(redPacketInfo, (FragmentActivity) mContext, new RPRedPacketUtil.RPOpenPacketCallback() {
@@ -515,8 +518,8 @@ public void onItemClick(View view, int position, final RedPacketMessage content,
 ```java
 public void sendAckMsg(RedPacketMessage content, UIMessage message) {
    RedPacketInfo currentUserSync = RedPacket.getInstance().getRPInitRedPacketCallback().initCurrentUserSync();
-   String receiveID = currentUserSync.fromUserId;
-   String receiveName = currentUserSync.fromNickName;
+   String receiveID = currentUserSync.currentUserId;
+   String receiveName = currentUserSync.currentNickname;
    NotificationMessage notificationMessage = NotificationMessage.obtain(content.getSendUserID(),
               content.getSendUserName(), receiveID, receiveName, "1");//回执消息
    final EmptyMessage emptyMessage = EmptyMessage.obtain(content.getSendUserID(),
