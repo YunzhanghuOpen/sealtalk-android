@@ -6,7 +6,7 @@
 * 使用支付宝版红包SDK的用户，发红包仅支持支付宝支付；收到的红包金额即时入账至绑定的支付宝账号。
 * 请选择希望接入的版本并下载对应的SDK进行集成，钱包版红包SDK与支付宝版红包SDK集成方式相同。
 * 需要注意的是如果已经集成了钱包版红包SDK，暂不支持切换到支付宝版红包SDK（两个版本不支持互通）。
-* [融云Demo](https://github.com/YunzhanghuOpen/sealtalk-android/tree/redpacket-plugin-open)中使用redPacketlibrary模块集成了红包SDK相关红能。
+* [融云Demo](https://github.com/YunzhanghuOpen/sealtalk-android/tree/redpacket-plugin)中使用redPacketlibrary模块集成了红包SDK相关红能。
 
 ## redPacketlibrary介绍
 
