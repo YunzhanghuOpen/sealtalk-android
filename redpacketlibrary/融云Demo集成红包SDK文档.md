@@ -6,7 +6,7 @@
 * 使用支付宝版红包SDK的用户，发红包仅支持支付宝支付；收到的红包金额即时入账至绑定的支付宝账号。
 * 请选择希望接入的版本并下载对应的SDK进行集成，钱包版红包SDK与支付宝版红包SDK集成方式相同。
 * 需要注意的是如果已经集成了钱包版红包SDK，暂不支持切换到支付宝版红包SDK（两个版本不支持互通）。
-* [融云Demo](https://github.com/YunzhanghuOpen/sealtalk-android/tree/redpacket-plugin-ali)中使用redPacketlibrary模块集成了红包SDK相关红能。
+* [融云Demo](https://github.com/YunzhanghuOpen/sealtalk-android/tree/redpacket-plugin)中使用redPacketlibrary模块集成了红包SDK相关红能。
 
 ## redPacketlibrary介绍
 
@@ -22,6 +22,7 @@
 * RedPacketUtil.java ：封装了和红包相关的工具类。
 * RedPacketCache.java ：缓存类（App开发者可以根据需求进行删除）。
 * **注意: redpacketlibrary依赖了IMKIT，可以查看redpacketlibrary的build.gradle。**
+
 ## 支付宝UI开源版本
 * git clone git@github.com:YunzhanghuOpen/sealtalk-android.git
 * cd sealtalk-android
@@ -29,7 +30,8 @@
 * cd redpacketui-open 
 * git submodule init
 * git submodule update
-* **开源版没有redpacketlibrary，红包使用相关的工具类移步到seal里面的redpacket包下面。资源文件以yzh开头。**
+* **开源版没有redpacketlibrary，红包使用相关的工具类移步到seal里面的redpacket包下面。**
+
 ## 红包SDK的更新
 * 以支付宝版红包SDK为例，修改com.yunzhanghu.redpacket:redpacket-alipay:1.1.2中的1.1.2为已发布的更高版本(例如1.1.3)，同步之后即可完成红包SDK的更新。
 
@@ -65,7 +67,8 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:support-v4:23.0.1'
     compile project(':IMKit')
-    compile 'com.yunzhanghu.redpacket:redpacket-wallet:3.4.5'
+    compile 'com.yunzhanghu.redpacket:redpacket-wallet:3.5.0'
+    compile 'com.android.support:recyclerview-v7:23.0.1'
 }
 ```
 * 支付宝版配置如下
@@ -75,7 +78,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:support-v4:23.0.1'
     compile project(':IMKit')
-    compile 'com.yunzhanghu.redpacket:redpacket-alipay:2.0.0'
+    compile 'com.yunzhanghu.redpacket:redpacket-alipay:2.0.1'
     compile 'com.android.support:recyclerview-v7:23.0.1'
 }
 ```
@@ -96,12 +99,6 @@ RedPacket.getInstance().initRedPacket(this, RPConstant.AUTH_METHOD_SIGN, new RPI
                 @Override
                 public RedPacketInfo initCurrentUserSync() {
                    // 这里需要同步设置当前用户id、昵称和头像url
-                   //钱包版
-                   RedPacketInfo redPacketInfo = new RedPacketInfo();
-                   redPacketInfo.fromUserId = "yunzhanghu";
-                   redPacketInfo.fromAvatarUrl = "testURL";
-                   redPacketInfo.fromNickName = "yunzhanghu001";
-                   //支付宝版 Since 2.0.0
                    RedPacketInfo redPacketInfo = new RedPacketInfo();
                    redPacketInfo.currentUserId = "yunzhanghu";
                    redPacketInfo.currentAvatarUrl = "testURL";
@@ -362,14 +359,10 @@ public void onClick(Fragment fragment, RongExtension rongExtension) {
               mGreeting = redPacketInfo.redPacketGreeting;//祝福语
               mSponsor = mContext.getString(R.string.sponsor_red_packet);//XX红包
               RedPacketInfo currentUserSync = RedPacket.getInstance().getRPInitRedPacketCallback().initCurrentUserSync();
-              //钱包版
-              String userId = currentUserSync.fromUserId;//发送者ID
-              String userName = currentUserSync.fromNickName;//发送者名字
-              //支付宝版
               String userId = currentUserSync.currentUserId;//发送者ID
               String userName = currentUserSync.currentNickname;//发送者名字
               RedPacketMessage message = RedPacketMessage.obtain(userId, userName,
-                      mGreeting, redPacketInfo.redPacketId, "1", mSponsor, redPacketInfo.redPacketType, redPacketInfo.toUserId);
+                      mGreeting, redPacketInfo.redPacketId, "1", mSponsor, redPacketInfo.redPacketType, redPacketInfo.receiverId);
               //发送红包消息到聊天页面
               sendMessage(message);
           }
@@ -415,10 +408,6 @@ public void toRedPacketActivity(int number) {
             mGreeting = redPacketInfo.redPacketGreeting;//祝福语
             mSponsor = mContext.getString(R.string.sponsor_red_packet);//XX红包
             RedPacketInfo currentUserSync = RedPacket.getInstance().getRPInitRedPacketCallback().initCurrentUserSync();
-           //钱包版
-            String userId = currentUserSync.fromUserId;//发送者ID
-            String userName = currentUserSync.fromNickName;//发送者名字
-            //支付宝版
             String userId = currentUserSync.currentUserId;//发送者ID
             String userName = currentUserSync.currentNickname;//发送者名字
             String redPacketType = redPacketInfo.redPacketType;//群红包类型
@@ -449,22 +438,10 @@ public void onItemClick(View view, int position, final RedPacketMessage content,
       redPacketInfo = new RedPacketInfo();
       redPacketInfo.redPacketId = content.getMoneyID();//获取红包id
       redPacketInfo.redPacketType=content.getRedPacketType();//获取红包类型
-      //判断发送方还是接收方
-      if (message.getMessageDirection() == Message.MessageDirection.SEND) {
-          redPacketInfo.messageDirect = RPConstant.MESSAGE_DIRECT_SEND;//发送者
-      } else {
-          redPacketInfo.messageDirect = RPConstant.MESSAGE_DIRECT_RECEIVE;//接受方
-      }
-      //获取聊天类型
-      if (message.getConversationType() == Conversation.ConversationType.PRIVATE) {//单聊
-          redPacketInfo.chatType = RPConstant.CHAT_TYPE_SINGLE;
-      } else {//群聊
-          redPacketInfo.chatType = RPConstant.CHAT_TYPE_GROUP;
-      }
       //钱包版
       RPRedPacketUtil.getInstance().openRedPacket(redPacketInfo, (FragmentActivity) mContext, new RPRedPacketUtil.RPOpenPacketCallback() {
             @Override
-        public void onSuccess(String senderId, String senderNickname, String myAmount) {
+        public void onSuccess(RedPacketInfo redPacketInfo) {
            //拆红包消息成功,然后发送回执消息例如"你领取了XX的红包"
             sendAckMsg(mContent, mMessage);
        }
