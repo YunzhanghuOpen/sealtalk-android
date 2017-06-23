@@ -72,8 +72,8 @@ public class NotificationMsgProvider extends IContainerItemProvider.MessageProvi
         if (content.getSendUserID().equals(content.getReceiveUserID())) {//自己领取了自己的红包
             msgContent = mContext.getString(R.string.yzh_receive_self_red_packet);
         } else {
-            RedPacketInfo mRedPacketInfo = RedPacket.getInstance().getRPInitRedPacketCallback().initCurrentUserSync();
-            String currentUserID = mRedPacketInfo.fromUserId;//发送者ID
+            RedPacketInfo currentUserInfo = RedPacket.getInstance().getRPInitRedPacketCallback().initCurrentUserSync();
+            String currentUserID = currentUserInfo.currentUserId;//发送者ID
             if (content.getReceiveUserID().equals(currentUserID)) {//接受红包者
                 //你领取了XX红包
                 msgContent = String.format(mContext.getString(R.string.yzh_you_receive_red_packet), content.getSendUserName());

@@ -89,7 +89,7 @@ public class RedPacketMsgProvider extends IContainerItemProvider.MessageProvider
         holder.greeting.setText(content.getMessage()); // 设置问候语
         holder.sponsor.setText(content.getSponsorName()); // 设置赞助商
         if (!TextUtils.isEmpty(content.getRedPacketType())//专属红包
-                && content.getRedPacketType().equals(RPConstant.GROUP_RED_PACKET_TYPE_EXCLUSIVE)) {
+                && content.getRedPacketType().equals(RPConstant.RED_PACKET_TYPE_GROUP_EXCLUSIVE)) {
             holder.special.setVisibility(View.VISIBLE);
             holder.special.setText(mContext.getString(R.string.special_red_packet));
         } else {
@@ -122,19 +122,6 @@ public class RedPacketMsgProvider extends IContainerItemProvider.MessageProvider
         //以下是打开红包所需要的参数
         redPacketInfo = new RedPacketInfo();
         redPacketInfo.redPacketId = content.getMoneyID();//获取红包id
-        //判断发送方还是接收方
-        if (message.getMessageDirection() == Message.MessageDirection.SEND) {
-            redPacketInfo.messageDirect = RPConstant.MESSAGE_DIRECT_SEND;//发送者
-        } else {
-            redPacketInfo.messageDirect = RPConstant.MESSAGE_DIRECT_RECEIVE;//接受方
-        }
-        //获取聊天类型
-        if (message.getConversationType() == Conversation.ConversationType.PRIVATE) {//单聊
-            redPacketInfo.chatType = RPConstant.CHATTYPE_SINGLE;
-
-        } else {//群聊
-            redPacketInfo.chatType = RPConstant.CHATTYPE_GROUP;
-        }
         openRedPacket();
     }
 
@@ -156,8 +143,8 @@ public class RedPacketMsgProvider extends IContainerItemProvider.MessageProvider
 
     public void sendAckMsg(RedPacketMessage content, UIMessage message) {
         RedPacketInfo currentUserSync = RedPacket.getInstance().getRPInitRedPacketCallback().initCurrentUserSync();
-        String receiveID = currentUserSync.fromUserId;
-        String receiveName = currentUserSync.fromNickName;
+        String receiveID = currentUserSync.currentUserId;
+        String receiveName = currentUserSync.currentNickname;
         NotificationMessage notificationMessage = NotificationMessage.obtain(content.getSendUserID(),
                 content.getSendUserName(), receiveID, receiveName, "1");//回执消息
         final EmptyMessage emptyMessage = EmptyMessage.obtain(content.getSendUserID(),
@@ -186,8 +173,9 @@ public class RedPacketMsgProvider extends IContainerItemProvider.MessageProvider
     public void openRedPacket() {
         //打开红包
         RPRedPacketUtil.getInstance().openRedPacket(redPacketInfo, (FragmentActivity) mContext, new RPRedPacketUtil.RPOpenPacketCallback() {
+
             @Override
-            public void onSuccess(String senderId, String senderNickname, String myAmount) {
+            public void onSuccess(RedPacketInfo redPacketInfo) {
                 //打开红包消息成功,然后发送回执消息例如"你领取了XX的红包"
                 sendAckMsg(mContent, mMessage);
             }

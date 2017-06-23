@@ -81,22 +81,22 @@ public class SingleRedPacketProvider implements IPluginModule {
         final RedPacketInfo redPacketInfo = new RedPacketInfo();
         String toUserId = mTargetId;
         UserInfo userInfo = RongContext.getInstance().getUserInfoFromCache(toUserId);
-        redPacketInfo.toUserId = toUserId; //接受者id
+        redPacketInfo.receiverId = toUserId; //接受者id
         if (userInfo != null) {
-            redPacketInfo.toNickName = !TextUtils.isEmpty(userInfo.getName()) ? userInfo.getName() : toUserId;
-            redPacketInfo.toAvatarUrl= !TextUtils.isEmpty(userInfo.getPortraitUri().toString()) ? userInfo.getPortraitUri().toString() : "none";
+            redPacketInfo.receiverNickname = !TextUtils.isEmpty(userInfo.getName()) ? userInfo.getName() : toUserId;
+            redPacketInfo.receiverAvatarUrl= !TextUtils.isEmpty(userInfo.getPortraitUri().toString()) ? userInfo.getPortraitUri().toString() : "none";
         }
-        redPacketInfo.chatType = RPConstant.CHATTYPE_SINGLE;//单聊
+        redPacketInfo.chatType = RPConstant.CHAT_TYPE_SINGLE;//单聊
         RPRedPacketUtil.getInstance().startRedPacket((FragmentActivity) mContext, RPConstant.RP_ITEM_TYPE_SINGLE, redPacketInfo, new RPSendPacketCallback() {
             @Override
             public void onSendPacketSuccess(RedPacketInfo redPacketInfo) {
                 mGreeting = redPacketInfo.redPacketGreeting;//祝福语
                 mSponsor = mContext.getString(R.string.sponsor_red_packet);//XX红包
                 RedPacketInfo currentUserSync = RedPacket.getInstance().getRPInitRedPacketCallback().initCurrentUserSync();
-                String userId = currentUserSync.fromUserId;//发送者ID
-                String userName = currentUserSync.fromNickName;//发送者名字
+                String userId = currentUserSync.currentUserId;//发送者ID
+                String userName = currentUserSync.currentNickname;//发送者名字
                 RedPacketMessage message = RedPacketMessage.obtain(userId, userName,
-                        mGreeting, redPacketInfo.redPacketId, "1", mSponsor, redPacketInfo.redPacketType, redPacketInfo.toUserId);
+                        mGreeting, redPacketInfo.redPacketId, "1", mSponsor, redPacketInfo.redPacketType, redPacketInfo.receiverId);
                 //发送红包消息到聊天界面
                 sendMessage(message);
             }

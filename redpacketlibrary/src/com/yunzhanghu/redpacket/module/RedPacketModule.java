@@ -19,7 +19,7 @@ import io.rong.imkit.plugin.IPluginModule;
 import io.rong.imlib.model.Conversation;
 
 /**
- * Created by desert on 17/3/10.
+ * Created by desert on 17/3/10
  */
 
 public class RedPacketModule extends DefaultExtensionModule {

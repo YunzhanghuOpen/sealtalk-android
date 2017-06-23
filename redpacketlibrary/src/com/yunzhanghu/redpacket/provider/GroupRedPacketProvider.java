@@ -90,8 +90,8 @@ public class GroupRedPacketProvider implements ToRedPacketActivity, IPluginModul
         mConversationType = rongExtension.getConversationType();
         mTargetId = rongExtension.getTargetId();
         redPacketInfo = new RedPacketInfo();
-        redPacketInfo.toGroupId = mTargetId;//群ID
-        redPacketInfo.chatType = RPConstant.CHATTYPE_GROUP;//群聊、讨论组类型
+        redPacketInfo.groupId = mTargetId;//群ID
+        redPacketInfo.chatType = RPConstant.RP_ITEM_TYPE_GROUP;//群聊、讨论组类型
         if (mConversationType == Conversation.ConversationType.GROUP) {
             RedPacketUtil.getInstance().setChatType(RedPacketUtil.CHAT_GROUP);
         } else {
@@ -99,7 +99,7 @@ public class GroupRedPacketProvider implements ToRedPacketActivity, IPluginModul
         }
 
         if (callback != null) {
-            callback.getGroupPersonNumber(redPacketInfo.toGroupId, this);
+            callback.getGroupPersonNumber(redPacketInfo.groupId, this);
         } else {
             Toast.makeText(mContext, "回调函数不能为空", Toast.LENGTH_SHORT).show();
         }
@@ -125,10 +125,10 @@ public class GroupRedPacketProvider implements ToRedPacketActivity, IPluginModul
                 mGreeting = redPacketInfo.redPacketGreeting;//祝福语
                 mSponsor = mContext.getString(R.string.sponsor_red_packet);//XX红包
                 RedPacketInfo currentUserSync = RedPacket.getInstance().getRPInitRedPacketCallback().initCurrentUserSync();
-                String userId = currentUserSync.fromUserId;//发送者ID
-                String userName = currentUserSync.fromNickName;//发送者名字
+                String userId = currentUserSync.currentUserId;//发送者ID
+                String userName = currentUserSync.currentNickname;//发送者名字
                 String redPacketType = redPacketInfo.redPacketType;//群红包类型
-                String specialReceiveId = redPacketInfo.toUserId;//专属红包接受者ID
+                String specialReceiveId = redPacketInfo.receiverId;//专属红包接受者ID
                 RedPacketMessage message = RedPacketMessage.obtain(userId, userName,
                         redPacketInfo.redPacketGreeting, redPacketInfo.redPacketId, "1", mSponsor, redPacketType, specialReceiveId);
                 //发送红包消息到聊天界面
